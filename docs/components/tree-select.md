@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import TreeSelectVirtualFixture from '../.vitepress/components/TreeSelectVirtualFixture.vue'
+
+const showTreeSelectVirtualFixture = ref(false)
+onMounted(() => { showTreeSelectVirtualFixture.value = new URLSearchParams(window.location.search).get('fixture') === 'tree-select-virtual' })
 
 const treeData = [
   { key: 'workspace', title: '工作台', children: [{ key: 'overview', title: '概览' }, { key: 'settings', title: '设置' }] },
@@ -9,6 +13,10 @@ const value = ref<string>()
 const values = ref<string[]>(['archive'])
 const checkedValues = ref<string[]>([])
 </script>
+
+<ClientOnly>
+  <TreeSelectVirtualFixture v-if="showTreeSelectVirtualFixture" />
+</ClientOnly>
 
 # TreeSelect 树选择 <span class="aheart-status aheart-status--ready">已完成</span>
 
@@ -45,11 +53,40 @@ const checkedValues = ref<string[]>([])
 
 开启 `treeCheckable` 后值为完整已勾选key数组，半选不进入值，浮层保持打开。搜索只改变显示范围，联动始终使用完整逻辑树。`treeCheckStrictly` 默认true保留独立勾选；`loadData` 与 Tree 共用内部加载模型和取消契约，加载出的节点标签也用于展示已选值。关闭浮层取消仍在执行的加载。
 
+## 虚拟滚动
+
+大树可显式开启 `virtual`。搜索仍按完整逻辑树筛选，联动勾选、禁用边界和已选标签不依赖当前挂载的行。
+
+```vue
+<ATreeSelect
+  v-model="values"
+  :tree-data="treeData"
+  tree-checkable
+  show-search
+  :virtual="{ height: 256, estimateSize: 28, overscan: 4 }"
+/>
+```
+
+`virtual` 默认为 `false`，保留完整 DOM。`true` 和 `{}` 使用下列默认值，不会按数据量自动开启。
+
+| TreeSelectVirtualConfig 字段 | 说明 | 默认值 |
+| --- | --- | --- |
+| height | 有限正数，内部树视口的最大高度，单位 CSS px | `256` |
+| estimateSize | 有限正数，尚未测量行的估算高度，不是固定行高 | `28` |
+| overscan | 非负安全整数，视口两侧额外挂载的逻辑行数 | `4` |
+
+浮层会根据可用空间缩小内部树视口；搜索框保持在滚动区外，只有内部树负责纵向滚动。字体、换行和宽度变化会触发行高测量。无效配置字段在开发环境告警，并回退该字段默认值。
+
+在搜索框中使用 ↑/↓ 进入可见树节点，再使用节点上的方向键及 Home/End 导航。虚拟模式使用真实节点焦点；编辑搜索、关闭浮层或移出焦点会取消旧的导航请求。受控值与 `open` 仍以父层接受的值为准。
+
+`TreeSelectVirtual` 和 `TreeSelectVirtualConfig` 可从 `aheart-ui` 导入；不公开虚拟引擎实例或滚动定位方法。
+
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | treeData | 树节点数据 | `TreeNodeData[]` | `[]` |
+| virtual | 显式开启虚拟滚动及视口配置 | `boolean \| TreeSelectVirtualConfig` | `false` |
 | id | combobox 触发器 id | `string` | - |
 | labelledBy | 为 combobox 提供可访问名称的标签元素 id | `string` | - |
 | ariaLabelledby | `labelledBy` 的兼容别名 | `string` | - |

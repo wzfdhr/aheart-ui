@@ -1,10 +1,11 @@
-import { defineComponent, useAttrs, ref, computed, provide, watch, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, unref, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
+import { defineComponent, useAttrs, ref, watch, provide, computed, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, unref, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { useFormControl, mergeAriaIds } from "../form/control-context.js";
 import Tree from "../tree/index.js";
+import { createTreeFocusBridge, treeFocusBridgeKey, treeVirtualViewportHeightKey } from "../tree/tree-focus-bridge.js";
 import { useTreeLoader, treeModelKey } from "../tree/use-tree-loader.js";
 import { deriveTreeCheckState, toggleTreeCheck } from "../tree/tree-check.js";
-import { createTreeIndex, filterTreeIndex, treeKeyToken } from "../tree/tree-index.js";
+import { createTreeIndex, filterTreeIndex, getVisibleTreeNodes, treeKeyToken } from "../tree/tree-index.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
@@ -12,6 +13,8 @@ import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
 import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
+import { usePopupViewportBudget } from "../utils/use-popup-viewport-budget.js";
+import { normalizeTreeSelectVirtual } from "./virtual-options.js";
 import "./style.css.js";
 const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby", "aria-invalid"];
 const _hoisted_2 = {
@@ -53,6 +56,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     maxTagCount: {},
     placement: { default: "bottomLeft" },
     autoAdjustOverflow: { type: Boolean, default: true },
+    virtual: { type: [Boolean, Object] },
     getPopupContainer: {}
   },
   emits: ["update:modelValue", "change", "openChange", "clear"],
@@ -67,7 +71,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const rootRef = ref(null);
     const triggerRef = ref(null);
     const panelRef = ref(null);
+    const searchRef = ref(null);
     const searchText = ref("");
+    watch(searchText, () => {
+      if (virtualEnabled.value)
+        focusBridge.cancel();
+    }, { flush: "sync" });
+    const focusBridge = createTreeFocusBridge();
+    const privateViewportHeight = ref();
+    provide(treeFocusBridgeKey, focusBridge);
+    provide(treeVirtualViewportHeightKey, privateViewportHeight);
     const isControlled = usePropPresence("modelValue", "model-value");
     const isOpenControlled = usePropPresence("open");
     const resolvedId = computed(() => props.id ?? attrs.id ?? (formControl == null ? void 0 : formControl.controlId.value));
@@ -95,6 +108,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     });
     const mergedOpen = computed(() => Boolean(openState.state.value));
+    const virtualConfig = computed(() => normalizeTreeSelectVirtual(props.virtual));
+    const virtualEnabled = computed(() => virtualConfig.value !== null);
     const mergedValue = valueState.state;
     const isMultiple = computed(() => props.multiple || props.treeCheckable);
     const rawSelectedKeys = computed(() => Array.isArray(mergedValue.value) ? mergedValue.value : mergedValue.value === void 0 ? [] : [mergedValue.value]);
@@ -103,8 +118,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const selectedKeys = computed(() => props.treeCheckable ? deriveTreeCheckState(treeIndex.value, rawSelectedKeys.value, props.treeCheckStrictly).checkedKeys : rawSelectedKeys.value);
     provide(treeModelKey, { loader, index: treeIndex });
     watch(mergedOpen, (open) => {
-      if (!open)
+      if (!open) {
         loader.cancelAll();
+        focusBridge.cancel();
+      }
     }, { flush: "sync" });
     const displayLabel = computed(() => selectedKeys.value.map((key) => {
       var _a;
@@ -138,11 +155,24 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       activeKey.value = filteredTreeIndex.value.order.find((key) => treeKeyToken(key) === token);
     };
-    const handleTriggerFocusout = () => {
+    const handleTriggerFocusout = (event) => {
+      var _a, _b, _c;
+      const origin = event == null ? void 0 : event.target;
+      const related = event == null ? void 0 : event.relatedTarget;
+      const originElement = origin && origin.nodeType === 1 ? origin : null;
+      const originTree = (originElement == null ? void 0 : originElement.closest('[role="tree"]')) ?? null;
+      const originWasTree = Boolean(virtualEnabled.value && originTree && ((_a = panelRef.value) == null ? void 0 : _a.contains(originTree)));
+      const ownerDocument = ((_b = triggerRef.value) == null ? void 0 : _b.ownerDocument) ?? ((_c = panelRef.value) == null ? void 0 : _c.ownerDocument);
+      const relatedIsNullOrBody = !related || related === (ownerDocument == null ? void 0 : ownerDocument.body);
       void nextTick(() => {
-        var _a, _b, _c;
-        const active = ((_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.activeElement) ?? null;
-        if (!((_b = triggerRef.value) == null ? void 0 : _b.contains(active)) && !((_c = panelRef.value) == null ? void 0 : _c.contains(active)))
+        var _a2, _b2, _c2, _d, _e;
+        const active = ((_a2 = triggerRef.value) == null ? void 0 : _a2.ownerDocument.activeElement) ?? null;
+        const transientTreeRemoval = Boolean(originWasTree && originElement && !originElement.isConnected && relatedIsNullOrBody && active === (ownerDocument == null ? void 0 : ownerDocument.body) && mergedOpen.value);
+        if (transientTreeRemoval)
+          return;
+        if (virtualEnabled.value && active && !((_b2 = rootRef.value) == null ? void 0 : _b2.contains(active)) && !((_c2 = panelRef.value) == null ? void 0 : _c2.contains(active)))
+          focusBridge.cancel();
+        if (!((_d = triggerRef.value) == null ? void 0 : _d.contains(active)) && !((_e = panelRef.value) == null ? void 0 : _e.contains(active)))
           formControl == null ? void 0 : formControl.blur();
       });
     };
@@ -150,12 +180,53 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return Boolean((_a = filteredTreeIndex.value.nodes.get(key)) == null ? void 0 : _a.children.length);
     }));
+    const focusableSearchKeys = computed(() => (searchText.value.trim() ? getVisibleTreeNodes(filteredTreeIndex.value, searchExpandedKeys.value) : getVisibleTreeNodes(filteredTreeIndex.value, [])).filter((entry) => !entry.disabled).map((entry) => entry.key));
+    const requestTreeFocus = (key) => {
+      if (key === void 0)
+        return;
+      if (virtualEnabled.value) {
+        focusBridge.request(key, { allowExternalSource: true });
+        return;
+      }
+      void nextTick(() => {
+        var _a;
+        const target = (_a = panelRef.value) == null ? void 0 : _a.querySelector(`[data-tree-token="${treeKeyToken(key)}"]`);
+        target == null ? void 0 : target.focus();
+      });
+    };
+    const requestFirstOrLastSearchFocus = (last) => {
+      if (!searchText.value.trim() && virtualEnabled.value) {
+        focusBridge.requestEndpoint(last, { allowExternalSource: true });
+        return;
+      }
+      const keys = focusableSearchKeys.value;
+      requestTreeFocus(last ? keys.at(-1) : keys[0]);
+    };
+    const handleSearchKeydown = (event) => {
+      if (!virtualEnabled.value)
+        return;
+      if (event.key === "ArrowDown" || event.key === "Home") {
+        event.preventDefault();
+        requestFirstOrLastSearchFocus(false);
+      } else if (event.key === "ArrowUp" || event.key === "End") {
+        event.preventDefault();
+        requestFirstOrLastSearchFocus(true);
+      }
+    };
     const toggleOpen = () => {
       requestOpen(!mergedOpen.value);
     };
     const requestOpen = (open) => {
       if (props.disabled)
         return;
+      if (!open) {
+        focusBridge.cancel();
+        if (!isOpenControlled.value)
+          void nextTick(() => {
+            var _a;
+            return (_a = triggerRef.value) == null ? void 0 : _a.focus();
+          });
+      }
       openState.setState(open, { force: true });
     };
     const emitValue = (value) => {
@@ -190,11 +261,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         requestOpen(true);
         void nextTick(() => {
           var _a;
-          const node = (_a = panelRef.value) == null ? void 0 : _a.querySelector('[data-tree-token][tabindex="0"]');
-          const token = node == null ? void 0 : node.dataset.treeToken;
-          if (token !== void 0)
-            activeKey.value = filteredTreeIndex.value.order.find((key) => treeKeyToken(key) === token);
-          node == null ? void 0 : node.focus();
+          const key = focusableSearchKeys.value[0];
+          if (virtualEnabled.value)
+            requestTreeFocus(key);
+          else {
+            const node = (_a = panelRef.value) == null ? void 0 : _a.querySelector('[data-tree-token][tabindex="0"]');
+            const token = node == null ? void 0 : node.dataset.treeToken;
+            if (token !== void 0)
+              activeKey.value = filteredTreeIndex.value.order.find((key2) => treeKeyToken(key2) === token);
+            node == null ? void 0 : node.focus();
+          }
         });
       } else if (event.key === "Escape" && mergedOpen.value) {
         event.preventDefault();
@@ -224,6 +300,26 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       offset: 4,
       autoAdjustOverflow: () => props.autoAdjustOverflow
     });
+    const viewportBudget = usePopupViewportBudget({
+      trigger: triggerRef,
+      popup: panelRef,
+      placement: floatingPosition.placement,
+      open: computed(() => virtualEnabled.value && !props.disabled && mergedOpen.value && motion.isMounted.value && motion.phase.value !== "hidden"),
+      maximum: computed(() => {
+        var _a;
+        return ((_a = virtualConfig.value) == null ? void 0 : _a.height) ?? 256;
+      }),
+      search: searchRef
+    });
+    watch(viewportBudget, (value) => {
+      privateViewportHeight.value = virtualEnabled.value ? value.treeHeight : void 0;
+    }, { immediate: true });
+    const treeVirtualForTree = computed(() => {
+      const config = virtualConfig.value;
+      if (!config)
+        return false;
+      return { ...config };
+    });
     const panelClass = computed(() => [
       `aheart-floating--${floatingPosition.placement.value}`,
       `is-${motion.phase.value}`
@@ -232,7 +328,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       return [
         floatingPosition.popupStyle.value,
-        ((_a = triggerRef.value) == null ? void 0 : _a.getBoundingClientRect().width) ? { width: `${triggerRef.value.getBoundingClientRect().width}px` } : void 0
+        ((_a = triggerRef.value) == null ? void 0 : _a.getBoundingClientRect().width) ? { width: `${triggerRef.value.getBoundingClientRect().width}px` } : void 0,
+        virtualEnabled.value ? { display: "flex", flexDirection: "column", minBlockSize: "0", overflow: "hidden", maxBlockSize: `${viewportBudget.value.popupHeight}px` } : void 0
       ];
     });
     useFloatingDismiss({
@@ -258,7 +355,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           "aria-disabled": __props.disabled ? "true" : void 0,
           "aria-labelledby": mergedAriaLabelledby.value,
           "aria-controls": panelId,
-          "aria-activedescendant": activeNodeId.value,
+          "aria-activedescendant": virtualEnabled.value ? void 0 : activeNodeId.value,
           "aria-describedby": mergedAriaDescribedby.value,
           "aria-invalid": resolvedAriaInvalid.value,
           "aria-haspopup": "tree",
@@ -331,12 +428,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           }, [
             __props.showSearch ? withDirectives((openBlock(), createElementBlock("input", {
               key: 0,
+              ref_key: "searchRef",
+              ref: searchRef,
               "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => searchText.value = $event),
               class: "aheart-tree-select__search",
               type: "search",
               placeholder: "搜索",
-              "aria-label": "搜索树节点"
-            }, null, 512)), [
+              "aria-label": "搜索树节点",
+              onKeydown: handleSearchKeydown
+            }, null, 544)), [
               [vModelText, searchText.value]
             ]) : createCommentVNode("", true),
             createVNode(unref(Tree), {
@@ -350,9 +450,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               "expanded-keys": searchText.value ? searchExpandedKeys.value : void 0,
               multiple: isMultiple.value,
               disabled: __props.disabled,
+              virtual: treeVirtualForTree.value || void 0,
               "onUpdate:selectedKeys": handleSelect,
               "onUpdate:checkedKeys": handleCheck
-            }, null, 8, ["tree-data", "selected-keys", "checked-keys", "checkable", "check-strictly", "selectable", "expanded-keys", "multiple", "disabled"]),
+            }, null, 8, ["tree-data", "selected-keys", "checked-keys", "checkable", "check-strictly", "selectable", "expanded-keys", "multiple", "disabled", "virtual"]),
             searchText.value.trim() && filteredTreeData.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_7, "暂无匹配节点")) : createCommentVNode("", true)
           ], 46, _hoisted_6)), [
             [vShow, unref(motion).phase.value !== "hidden"]

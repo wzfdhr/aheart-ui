@@ -14,6 +14,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     maxTagCount?: number | undefined;
     placement?: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom" | undefined;
     autoAdjustOverflow?: boolean | undefined;
+    virtual?: import("./types").CascaderVirtual | undefined;
     getPopupContainer?: ((triggerNode: HTMLElement) => HTMLElement) | undefined;
     loadData?: ((option: CascaderOption, context: CascaderLoadContext) => Promise<CascaderOption[]>) | undefined;
 }>, {
@@ -40,6 +41,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     maxTagCount?: number | undefined;
     placement?: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom" | undefined;
     autoAdjustOverflow?: boolean | undefined;
+    virtual?: import("./types").CascaderVirtual | undefined;
     getPopupContainer?: ((triggerNode: HTMLElement) => HTMLElement) | undefined;
     loadData?: ((option: CascaderOption, context: CascaderLoadContext) => Promise<CascaderOption[]>) | undefined;
 }>, {

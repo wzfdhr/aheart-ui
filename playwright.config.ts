@@ -8,13 +8,16 @@ const formEngineOnly = /form-engine\.spec\.ts/
 const d4IframeOnly = /d4-iframe\.spec\.ts/
 const d4SelectionOnly = /d4-selection\.spec\.ts/
 const d4VirtualOnly = /d4-select-virtual\.spec\.ts/
+const d4TreeVirtualOnly = /d4-tree-virtual\.spec\.ts/
+const d4TreeSelectVirtualOnly = /d4-tree-select-virtual\.spec\.ts/
+const d4CascaderVirtualOnly = /d4-cascader-virtual\.spec\.ts/
 const d5TableOnly = /d5-table-pagination\.spec\.ts/
 const d5TableBOnly = /d5-table-b\.spec\.ts/
 const d5TableCOnly = /d5-table-c\.spec\.ts/
 const d6PickerUploadOnly = /d6-picker-upload\.spec\.ts/
 const d7DndOnly = /d7-dnd\.spec\.ts/
 const d8AiOnly = /d8-ai\.spec\.ts/
-const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly]
+const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d4TreeVirtualOnly, d4TreeSelectVirtualOnly, d4CascaderVirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly]
 const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }
 
 export default defineConfig({

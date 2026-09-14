@@ -1,0 +1,404 @@
+import { flushPromises, mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import Tree from '../tree.vue'
+import TreeSelect from '../../tree-select/tree-select.vue'
+
+type ControlledObserver = {
+  callback: ResizeObserverCallback
+  disconnect: ReturnType<typeof vi.fn>
+}
+
+const observers: ControlledObserver[] = []
+const trackedWrappers: Array<ReturnType<typeof mount>> = []
+let previousResizeObserver: PropertyDescriptor | undefined
+let previousRequestAnimationFrame: PropertyDescriptor | undefined
+let previousCancelAnimationFrame: PropertyDescriptor | undefined
+
+class ControlledResizeObserver {
+  readonly disconnect = vi.fn()
+
+  constructor(readonly callback: ResizeObserverCallback) {
+    observers.push(this)
+  }
+
+  observe() {}
+  unobserve() {}
+}
+
+const mountTree = (options?: any) => {
+  return trackWrapper(mount(Tree, options))
+}
+
+const trackWrapper = <T extends ReturnType<typeof mount>>(wrapper: T) => {
+  const unmount = wrapper.unmount.bind(wrapper)
+  let mounted = true
+  wrapper.unmount = (() => {
+    if (!mounted) return
+    mounted = false
+    unmount()
+  }) as T['unmount']
+  trackedWrappers.push(wrapper)
+  return wrapper
+}
+
+const flushOwnerRealm = async () => {
+  await nextTick()
+  await flushPromises()
+  await nextTick()
+}
+
+const prepareCollapsedRetry = async (treeSelect = false, sibling = false) => {
+  const calls: AbortSignal[] = []
+  const loadData = vi.fn((_node: unknown, context: { signal: AbortSignal }) => {
+    calls.push(context.signal)
+    return calls.length === 1 ? Promise.reject(new Error('offline')) : new Promise<unknown[]>(() => {})
+  })
+  const wrapper = treeSelect
+    ? trackWrapper(mount(TreeSelect, { attachTo: document.body, props: { treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }, ...(sibling ? [{ key: 'other', title: 'Other' }] : [])], virtual: true, open: true, loadData, getPopupContainer: (trigger: HTMLElement) => trigger.parentElement! } } as never))
+    : mountTree({ attachTo: document.body, props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }, ...(sibling ? [{ key: 'other', title: 'Other' }] : [])], loadData } as never })
+  await flushOwnerRealm()
+  await wrapper.get('.aheart-tree__switcher').trigger('click')
+  await flushOwnerRealm()
+  expect(loadData).toHaveBeenCalledTimes(1)
+  await wrapper.get('.aheart-tree__switcher').trigger('click')
+  await flushOwnerRealm()
+  expect(wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('false')
+  const retry = wrapper.get('[aria-label="重试加载 Lazy root"]').element as HTMLButtonElement
+  retry.focus()
+  await flushOwnerRealm()
+  return { wrapper, loadData, calls, retry }
+}
+
+const pendingFocusListeners = (added: ReturnType<typeof vi.spyOn>, removed: ReturnType<typeof vi.spyOn>) => {
+  const addedListeners = added.mock.calls
+    .filter(([event, _listener, options]) => event === 'focusin' && (options === true || (typeof options === 'object' && options !== null && (options as AddEventListenerOptions).capture === true)))
+    .map(([_event, listener]) => listener)
+  const removedListeners = new Set(removed.mock.calls
+    .filter(([event, _listener, options]) => event === 'focusin' && (options === true || (typeof options === 'object' && options !== null && (options as AddEventListenerOptions).capture === true)))
+    .map(([_event, listener]) => listener))
+  return addedListeners.filter(listener => !removedListeners.has(listener))
+}
+
+beforeEach(() => {
+  observers.length = 0
+  previousResizeObserver = Object.getOwnPropertyDescriptor(window, 'ResizeObserver')
+  previousRequestAnimationFrame = Object.getOwnPropertyDescriptor(window, 'requestAnimationFrame')
+  previousCancelAnimationFrame = Object.getOwnPropertyDescriptor(window, 'cancelAnimationFrame')
+  Object.defineProperty(window, 'ResizeObserver', { configurable: true, value: ControlledResizeObserver })
+  Object.defineProperty(window, 'requestAnimationFrame', { configurable: true, value: vi.fn().mockReturnValue(1) })
+  Object.defineProperty(window, 'cancelAnimationFrame', { configurable: true, value: vi.fn() })
+})
+
+afterEach(() => {
+  for (const wrapper of trackedWrappers.splice(0)) wrapper.unmount()
+  if (previousResizeObserver) Object.defineProperty(window, 'ResizeObserver', previousResizeObserver)
+  else Reflect.deleteProperty(window, 'ResizeObserver')
+  if (previousRequestAnimationFrame) Object.defineProperty(window, 'requestAnimationFrame', previousRequestAnimationFrame)
+  else Reflect.deleteProperty(window, 'requestAnimationFrame')
+  if (previousCancelAnimationFrame) Object.defineProperty(window, 'cancelAnimationFrame', previousCancelAnimationFrame)
+  else Reflect.deleteProperty(window, 'cancelAnimationFrame')
+  previousResizeObserver = undefined
+  previousRequestAnimationFrame = undefined
+  previousCancelAnimationFrame = undefined
+})
+
+describe('Tree virtual lazy retry focus', () => {
+  it('focuses the owning root after retry success and reaches its loaded child with ArrowRight', async () => {
+    const loadData = vi.fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValueOnce([{ key: 'child', title: 'Loaded child' }])
+    const wrapper = mountTree({
+      attachTo: document.body,
+      props: {
+        virtual: true,
+        treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }],
+        loadData
+      } as never
+    })
+
+    await flushOwnerRealm()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushOwnerRealm()
+    const retry = wrapper.get('[aria-label="重试加载 Lazy root"]').element as HTMLButtonElement
+    retry.focus()
+    expect(document.activeElement).toBe(retry)
+
+    // Native button activation is the jsdom-equivalent of browser Enter/Space
+    // activation; the browser E2E separately covers trusted key activation.
+    retry.click()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(2)
+    expect(wrapper.text()).toContain('Loaded child')
+
+    const root = wrapper.get('[data-tree-key="root"]')
+    expect(document.activeElement).toBe(root.element)
+    await root.trigger('keydown', { key: 'ArrowRight' })
+    await flushOwnerRealm()
+    expect(document.activeElement).toBe(wrapper.get('[data-tree-key="child"]').element)
+  })
+
+  it('does not reclaim focus after retry is blurred before Vue flushes success', async () => {
+    const loadData = vi.fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValueOnce([{ key: 'child', title: 'Loaded child' }])
+    const wrapper = mountTree({
+      attachTo: document.body,
+      props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], loadData } as never
+    })
+    await flushOwnerRealm()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushOwnerRealm()
+    const retry = wrapper.get('[aria-label="重试加载 Lazy root"]').element as HTMLButtonElement
+    retry.focus()
+    retry.click()
+    retry.blur()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(2)
+    expect(wrapper.text()).toContain('Loaded child')
+    expect(document.activeElement).toBe(document.body)
+  })
+
+  it('preserves focus on an external button when retry success resolves', async () => {
+    const loadData = vi.fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValueOnce([{ key: 'child', title: 'Loaded child' }])
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    const wrapper = mountTree({
+      attachTo: document.body,
+      props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], loadData } as never
+    })
+    await flushOwnerRealm()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushOwnerRealm()
+    const retry = wrapper.get('[aria-label="重试加载 Lazy root"]').element as HTMLButtonElement
+    retry.focus()
+    retry.click()
+    outside.focus()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(2)
+    expect(wrapper.text()).toContain('Loaded child')
+    expect(document.activeElement).toBe(outside)
+    outside.remove()
+  })
+
+  it('does not reclaim focus after a microtask external focus then blur while retry is pending', async () => {
+    let resolveRetry!: (nodes: Array<{ key: string; title: string }>) => void
+    const retryPromise = new Promise<Array<{ key: string; title: string }>>(resolve => { resolveRetry = resolve })
+    const loadData = vi.fn()
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockReturnValueOnce(retryPromise)
+    const outside = document.createElement('button')
+    document.body.append(outside)
+    const wrapper = mountTree({
+      attachTo: document.body,
+      props: { virtual: true, treeData: [{ key: 'root', title: 'Lazy root', isLeaf: false }], loadData } as never
+    })
+    await flushOwnerRealm()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushOwnerRealm()
+    const retry = wrapper.get('[aria-label="重试加载 Lazy root"]').element as HTMLButtonElement
+    retry.focus()
+    retry.click()
+    await Promise.resolve()
+    outside.focus()
+    outside.blur()
+    resolveRetry([{ key: 'child', title: 'Loaded child' }])
+    await flushOwnerRealm()
+    expect(document.activeElement).toBe(document.body)
+    outside.remove()
+  })
+
+  it('does not start a second loader after retry and same-turn standalone unmount', async () => {
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+    retry.click()
+    wrapper.unmount()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not start a second loader after retry and same-turn controlled TreeSelect close', async () => {
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry(true)
+    retry.click()
+    await wrapper.setProps({ open: false } as never)
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    ['disabled', { disabled: true }],
+    ['removed', { treeData: [] }],
+    ['replaced', { treeData: [{ key: 'replacement', title: 'Replacement', isLeaf: false }] }]
+  ])('does not start a second loader after retry and same-turn %s transition', async (_label, nextProps) => {
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+    retry.click()
+    await wrapper.setProps(nextProps as never)
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(1)
+    if (_label === 'disabled') expect(document.activeElement?.getAttribute('data-tree-key')).not.toBe('root')
+  })
+
+  it('starts one retry after an already-expanded path without an extra expand event', async () => {
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+    await wrapper.get('.aheart-tree__switcher').trigger('click')
+    await flushOwnerRealm()
+    const expandCount = wrapper.emitted('expand')?.length
+    retry.click()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(2)
+    expect(wrapper.emitted('expand')?.length).toBe(expandCount)
+  })
+
+  it('does not reclaim focus after a collapsed retry control is synchronously blurred', async () => {
+    const { retry } = await prepareCollapsedRetry()
+    retry.click()
+    retry.blur()
+    await flushOwnerRealm()
+    expect(document.activeElement).toBe(document.body)
+  })
+
+  it('retires owner focus listeners after a parent-rejected expansion', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const prepared = await prepareCollapsedRetry()
+      await prepared.wrapper.setProps({ expandedKeys: [] } as never)
+      prepared.retry.click()
+      await flushOwnerRealm()
+      expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
+  })
+
+  it('retires owner focus listeners when the node is removed before deferred retry', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const prepared = await prepareCollapsedRetry()
+      prepared.retry.click()
+      await prepared.wrapper.setProps({ treeData: [] } as never)
+      await flushOwnerRealm()
+      expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
+  })
+
+  it('retires owner focus listeners after successful retry focus commit', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const prepared = await prepareCollapsedRetry()
+      prepared.retry.click()
+      await flushOwnerRealm()
+      expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
+  })
+
+  it('retires owner focus listeners when disabled rejects the retry intent', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const prepared = await prepareCollapsedRetry()
+      prepared.retry.click()
+      await prepared.wrapper.setProps({ disabled: true } as never)
+      await flushOwnerRealm()
+      expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
+  })
+
+  it('keeps a parent-rejected expandedKeys collapse closed and does not retry load', async () => {
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+    await wrapper.setProps({ expandedKeys: [] } as never)
+    retry.click()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(1)
+    expect(wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('false')
+  })
+
+  it('starts one retry when a controlled expandedKeys parent accepts the focus expansion', async () => {
+    const prepared = await prepareCollapsedRetry()
+    await prepared.wrapper.setProps({
+      expandedKeys: [],
+      'onUpdate:expandedKeys': (keys: unknown[]) => { void prepared.wrapper.setProps({ expandedKeys: keys } as never) }
+    } as never)
+    prepared.retry.click()
+    await flushOwnerRealm()
+    expect(prepared.loadData).toHaveBeenCalledTimes(2)
+    expect(prepared.wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('true')
+  })
+
+  it('does not retry load when the native switcher collapses again in the same turn', async () => {
+    const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+    retry.click()
+    ;(wrapper.get('.aheart-tree__switcher').element as HTMLButtonElement).click()
+    await flushOwnerRealm()
+    expect(loadData).toHaveBeenCalledTimes(1)
+    expect(wrapper.get('[data-tree-key="root"]').attributes('aria-expanded')).toBe('false')
+  })
+
+  it('keeps a newer same-key retry generation after Home focus navigation', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const { wrapper, loadData, retry } = await prepareCollapsedRetry()
+      await wrapper.get('.aheart-tree__switcher').trigger('click')
+      await flushOwnerRealm()
+      const root = wrapper.get('[data-tree-key="root"]').element as HTMLElement
+      root.focus()
+      root.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true }))
+      retry.focus()
+      expect(document.activeElement).toBe(retry)
+      retry.click()
+      await flushOwnerRealm()
+      expect(loadData).toHaveBeenCalledTimes(2)
+      expect(document.activeElement).toBe(root)
+      expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
+  })
+
+  it('keeps newer endpoint navigation after an old retry target disappears', async () => {
+    const add = vi.spyOn(document, 'addEventListener')
+    const remove = vi.spyOn(document, 'removeEventListener')
+    try {
+      const { wrapper, loadData, retry } = await prepareCollapsedRetry(false, true)
+      const tree = wrapper.get('[role="tree"]').element
+      const originalQuerySelectorAll = tree.querySelectorAll.bind(tree)
+      const querySelectorAll = vi.spyOn(tree, 'querySelectorAll').mockImplementation((selector: string) => {
+        if (selector === '.aheart-tree__node') {
+          return Array.from(originalQuerySelectorAll(selector)).filter(node => node.getAttribute('data-tree-key') !== 'root') as unknown as NodeListOf<Element>
+        }
+        return originalQuerySelectorAll(selector)
+      })
+      try {
+        retry.click()
+        await nextTick()
+        await nextTick()
+        const root = wrapper.get('[data-tree-key="root"]').element as HTMLElement
+        root.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true, cancelable: true }))
+        await flushOwnerRealm()
+        expect(loadData).toHaveBeenCalledTimes(2)
+        expect(document.activeElement).toBe(wrapper.get('[data-tree-key="other"]').element)
+        expect(pendingFocusListeners(add, remove)).toHaveLength(0)
+      } finally {
+        querySelectorAll.mockRestore()
+      }
+    } finally {
+      add.mockRestore()
+      remove.mockRestore()
+    }
+  })
+})

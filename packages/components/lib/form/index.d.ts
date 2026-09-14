@@ -371,8 +371,8 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         readonly preserve: boolean;
         readonly tooltip: import("./types").FormItemTooltip;
         readonly extra: import("vue").VNodeChild;
-        readonly colon: boolean;
         readonly required: boolean;
+        readonly colon: boolean;
         readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
         readonly noStyle: boolean;
         readonly validateFirst: import("./types").FormValidateFirst;
@@ -436,8 +436,8 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
         readonly preserve: boolean;
         readonly tooltip: import("./types").FormItemTooltip;
         readonly extra: import("vue").VNodeChild;
-        readonly colon: boolean;
         readonly required: boolean;
+        readonly colon: boolean;
         readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
         readonly noStyle: boolean;
         readonly validateFirst: import("./types").FormValidateFirst;
@@ -498,8 +498,8 @@ export declare const FormItem: import("../utils/install").SFCWithInstall<{
     readonly preserve: boolean;
     readonly tooltip: import("./types").FormItemTooltip;
     readonly extra: import("vue").VNodeChild;
-    readonly colon: boolean;
     readonly required: boolean;
+    readonly colon: boolean;
     readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
     readonly noStyle: boolean;
     readonly validateFirst: import("./types").FormValidateFirst;

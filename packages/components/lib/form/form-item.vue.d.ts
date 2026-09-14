@@ -96,8 +96,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly preserve: boolean;
     readonly tooltip: import("./types").FormItemTooltip;
     readonly extra: VNodeChild;
-    readonly colon: boolean;
     readonly required: boolean;
+    readonly colon: boolean;
     readonly validateTrigger: false | import("./types").FormValidateTrigger | import("./types").FormValidateTrigger[];
     readonly noStyle: boolean;
     readonly validateFirst: import("./types").FormValidateFirst;

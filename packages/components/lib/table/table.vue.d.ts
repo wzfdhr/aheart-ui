@@ -104,8 +104,8 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly pagination: false | import("./types").TablePaginationConfig;
     readonly loading: boolean;
     readonly bordered: boolean;
-    readonly virtual: import("./types").TableVirtual;
     readonly rowKey: string | ((record: TableRecord) => TableKey);
+    readonly virtual: import("./types").TableVirtual;
     readonly showHeader: boolean;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;

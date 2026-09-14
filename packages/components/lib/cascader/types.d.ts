@@ -4,6 +4,12 @@ export type CascaderValue = CascaderPath | CascaderPath[] | undefined;
 export interface CascaderLoadContext {
     signal: AbortSignal;
 }
+export interface CascaderVirtualConfig {
+    height?: number;
+    estimateSize?: number;
+    overscan?: number;
+}
+export type CascaderVirtual = boolean | CascaderVirtualConfig;
 export interface CascaderOption {
     value: CascaderKey;
     label: string;

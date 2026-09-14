@@ -30,16 +30,20 @@ test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKi
   for (const project of ['desktop', 'mobile', 'desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
     assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'`))
   }
+  for (const project of ['desktop', 'mobile']) {
+    assert.match(configSource, new RegExp(String.raw`\{\s*name:\s*'${project}'\s*,\s*use:`))
+  }
 
   assert.match(configSource, /const d7DndOnly = \/d7-dnd\\.spec\\.ts\//)
   assert.match(configSource, /const d8AiOnly = \/d8-ai\\.spec\\.ts\//)
-  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly\]/)
+  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d4TreeVirtualOnly, d4TreeSelectVirtualOnly, d4CascaderVirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly\]/)
   assert.ok(configSource.includes('const d5TableOnly = /d5-table-pagination\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d5TableBOnly = /d5-table-b\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d5TableCOnly = /d5-table-c\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d6PickerUploadOnly = /d6-picker-upload\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d8AiOnly = /d8-ai\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d4VirtualOnly = /d4-select-virtual\\.spec\\.ts/'))
+  assert.ok(configSource.includes('const d4TreeVirtualOnly = /d4-tree-virtual\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d4SelectionOnly = /d4-selection\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d4IframeOnly = /d4-iframe\\.spec\\.ts/'))
   assert.ok(configSource.includes('const formEngineOnly = /form-engine\\.spec\\.ts/'))
@@ -48,6 +52,49 @@ test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKi
       configSource,
       new RegExp(String.raw`name:\s*'${project}'[^}]*testMatch:\s*crossBrowserTests`)
     )
+  }
+  assert.ok(configSource.includes('const d4CascaderVirtualOnly = /d4-cascader-virtual\\.spec\\.ts/'))
+  assert.match(configSource, /const crossBrowserTests = \[[^\]]*d4CascaderVirtualOnly[^\]]*\]/)
+})
+
+test('routes the Cascader virtual browser suite through all five configured browsers', () => {
+  assert.ok(configSource.includes("const d4CascaderVirtualOnly = /d4-cascader-virtual\\.spec\\.ts/"))
+  assert.match(configSource, /const crossBrowserTests = \[[^\]]*d4CascaderVirtualOnly[^\]]*\]/)
+  for (const project of ['desktop', 'mobile', 'desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
+    assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'`))
+  }
+  for (const project of ['desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
+    assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'[^}]*testMatch:\s*crossBrowserTests`))
+  }
+})
+
+test('routes the Tree virtual browser suite through all five configured browsers', () => {
+  assert.ok(configSource.includes("const d4TreeVirtualOnly = /d4-tree-virtual\\.spec\\.ts/"))
+  assert.match(configSource, /const crossBrowserTests = \[[^\]]*d4TreeVirtualOnly[^\]]*\]/)
+
+  // Desktop Chrome and mobile Chromium intentionally retain their existing
+  // all-tests default; the three cross-browser projects consume this shared
+  // allowlist. Together this guarantees the new spec is selected by all five.
+  for (const project of ['desktop', 'mobile', 'desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
+    assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'`))
+  }
+  for (const project of ['desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
+    assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'[^}]*testMatch:\s*crossBrowserTests`))
+  }
+})
+
+test('routes the TreeSelect virtual browser suite through all five configured browsers', () => {
+  assert.ok(configSource.includes("const d4TreeSelectVirtualOnly = /d4-tree-select-virtual\\.spec\\.ts/"))
+  assert.match(configSource, /const crossBrowserTests = \[[^\]]*d4TreeSelectVirtualOnly[^\]]*\]/)
+
+  // Desktop Chrome and mobile Chromium intentionally retain their existing
+  // all-tests default; the three cross-browser projects consume this shared
+  // allowlist. Together this selects the TreeSelect spec in all five projects.
+  for (const project of ['desktop', 'mobile', 'desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
+    assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'`))
+  }
+  for (const project of ['desktop-firefox', 'desktop-webkit', 'mobile-webkit']) {
+    assert.match(configSource, new RegExp(String.raw`name:\s*'${project}'[^}]*testMatch:\s*crossBrowserTests`))
   }
 })
 

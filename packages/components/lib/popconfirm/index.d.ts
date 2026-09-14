@@ -79,15 +79,15 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly styles: import("vue").PropType<import("./types").PopconfirmStyles>;
     }>> & Readonly<{
         onCancel?: (() => any) | undefined;
+        onConfirm?: (() => any) | undefined;
         onOpenChange?: ((open: boolean) => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
-        onConfirm?: (() => any) | undefined;
         onPopupClick?: ((event: MouseEvent) => any) | undefined;
     }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
         cancel: () => void;
+        confirm: () => void;
         openChange: (open: boolean) => void;
         "update:open": (open: boolean) => void;
-        confirm: () => void;
         popupClick: (event: MouseEvent) => void;
     }, import("vue").PublicProps, {
         readonly icon: import("vue").VNodeChild;
@@ -196,9 +196,9 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly styles: import("vue").PropType<import("./types").PopconfirmStyles>;
     }>> & Readonly<{
         onCancel?: (() => any) | undefined;
+        onConfirm?: (() => any) | undefined;
         onOpenChange?: ((open: boolean) => any) | undefined;
         "onUpdate:open"?: ((open: boolean) => any) | undefined;
-        onConfirm?: (() => any) | undefined;
         onPopupClick?: ((event: MouseEvent) => any) | undefined;
     }>, {}, {}, {}, {}, {
         readonly icon: import("vue").VNodeChild;
@@ -304,15 +304,15 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly styles: import("vue").PropType<import("./types").PopconfirmStyles>;
 }>> & Readonly<{
     onCancel?: (() => any) | undefined;
+    onConfirm?: (() => any) | undefined;
     onOpenChange?: ((open: boolean) => any) | undefined;
     "onUpdate:open"?: ((open: boolean) => any) | undefined;
-    onConfirm?: (() => any) | undefined;
     onPopupClick?: ((event: MouseEvent) => any) | undefined;
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     cancel: () => void;
+    confirm: () => void;
     openChange: (open: boolean) => void;
     "update:open": (open: boolean) => void;
-    confirm: () => void;
     popupClick: (event: MouseEvent) => void;
 }, string, {
     readonly icon: import("vue").VNodeChild;

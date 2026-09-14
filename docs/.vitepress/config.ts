@@ -1,7 +1,11 @@
+import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
 import { getComponentSidebar } from './data/components'
 
 const githubLink = 'https://github.com/wzfdhr/aheart-ui'
+// Local body from @iconify-json/simple-icons@1.2.86 keeps the docs offline and avoids Iconify CORS.
+const githubSvg = fs.readFileSync(fileURLToPath(new URL('../public/github.svg', import.meta.url)), 'utf8')
 
 const zhComponentItems = getComponentSidebar('zh')
 
@@ -63,7 +67,7 @@ export default defineConfig({
           ]
         },
         socialLinks: [
-          { icon: 'github', link: githubLink }
+          { icon: { svg: githubSvg }, ariaLabel: 'GitHub', link: githubLink }
         ],
         search: {
           provider: 'local'

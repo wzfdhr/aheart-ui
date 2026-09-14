@@ -29,6 +29,49 @@ const oppositeSide = {
 const toFloatingUIPlacement = (placement) => placementToFloatingUI[placement];
 const fromFloatingUIPlacement = (placement) => placementFromFloatingUI[placement];
 const getFloatingArrowStaticSide = (placement) => oppositeSide[toFloatingUIPlacement(placement).split("-")[0]];
+function createOwnerRealmAutoUpdate(reference, floating, update, autoUpdateOptions = {}, upstreamAutoUpdate = autoUpdate) {
+  const ownerWindow = reference.ownerDocument.defaultView;
+  const upstreamCleanup = upstreamAutoUpdate(reference, floating, () => {
+    void update();
+  }, {
+    ...autoUpdateOptions,
+    elementResize: false
+  });
+  let disposed = false;
+  let resizeFrame;
+  let resizeObserver;
+  const scheduleUpdate = () => {
+    if (disposed || resizeFrame !== void 0)
+      return;
+    if (ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame) {
+      resizeFrame = ownerWindow.requestAnimationFrame(() => {
+        resizeFrame = void 0;
+        if (!disposed)
+          void update();
+      });
+      return;
+    }
+    void update();
+  };
+  const ResizeObserverCtor = ownerWindow == null ? void 0 : ownerWindow.ResizeObserver;
+  if (autoUpdateOptions.elementResize !== false && ResizeObserverCtor) {
+    resizeObserver = new ResizeObserverCtor(scheduleUpdate);
+    resizeObserver.observe(reference);
+    resizeObserver.observe(floating);
+  }
+  return () => {
+    var _a;
+    if (disposed)
+      return;
+    disposed = true;
+    if (resizeFrame !== void 0)
+      (_a = ownerWindow == null ? void 0 : ownerWindow.cancelAnimationFrame) == null ? void 0 : _a.call(ownerWindow, resizeFrame);
+    resizeFrame = void 0;
+    resizeObserver == null ? void 0 : resizeObserver.disconnect();
+    resizeObserver = void 0;
+    upstreamCleanup();
+  };
+}
 const px = (value) => `${Math.round(value * 100) / 100}px`;
 const getPlacementSide = (placement) => {
   if (placement.startsWith("top"))
@@ -215,7 +258,7 @@ function useFloatingPosition(options) {
     if (!open || !reference || !floating || !reference.ownerDocument.defaultView) {
       return;
     }
-    const cleanup = autoUpdate(
+    const cleanup = createOwnerRealmAutoUpdate(
       reference,
       floating,
       update,
@@ -238,6 +281,7 @@ function useFloatingPosition(options) {
   };
 }
 export {
+  createOwnerRealmAutoUpdate,
   fromFloatingUIPlacement,
   getFloatingArrowStaticSide,
   toFloatingUIPlacement,

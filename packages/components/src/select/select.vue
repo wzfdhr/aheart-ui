@@ -353,7 +353,7 @@ const teleportTo = computed(() => popupContainer.value === false ? 'body' : popu
 const floatingPosition = useFloatingPosition({
   reference: selectorRef,
   floating: popupRef,
-  open: () => motion.isMounted.value && motion.phase.value !== 'hidden',
+  open: mergedOpen,
   placement: () => props.placement,
   strategy: 'fixed',
   offset: 4,

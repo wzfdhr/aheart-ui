@@ -88,6 +88,65 @@ export const fromFloatingUIPlacement = (placement: Placement): FloatingPlacement
 export const getFloatingArrowStaticSide = (placement: FloatingPlacement): Side =>
   oppositeSide[toFloatingUIPlacement(placement).split('-')[0] as Side]
 
+type FloatingAutoUpdate = typeof autoUpdate
+
+/**
+ * Keep Floating UI's ancestor/layout-shift observers while owning element
+ * resize scheduling in the reference element's document realm.
+ *
+ * Floating UI 1.8.0 can leave its internal element-resize reobserve RAF
+ * pending after cleanup. Owning that small part here lets us cancel the exact
+ * owner-realm handle without disabling element resize updates for consumers.
+ */
+export function createOwnerRealmAutoUpdate(
+  reference: HTMLElement,
+  floating: HTMLElement,
+  update: () => void | Promise<void>,
+  autoUpdateOptions: AutoUpdateOptions = {},
+  upstreamAutoUpdate: FloatingAutoUpdate = autoUpdate
+): () => void {
+  const ownerWindow = reference.ownerDocument.defaultView
+  const upstreamCleanup = upstreamAutoUpdate(reference, floating, () => {
+    void update()
+  }, {
+    ...autoUpdateOptions,
+    elementResize: false
+  })
+
+  let disposed = false
+  let resizeFrame: number | undefined
+  let resizeObserver: ResizeObserver | undefined
+
+  const scheduleUpdate = () => {
+    if (disposed || resizeFrame !== undefined) return
+    if (ownerWindow?.requestAnimationFrame) {
+      resizeFrame = ownerWindow.requestAnimationFrame(() => {
+        resizeFrame = undefined
+        if (!disposed) void update()
+      })
+      return
+    }
+    void update()
+  }
+
+  const ResizeObserverCtor = ownerWindow?.ResizeObserver
+  if (autoUpdateOptions.elementResize !== false && ResizeObserverCtor) {
+    resizeObserver = new ResizeObserverCtor(scheduleUpdate)
+    resizeObserver.observe(reference)
+    resizeObserver.observe(floating)
+  }
+
+  return () => {
+    if (disposed) return
+    disposed = true
+    if (resizeFrame !== undefined) ownerWindow?.cancelAnimationFrame?.(resizeFrame)
+    resizeFrame = undefined
+    resizeObserver?.disconnect()
+    resizeObserver = undefined
+    upstreamCleanup()
+  }
+}
+
 const px = (value: number) => `${Math.round(value * 100) / 100}px`
 
 type FloatingSide = 'top' | 'bottom' | 'left' | 'right'
@@ -302,7 +361,7 @@ export function useFloatingPosition(options: UseFloatingPositionOptions): UseFlo
       return
     }
 
-    const cleanup = autoUpdate(
+    const cleanup = createOwnerRealmAutoUpdate(
       reference,
       floating,
       update,

@@ -35,6 +35,10 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         type: BooleanConstructor;
         default: undefined;
     };
+    virtual: {
+        type: import("vue").PropType<import("./types").TreeVirtual>;
+        default: boolean;
+    };
 }>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     select: (keys: TreeKey[], node: TreeNodeData) => void;
     check: (keys: TreeKey[], node: TreeNodeData, info: TreeCheckInfo) => void;
@@ -78,6 +82,10 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
         type: BooleanConstructor;
         default: undefined;
     };
+    virtual: {
+        type: import("vue").PropType<import("./types").TreeVirtual>;
+        default: boolean;
+    };
 }>> & Readonly<{
     onSelect?: ((keys: TreeKey[], node: TreeNodeData) => any) | undefined;
     onCheck?: ((keys: TreeKey[], node: TreeNodeData, info: TreeCheckInfo) => any) | undefined;
@@ -88,6 +96,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
 }>, {
     multiple: boolean;
     disabled: boolean;
+    virtual: import("./types").TreeVirtual;
     defaultSelectedKeys: TreeKey[];
     selectable: boolean;
     checkable: boolean;

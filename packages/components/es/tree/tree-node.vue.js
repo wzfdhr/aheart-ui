@@ -1,21 +1,17 @@
-import { defineComponent, computed, resolveComponent, openBlock, createElementBlock, createElementVNode, normalizeClass, unref, withModifiers, createBlock, Fragment, createTextVNode, toDisplayString, createCommentVNode, renderList } from "vue";
+import { defineComponent, computed, resolveComponent, openBlock, createElementBlock, normalizeStyle, createElementVNode, normalizeClass, unref, withModifiers, createBlock, Fragment, createTextVNode, toDisplayString, createCommentVNode, renderList } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { treeKeyToken } from "./tree-index.js";
-const _hoisted_1 = {
-  class: "aheart-tree__treeitem",
-  role: "presentation"
-};
-const _hoisted_2 = ["id", "aria-label", "aria-selected", "aria-expanded", "aria-disabled", "aria-checked", "aria-busy", "aria-level", "aria-posinset", "aria-setsize", "aria-owns", "data-tree-key", "data-tree-token", "tabindex"];
-const _hoisted_3 = ["disabled", "aria-label"];
-const _hoisted_4 = {
+const _hoisted_1 = ["id", "aria-label", "aria-selected", "aria-expanded", "aria-disabled", "aria-checked", "aria-busy", "aria-level", "aria-posinset", "aria-setsize", "aria-owns", "data-tree-key", "data-tree-token", "tabindex"];
+const _hoisted_2 = ["disabled", "aria-label"];
+const _hoisted_3 = {
   key: 1,
   class: "aheart-tree__switcher aheart-tree__switcher--empty",
   "aria-hidden": "true"
 };
-const _hoisted_5 = ["checked", "indeterminate", "disabled", "aria-label"];
-const _hoisted_6 = { class: "aheart-tree__title" };
-const _hoisted_7 = ["disabled", "aria-label"];
-const _hoisted_8 = ["id"];
+const _hoisted_4 = ["checked", "indeterminate", "disabled", "aria-label"];
+const _hoisted_5 = { class: "aheart-tree__title" };
+const _hoisted_6 = ["disabled", "aria-label"];
+const _hoisted_7 = ["id"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{ name: "ATreeNode" },
   __name: "tree-node",
@@ -31,7 +27,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     checkable: { type: Boolean },
     parentDisabled: { type: Boolean },
     nodeIndex: {},
-    idPrefix: {}
+    idPrefix: {},
+    virtual: { type: Boolean },
+    virtualStyle: {},
+    measureRef: { type: [String, Object, Function] }
   },
   emits: ["toggle", "select", "check", "retry", "keydown", "focus"],
   setup(__props) {
@@ -44,7 +43,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const halfChecked = computed(() => props.halfCheckedKeys.includes(props.node.key));
     const metadata = computed(() => props.nodeIndex.nodes.get(props.node.key));
     const nodeId = computed(() => `${props.idPrefix}-node-${treeKeyToken(props.node.key)}`);
-    const isDisabled = computed(() => Boolean(props.parentDisabled || props.node.disabled));
+    const isDisabled = computed(() => {
+      var _a;
+      return props.virtual ? Boolean(props.parentDisabled || ((_a = metadata.value) == null ? void 0 : _a.disabled)) : Boolean(props.parentDisabled || props.node.disabled);
+    });
     const expanded = computed(() => props.expandedKeys.includes(props.node.key));
     const selected = computed(() => props.selectedKeys.includes(props.node.key));
     const checked = computed(() => props.checkedKeys.includes(props.node.key));
@@ -52,7 +54,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     return (_ctx, _cache) => {
       var _a, _b, _c;
       const _component_ATreeNode = resolveComponent("ATreeNode");
-      return openBlock(), createElementBlock("li", _hoisted_1, [
+      return openBlock(), createElementBlock("li", {
+        class: "aheart-tree__treeitem",
+        role: "presentation",
+        style: normalizeStyle(__props.virtualStyle),
+        ref: __props.measureRef
+      }, [
         createElementVNode("div", {
           class: normalizeClass(["aheart-tree__node", { "is-expanded": expanded.value, "is-selected": selected.value, "is-checked": checked.value, "is-disabled": isDisabled.value }]),
           id: nodeId.value,
@@ -66,7 +73,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           "aria-level": (_a = metadata.value) == null ? void 0 : _a.level,
           "aria-posinset": (_b = metadata.value) == null ? void 0 : _b.position,
           "aria-setsize": (_c = metadata.value) == null ? void 0 : _c.setSize,
-          "aria-owns": hasChildren.value && expanded.value ? `${nodeId.value}-group` : void 0,
+          "aria-owns": !__props.virtual && hasChildren.value && expanded.value ? `${nodeId.value}-group` : void 0,
           "data-tree-key": String(__props.node.key),
           "data-tree-token": unref(treeKeyToken)(__props.node.key),
           tabindex: focused.value ? 0 : -1,
@@ -92,7 +99,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             })) : (openBlock(), createElementBlock(Fragment, { key: 1 }, [
               createTextVNode(toDisplayString(expanded.value ? "−" : "+"), 1)
             ], 64))
-          ], 8, _hoisted_3)) : (openBlock(), createElementBlock("span", _hoisted_4)),
+          ], 8, _hoisted_2)) : (openBlock(), createElementBlock("span", _hoisted_3)),
           __props.checkable ? (openBlock(), createElementBlock("input", {
             key: 2,
             class: "aheart-tree__checkbox",
@@ -105,8 +112,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onClick: _cache[1] || (_cache[1] = withModifiers(() => {
             }, ["stop"])),
             onChange: _cache[2] || (_cache[2] = ($event) => _ctx.$emit("check", __props.node))
-          }, null, 40, _hoisted_5)) : createCommentVNode("", true),
-          createElementVNode("span", _hoisted_6, toDisplayString(__props.node.title), 1),
+          }, null, 40, _hoisted_4)) : createCommentVNode("", true),
+          createElementVNode("span", _hoisted_5, toDisplayString(__props.node.title), 1),
           __props.errorKeys.has(__props.node.key) ? (openBlock(), createElementBlock("button", {
             key: 3,
             type: "button",
@@ -116,9 +123,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             onClick: _cache[3] || (_cache[3] = withModifiers(($event) => _ctx.$emit("retry", __props.node), ["stop"])),
             onKeydown: _cache[4] || (_cache[4] = withModifiers(() => {
             }, ["stop"]))
-          }, "加载失败，重试", 40, _hoisted_7)) : createCommentVNode("", true)
-        ], 42, _hoisted_2),
-        hasChildren.value && expanded.value ? (openBlock(), createElementBlock("ul", {
+          }, "加载失败，重试", 40, _hoisted_6)) : createCommentVNode("", true)
+        ], 42, _hoisted_1),
+        !__props.virtual && hasChildren.value && expanded.value ? (openBlock(), createElementBlock("ul", {
           key: 0,
           id: `${nodeId.value}-group`,
           class: "aheart-tree__group",
@@ -139,16 +146,17 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               "parent-disabled": isDisabled.value,
               "node-index": __props.nodeIndex,
               "id-prefix": __props.idPrefix,
+              virtual: __props.virtual,
               onToggle: _cache[8] || (_cache[8] = ($event) => _ctx.$emit("toggle", $event)),
               onSelect: _cache[9] || (_cache[9] = ($event) => _ctx.$emit("select", $event)),
               onCheck: _cache[10] || (_cache[10] = ($event) => _ctx.$emit("check", $event)),
               onRetry: _cache[11] || (_cache[11] = ($event) => _ctx.$emit("retry", $event)),
               onKeydown: _cache[12] || (_cache[12] = (event, childNode) => _ctx.$emit("keydown", event, childNode)),
               onFocus: _cache[13] || (_cache[13] = ($event) => _ctx.$emit("focus", $event))
-            }, null, 8, ["node", "expanded-keys", "selected-keys", "checked-keys", "half-checked-keys", "loading-keys", "error-keys", "focused-key", "checkable", "parent-disabled", "node-index", "id-prefix"]);
+            }, null, 8, ["node", "expanded-keys", "selected-keys", "checked-keys", "half-checked-keys", "loading-keys", "error-keys", "focused-key", "checkable", "parent-disabled", "node-index", "id-prefix", "virtual"]);
           }), 128))
-        ], 8, _hoisted_8)) : createCommentVNode("", true)
-      ]);
+        ], 8, _hoisted_7)) : createCommentVNode("", true)
+      ], 4);
     };
   }
 });

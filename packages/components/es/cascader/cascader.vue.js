@@ -1,4 +1,4 @@
-import { defineComponent, ref, computed, watch, useAttrs, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, vShow, nextTick } from "vue";
+import { defineComponent, ref, computed, watch, useAttrs, onBeforeUnmount, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, withCtx, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
 import { useFloatingPosition } from "../utils/use-floating-position.js";
@@ -7,6 +7,9 @@ import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
 import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
+import { usePopupViewportBudget } from "../utils/use-popup-viewport-budget.js";
+import _sfc_main$2 from "./cascader-virtual-list.vue.js";
+import { normalizeCascaderVirtual } from "./virtual-options.js";
 import "./style.css.js";
 const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled", "aria-activedescendant", "aria-labelledby", "aria-describedby"];
 const _hoisted_2 = {
@@ -20,18 +23,30 @@ const _hoisted_5 = {
   class: "aheart-cascader__tag aheart-cascader__tag--rest"
 };
 const _hoisted_6 = ["aria-labelledby", "aria-describedby", "aria-label"];
-const _hoisted_7 = {
+const _hoisted_7 = ["tabindex", "data-cascader-path", "data-cascader-path-token", "disabled", "onClick", "onFocus", "onKeydown"];
+const _hoisted_8 = {
   key: 1,
+  class: "aheart-cascader__empty",
+  role: "status"
+};
+const _hoisted_9 = {
+  key: 2,
   class: "aheart-cascader__search-results"
 };
-const _hoisted_8 = ["data-cascader-path", "disabled", "onClick"];
-const _hoisted_9 = {
+const _hoisted_10 = ["data-cascader-path", "data-cascader-path-token", "disabled", "onClick"];
+const _hoisted_11 = {
   key: 0,
   class: "aheart-cascader__empty",
   role: "status"
 };
-const _hoisted_10 = ["data-cascader-value", "data-cascader-token", "id", "data-cascader-column", "disabled", "aria-busy", "aria-label", "onClick", "onFocus", "onKeydown"];
-const _hoisted_11 = {
+const _hoisted_12 = ["tabindex", "data-cascader-value", "data-cascader-token", "id", "data-cascader-column", "disabled", "aria-busy", "aria-label", "onClick", "onFocus", "onKeydown"];
+const _hoisted_13 = {
+  key: 1,
+  class: "aheart-cascader__load-error",
+  "aria-hidden": "true"
+};
+const _hoisted_14 = ["data-cascader-value", "data-cascader-token", "id", "data-cascader-column", "disabled", "aria-busy", "aria-label", "onClick", "onFocus", "onKeydown"];
+const _hoisted_15 = {
   key: 1,
   class: "aheart-cascader__load-error",
   "aria-hidden": "true"
@@ -53,6 +68,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     maxTagCount: {},
     placement: { default: "bottomLeft" },
     autoAdjustOverflow: { type: Boolean, default: true },
+    virtual: { type: [Boolean, Object] },
     getPopupContainer: {},
     loadData: {}
   },
@@ -70,12 +86,44 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const triggerRef = ref(null);
     const panelRef = ref(null);
     const columnsRef = ref(null);
+    const searchRef = ref(null);
     const searchText = ref("");
     const activePath = ref([]);
     const focusedPath = ref([]);
     const loadingPaths = ref([]);
     const errorPaths = ref([]);
     const innerOptions = ref(cloneOptions(props.options));
+    const virtualConfig = computed(() => normalizeCascaderVirtual(props.virtual, (message) => {
+    }));
+    const virtualEnabled = computed(() => virtualConfig.value !== null);
+    const focusedSearchPath = ref([]);
+    const virtualListRefs = /* @__PURE__ */ new Map();
+    let revealGeneration = 0;
+    const rovingKeys = ref({});
+    const setVirtualListRef = (key, element) => {
+      if (element && "$el" in element)
+        virtualListRefs.set(key, element);
+      else if (!element)
+        virtualListRefs.delete(key);
+    };
+    const cancelVirtualFocus = () => virtualListRefs.forEach((list) => list.cancelFocus());
+    const suspendVirtualLists = () => virtualListRefs.forEach((list) => list.suspend());
+    let keyboardRequest = 0;
+    let modeFocusGeneration = 0;
+    let focusOwner;
+    const retire = (owner) => {
+      if (!owner)
+        return;
+      owner.dispose();
+      if (focusOwner === owner)
+        focusOwner = void 0;
+    };
+    const invalidateModeFocus = () => {
+      modeFocusGeneration += 1;
+      keyboardRequest += 1;
+      retire(focusOwner);
+      cancelVirtualFocus();
+    };
     let loadGeneration = 0;
     let loadSequence = 0;
     let navigationVersion = 0;
@@ -102,6 +150,65 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
     });
     const mergedOpen = computed(() => Boolean(openState.state.value));
+    const ownedRenderBlur = (event) => {
+      const owner = focusOwner;
+      if (!owner || owner.request !== keyboardRequest || owner.loadGeneration !== loadGeneration || owner.modeFocusGeneration !== modeFocusGeneration || owner.navigationVersion !== navigationVersion)
+        return false;
+      if (event.target !== owner.source || event.currentTarget !== owner.source && event.currentTarget !== panelRef.value)
+        return false;
+      if (event.relatedTarget !== null || !owner.renderBlurArmed || !owner.source.isConnected)
+        return false;
+      const source = owner.source;
+      if (!source.disabled && !source.hasAttribute("disabled"))
+        return false;
+      if (!loadingPaths.value.some((path) => samePath(path, owner.path)))
+        return false;
+      if (!samePath(activePath.value.slice(0, owner.path.length), owner.path))
+        return false;
+      const columnIndex = Number(source.dataset.cascaderColumn);
+      if (!Number.isInteger(columnIndex) || columnIndex !== owner.path.length - 1 || source.dataset.cascaderToken !== cascaderKeyToken(owner.path.at(-1)))
+        return false;
+      owner.sawRenderBlur = true;
+      return true;
+    };
+    watch([panelRef, virtualEnabled, mergedOpen, () => props.disabled], ([panel, isVirtual, isOpen, isDisabled], _previous, cleanup) => {
+      if (!panel || !isVirtual || !isOpen || isDisabled)
+        return;
+      const ownerDocument = panel.ownerDocument;
+      const cancelOutside = (event) => {
+        var _a;
+        const target = event.target;
+        if (target && !((_a = rootRef.value) == null ? void 0 : _a.contains(target)) && !panel.contains(target))
+          invalidateModeFocus();
+      };
+      const cancelNavigation = () => invalidateModeFocus();
+      const cancelFocusOut = (event) => {
+        var _a;
+        const target = event.target;
+        if (ownedRenderBlur(event))
+          return;
+        const related = event.relatedTarget;
+        if (related && !((_a = rootRef.value) == null ? void 0 : _a.contains(related)) && !panel.contains(related)) {
+          invalidateModeFocus();
+          return;
+        }
+        if (!related && (target == null ? void 0 : target.isConnected))
+          invalidateModeFocus();
+      };
+      ownerDocument.addEventListener("focusin", cancelOutside);
+      panel.addEventListener("focusout", cancelFocusOut, true);
+      panel.addEventListener("wheel", cancelNavigation, { passive: true });
+      panel.addEventListener("pointerdown", cancelNavigation, { passive: true });
+      panel.addEventListener("touchstart", cancelNavigation, { passive: true });
+      cleanup(() => {
+        ownerDocument.removeEventListener("focusin", cancelOutside);
+        panel.removeEventListener("focusout", cancelFocusOut, true);
+        panel.removeEventListener("wheel", cancelNavigation);
+        panel.removeEventListener("pointerdown", cancelNavigation);
+        panel.removeEventListener("touchstart", cancelNavigation);
+        invalidateModeFocus();
+      });
+    }, { flush: "post", immediate: true });
     const mergedValue = valueState.state;
     const selectedPaths = computed(() => {
       if (props.multiple) {
@@ -126,6 +233,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return existing;
     };
     const invalidateLoads = () => {
+      retire(focusOwner);
       loadGeneration += 1;
       activeLoadControllers.forEach((controller) => controller.abort());
       activeLoadControllers.clear();
@@ -144,6 +252,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     watch(() => props.options, (options) => {
       const nextOptions = cloneOptions(options);
+      revealGeneration += 1;
       invalidateLoads();
       innerOptions.value = nextOptions;
       errorPaths.value = [];
@@ -151,8 +260,11 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       focusedPath.value = closestExistingPath(focusedPath.value, nextOptions);
     });
     watch(() => props.disabled, (disabled) => {
-      if (disabled)
+      if (disabled) {
+        invalidateModeFocus();
+        suspendVirtualLists();
         invalidateLoads();
+      }
     });
     watch(() => props.loadData, invalidateLoads, { flush: "sync" });
     const isBranch = (option) => {
@@ -222,13 +334,38 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const query = searchText.value.trim().toLowerCase();
       return collectLeaves(innerOptions.value).filter((result) => result.labels.join(" / ").toLowerCase().includes(query));
     });
+    const columnPrefixToken = (columnIndex) => `column-${columnIndex === 0 ? "root" : pathToken(activePath.value.slice(0, columnIndex))}`;
+    const rowToken = (columnIndex, _optionIndex, option) => `${columnPrefixToken(columnIndex)}-${cascaderKeyToken(option.value)}`;
+    const columnOptionLoading = (columnIndex, option) => loadingPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]));
+    const firstEnabledIndex = (items) => items.findIndex((option) => !option.disabled);
+    const rovingIndex = (columnIndex) => {
+      const column = columns.value[columnIndex] ?? [];
+      const focused = rovingKeys.value[columnPrefixToken(columnIndex)] ?? focusedPath.value[columnIndex];
+      const focusedIndex = focused === void 0 ? -1 : column.findIndex((option) => option.value === focused && !option.disabled && !columnOptionLoading(columnIndex, option));
+      const enabled = column.filter((option) => !option.disabled && !columnOptionLoading(columnIndex, option));
+      const fallback = firstEnabledIndex(enabled);
+      return focusedIndex >= 0 ? focusedIndex : fallback < 0 ? -1 : column.indexOf(enabled[fallback]);
+    };
+    const pinnedIndexes = (columnIndex) => {
+      const index = rovingIndex(columnIndex);
+      return index >= 0 ? [index] : [];
+    };
+    const searchRovingIndex = computed(() => {
+      const focused = focusedSearchPath.value;
+      const index = searchResults.value.findIndex((result) => samePath(result.path, focused) && !result.disabled);
+      return index >= 0 ? index : firstEnabledIndex(searchResults.value.map((result) => ({ value: result.path.join("/"), label: result.labels.join(" / "), disabled: result.disabled })));
+    });
+    const searchPinnedIndexes = computed(() => searchRovingIndex.value >= 0 ? [searchRovingIndex.value] : []);
     const attrs = useAttrs();
     const resolvedAriaLabelledby = computed(() => attrs["aria-labelledby"]);
     const resolvedAriaDescribedby = computed(() => attrs["aria-describedby"]);
-    const optionId = (columnIndex, optionIndex) => `${instanceId}-option-${columnIndex}-${optionIndex}`;
+    const optionId = (columnIndex, _optionIndex, option) => {
+      const fullPath = option ? [...activePath.value.slice(0, columnIndex), option.value] : [];
+      return `${instanceId}-option-column-${columnIndex}-${pathToken(fullPath) || "root"}`;
+    };
     const activeDescendantId = computed(() => {
       var _a, _b, _c;
-      if (!mergedOpen.value || searchText.value.trim())
+      if (virtualEnabled.value || !mergedOpen.value || searchText.value.trim())
         return void 0;
       const path = focusedPath.value;
       if (!path.length)
@@ -236,19 +373,40 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       const option = ((_b = (_a = findOption(path.slice(0, -1))) == null ? void 0 : _a.children) == null ? void 0 : _b.find((item) => item.value === path.at(-1))) ?? (path.length === 1 ? innerOptions.value.find((item) => item.value === path[0]) : void 0);
       if (!option || !((_c = columns.value[path.length - 1]) == null ? void 0 : _c.includes(option)))
         return void 0;
-      return optionId(path.length - 1, columns.value[path.length - 1].indexOf(option));
+      return optionId(path.length - 1, columns.value[path.length - 1].indexOf(option), option);
     });
-    const isSelected = (columnIndex, option) => selectedPaths.value.some((path) => path[columnIndex] === option.value && path.length === columnIndex + 1);
+    const isSelected = (columnIndex, option) => {
+      const candidate = [...activePath.value.slice(0, columnIndex), option.value];
+      return selectedPaths.value.some((path) => samePath(path, candidate));
+    };
     const isLoading = (columnIndex, option) => loadingPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]));
     const isLoadError = (columnIndex, option) => errorPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]));
+    let selectionFocus;
+    const clearSelectionFocus = () => {
+      selectionFocus == null ? void 0 : selectionFocus.clear();
+      selectionFocus = void 0;
+    };
+    onBeforeUnmount(clearSelectionFocus);
+    watch([() => props.disabled, () => props.options], clearSelectionFocus);
     const requestOpen = (open) => {
       if (props.disabled)
         return;
+      if (open)
+        clearSelectionFocus();
+      if (!open) {
+        revealGeneration += 1;
+        invalidateModeFocus();
+      }
       openState.setState(open, { force: true });
     };
     watch(mergedOpen, (open, previousOpen) => {
-      if (previousOpen && !open)
+      if (previousOpen && !open) {
+        selectionFocus == null ? void 0 : selectionFocus.restore();
+        revealGeneration += 1;
+        invalidateModeFocus();
+        suspendVirtualLists();
         invalidateLoads();
+      }
     });
     const toggleOpen = () => requestOpen(!mergedOpen.value);
     const emitValue = (value) => {
@@ -266,6 +424,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       emitValue(selectedPaths.value.filter((current) => !samePath(current, path)));
     };
     const selectPath = (path) => {
+      var _a, _b;
       const option = findOption(path);
       if (props.disabled || !option || pathHasDisabledOption(path) || isBranch(option))
         return;
@@ -273,6 +432,41 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         const paths = selectedPaths.value.some((current) => samePath(current, path)) ? selectedPaths.value.filter((current) => !samePath(current, path)) : [...selectedPaths.value, path];
         emitValue(paths);
         return;
+      }
+      clearSelectionFocus();
+      const document = (_a = panelRef.value) == null ? void 0 : _a.ownerDocument;
+      const focused = document == null ? void 0 : document.activeElement;
+      if (document && focused && ((_b = panelRef.value) == null ? void 0 : _b.contains(focused))) {
+        const cancel = () => {
+          if (selectionFocus === pending)
+            clearSelectionFocus();
+        };
+        const focus = (event) => {
+          if (event.target !== focused)
+            cancel();
+        };
+        const blur = (event) => {
+          if (event.target === focused && mergedOpen.value && focused.isConnected)
+            cancel();
+        };
+        const listeners = [["focusin", focus], ["focusout", blur], ["pointerdown", cancel], ["keydown", cancel]];
+        const clear = () => {
+          for (const [type, listener] of listeners)
+            document.removeEventListener(type, listener, true);
+        };
+        const pending = { clear, restore: () => {
+          void nextTick(() => {
+            if (selectionFocus !== pending)
+              return;
+            const trigger = triggerRef.value;
+            clearSelectionFocus();
+            if (!props.disabled && !mergedOpen.value && (trigger == null ? void 0 : trigger.isConnected) && (document.activeElement === focused || document.activeElement === document.body))
+              trigger.focus();
+          });
+        } };
+        selectionFocus = pending;
+        for (const [type, listener] of listeners)
+          document.addEventListener(type, listener, true);
       }
       emitValue(path);
       requestOpen(false);
@@ -284,17 +478,46 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return { ...option, children };
       return { ...option, children: replaceChildren(option.children ?? [], path.slice(1), children) };
     });
-    const revealLastColumn = async () => {
-      await nextTick();
-      if (columnsRef.value)
-        columnsRef.value.scrollLeft = columnsRef.value.scrollWidth;
+    const revealColumnInViewport = (columnIndex) => {
+      const columns2 = columnsRef.value;
+      const column = columns2 == null ? void 0 : columns2.children[columnIndex];
+      if (!columns2 || !column)
+        return;
+      const viewport = columns2.getBoundingClientRect();
+      const target = column.getBoundingClientRect();
+      let nextScrollLeft = columns2.scrollLeft;
+      if (target.left < viewport.left)
+        nextScrollLeft += target.left - viewport.left;
+      else if (target.right > viewport.right)
+        nextScrollLeft += target.right - viewport.right;
+      const maximum = Math.max(0, columns2.scrollWidth - columns2.clientWidth);
+      nextScrollLeft = Math.min(maximum, Math.max(0, nextScrollLeft));
+      if (Math.abs(nextScrollLeft - columns2.scrollLeft) < 0.5)
+        return;
+      const previousBehavior = columns2.style.scrollBehavior;
+      columns2.style.scrollBehavior = "auto";
+      columns2.scrollLeft = nextScrollLeft;
+      columns2.style.scrollBehavior = previousBehavior;
     };
-    const handleOption = async (option, columnIndex) => {
+    const revealLastColumn = async () => {
+      const generation = ++revealGeneration;
+      await nextTick();
+      if (generation !== revealGeneration || !mergedOpen.value || props.disabled || searchText.value.trim())
+        return;
+      await floatingPosition.update();
+      await nextTick();
+      if (generation !== revealGeneration || !mergedOpen.value || props.disabled || searchText.value.trim())
+        return;
+      revealColumnInViewport(Math.max(0, columns.value.length - 1));
+    };
+    const handleOption = async (option, columnIndex, owner) => {
       var _a;
       if (props.disabled || option.disabled)
         return;
       navigationVersion++;
       const path = [...activePath.value.slice(0, columnIndex), option.value];
+      if (focusOwner && focusOwner !== owner)
+        retire(focusOwner);
       cancelOtherLoads(pathToken(path));
       if (!isBranch(option)) {
         selectPath(path);
@@ -336,24 +559,250 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const handleOptionFocus = (option, columnIndex) => {
       focusedPath.value = [...activePath.value.slice(0, columnIndex), option.value];
+      rovingKeys.value = { ...rovingKeys.value, [columnPrefixToken(columnIndex)]: option.value };
     };
-    let keyboardRequest = 0;
-    const enterChildColumn = async (option, columnIndex, current) => {
+    const handleOptionBlur = (event) => {
       var _a, _b;
+      const related = event.relatedTarget;
+      if (ownedRenderBlur(event))
+        return;
+      if (related && !((_a = rootRef.value) == null ? void 0 : _a.contains(related)) && !((_b = panelRef.value) == null ? void 0 : _b.contains(related)))
+        invalidateModeFocus();
+      if (!event.relatedTarget) {
+        const current = event.currentTarget;
+        current == null ? void 0 : current.blur();
+        invalidateModeFocus();
+      }
+    };
+    const handleSearchFocus = (path, _index) => {
+      focusedSearchPath.value = [...path];
+      focusedPath.value = [...path];
+    };
+    const handleSearchInputFocus = () => invalidateModeFocus();
+    const handleSearchInputBlur = (event) => {
+      if (!event.relatedTarget)
+        invalidateModeFocus();
+    };
+    const focusColumnIndex = (columnIndex, index, cancelPendingReveal = false) => {
+      var _a, _b, _c;
+      if (cancelPendingReveal)
+        revealGeneration += 1;
+      revealColumnInViewport(columnIndex);
+      const key = columnPrefixToken(columnIndex);
+      const list = virtualListRefs.get(key);
+      if (list)
+        list.focusIndex(index);
+      else {
+        const target = (_c = panelRef.value) == null ? void 0 : _c.querySelector(`[data-cascader-column="${columnIndex}"][data-cascader-token="${cascaderKeyToken((_b = (_a = columns.value[columnIndex]) == null ? void 0 : _a[index]) == null ? void 0 : _b.value)}"]`);
+        target == null ? void 0 : target.focus();
+      }
+    };
+    watch(searchText, (query, previousQuery) => {
+      var _a, _b;
+      if (!virtualEnabled.value || query === previousQuery)
+        return;
+      revealGeneration += 1;
+      const active = (_a = searchRef.value) == null ? void 0 : _a.ownerDocument.activeElement;
+      const resultWasFocused = Boolean((active == null ? void 0 : active.classList.contains("aheart-cascader__option")) && active.dataset.cascaderPath);
+      const path = [...focusedSearchPath.value];
+      const generation = ++modeFocusGeneration;
+      cancelVirtualFocus();
+      if (!query.trim() && resultWasFocused && path.length) {
+        activePath.value = path.slice(0, -1);
+        focusedPath.value = [...path];
+        void nextTick(() => void nextTick(() => {
+          if (generation !== modeFocusGeneration)
+            return;
+          const siblings = columns.value[path.length - 1] ?? [];
+          const index = siblings.findIndex((option) => option.value === path.at(-1) && !option.disabled);
+          if (index >= 0)
+            focusColumnIndex(path.length - 1, index);
+        }));
+        void revealLastColumn();
+      } else if (query.trim() && resultWasFocused) {
+        (_b = searchRef.value) == null ? void 0 : _b.focus();
+      } else if (!query.trim()) {
+        void revealLastColumn();
+      }
+      if (query.trim()) {
+        const retained = searchResults.value.some((result) => samePath(result.path, path) && !result.disabled);
+        if (!retained)
+          focusedSearchPath.value = [];
+      }
+    }, { flush: "sync" });
+    const enabledIndexes = (columnIndex) => (columns.value[columnIndex] ?? []).map((option, index) => ({ option, index })).filter(({ option }) => !option.disabled && !isLoading(columnIndex, option)).map(({ index }) => index);
+    const handleSearchInputKeydown = (event) => {
+      if (!virtualEnabled.value)
+        return;
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp")
+        return;
+      const indexes = searchResults.value.map((result, index2) => ({ result, index: index2 })).filter(({ result }) => !result.disabled).map(({ index: index2 }) => index2);
+      if (!indexes.length)
+        return;
+      event.preventDefault();
+      const index = event.key === "ArrowDown" ? indexes[0] : indexes.at(-1);
+      const list = virtualListRefs.get("search");
+      if (list)
+        list.focusIndex(index);
+      else
+        void nextTick(() => {
+          var _a, _b;
+          return (_b = (_a = panelRef.value) == null ? void 0 : _a.querySelectorAll(".aheart-cascader__search-results .aheart-cascader__option")[index]) == null ? void 0 : _b.focus();
+        });
+    };
+    const handleSearchKeydown = (event, path, index) => {
+      var _a, _b;
+      const indexes = searchResults.value.map((result, resultIndex) => ({ result, resultIndex })).filter(({ result }) => !result.disabled).map(({ resultIndex }) => resultIndex);
+      const current = indexes.indexOf(index);
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        const next = indexes[(current + (event.key === "ArrowDown" ? 1 : -1) + indexes.length) % indexes.length];
+        (_a = virtualListRefs.get("search")) == null ? void 0 : _a.focusIndex(next);
+      } else if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        (_b = virtualListRefs.get("search")) == null ? void 0 : _b.focusIndex(event.key === "Home" ? indexes[0] : indexes.at(-1));
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        requestOpen(false);
+        void nextTick(() => {
+          var _a2;
+          return (_a2 = triggerRef.value) == null ? void 0 : _a2.focus();
+        });
+      } else if ((event.key === "Enter" || event.key === " ") && !searchResults.value[index].disabled) {
+        event.preventDefault();
+        selectPath(path);
+      }
+    };
+    const ownKeyboardFocus = (source, path, request) => {
+      retire(focusOwner);
+      const ownerDocument = source.ownerDocument;
+      const ownerWindow = ownerDocument.defaultView;
+      const owner = {
+        request,
+        loadGeneration,
+        modeFocusGeneration,
+        navigationVersion,
+        path: [...path],
+        source,
+        ownerDocument,
+        sawRenderBlur: false,
+        renderBlurArmed: true,
+        onFocusIn: void 0,
+        onPointerDown: void 0,
+        onTouchStart: void 0,
+        onWheel: void 0,
+        onKeyDown: void 0,
+        onWindowBlur: void 0,
+        dispose: void 0
+      };
+      owner.onFocusIn = (event) => {
+        const target = event.target;
+        if (target && target !== source)
+          retire(owner);
+      };
+      owner.onPointerDown = () => retire(owner);
+      owner.onTouchStart = () => retire(owner);
+      owner.onWheel = () => retire(owner);
+      owner.onKeyDown = (event) => {
+        if (event.key === "Tab" || event.key === "Escape")
+          retire(owner);
+      };
+      owner.onWindowBlur = () => retire(owner);
+      ownerDocument.addEventListener("focusin", owner.onFocusIn);
+      ownerDocument.addEventListener("pointerdown", owner.onPointerDown, true);
+      ownerDocument.addEventListener("touchstart", owner.onTouchStart, true);
+      ownerDocument.addEventListener("wheel", owner.onWheel, true);
+      ownerDocument.addEventListener("keydown", owner.onKeyDown, true);
+      ownerWindow == null ? void 0 : ownerWindow.addEventListener("blur", owner.onWindowBlur);
+      let disposed = false;
+      owner.dispose = () => {
+        var _a, _b;
+        if (disposed)
+          return;
+        disposed = true;
+        if (owner.renderRaf !== void 0)
+          (_a = ownerWindow == null ? void 0 : ownerWindow.cancelAnimationFrame) == null ? void 0 : _a.call(ownerWindow, owner.renderRaf);
+        if (owner.renderTimer !== void 0)
+          (_b = ownerWindow == null ? void 0 : ownerWindow.clearTimeout) == null ? void 0 : _b.call(ownerWindow, owner.renderTimer);
+        owner.renderRaf = void 0;
+        owner.renderTimer = void 0;
+        owner.renderBlurArmed = false;
+        ownerDocument.removeEventListener("focusin", owner.onFocusIn);
+        ownerDocument.removeEventListener("pointerdown", owner.onPointerDown, true);
+        ownerDocument.removeEventListener("touchstart", owner.onTouchStart, true);
+        ownerDocument.removeEventListener("wheel", owner.onWheel, true);
+        ownerDocument.removeEventListener("keydown", owner.onKeyDown, true);
+        ownerWindow == null ? void 0 : ownerWindow.removeEventListener("blur", owner.onWindowBlur);
+      };
+      focusOwner = owner;
+      return owner;
+    };
+    const enterChildColumn = async (option, columnIndex, current) => {
       const request = ++keyboardRequest;
       const path = [...activePath.value.slice(0, columnIndex), option.value];
-      const generation = loadGeneration;
-      const pending = handleOption(option, columnIndex);
-      const navigation = navigationVersion;
-      await pending;
-      await nextTick();
-      const active = current.ownerDocument.activeElement;
-      if (request !== keyboardRequest || generation !== loadGeneration || navigation !== navigationVersion || !current.isConnected || props.disabled || !mergedOpen.value || !samePath(activePath.value.slice(0, path.length), path))
-        return;
-      if (active !== current && active !== current.ownerDocument.body)
-        return;
-      if (isBranch(option))
-        (_b = (_a = panelRef.value) == null ? void 0 : _a.querySelector(`[data-cascader-column="${columnIndex + 1}"]:not(:disabled)`)) == null ? void 0 : _b.focus();
+      const ownsActiveFocus = current.ownerDocument.activeElement === current;
+      const owner = ownsActiveFocus ? ownKeyboardFocus(current, path, request) : void 0;
+      try {
+        const generation = loadGeneration;
+        const pending = handleOption(option, columnIndex, owner);
+        const navigation = navigationVersion;
+        if (owner)
+          owner.navigationVersion = navigation;
+        const ownerWindow = current.ownerDocument.defaultView;
+        if (owner && owner === focusOwner && current.isConnected && mergedOpen.value && !props.disabled && loadingPaths.value.some((loadingPath) => samePath(loadingPath, path))) {
+          const canUseRaf = Boolean(ownerWindow && typeof ownerWindow.requestAnimationFrame === "function" && typeof ownerWindow.cancelAnimationFrame === "function");
+          const canUseTimer = Boolean(ownerWindow && typeof ownerWindow.setTimeout === "function" && typeof ownerWindow.clearTimeout === "function");
+          if (canUseRaf) {
+            const closeAfterRaf = () => {
+              owner.renderRaf = void 0;
+              if (focusOwner !== owner) {
+                owner.renderBlurArmed = false;
+                return;
+              }
+              if (canUseTimer)
+                owner.renderTimer = ownerWindow.setTimeout(() => {
+                  owner.renderTimer = void 0;
+                  owner.renderBlurArmed = false;
+                }, 0);
+              else if (canUseRaf)
+                owner.renderRaf = ownerWindow.requestAnimationFrame(() => {
+                  owner.renderRaf = void 0;
+                  owner.renderBlurArmed = false;
+                });
+              else
+                owner.renderBlurArmed = false;
+            };
+            owner.renderRaf = ownerWindow.requestAnimationFrame(closeAfterRaf);
+          } else if (canUseTimer)
+            owner.renderTimer = ownerWindow.setTimeout(() => {
+              owner.renderTimer = void 0;
+              owner.renderBlurArmed = false;
+            }, 0);
+          else
+            owner.renderBlurArmed = false;
+        }
+        await pending;
+        await nextTick();
+        const active = current.ownerDocument.activeElement;
+        if (request !== keyboardRequest || generation !== loadGeneration || !current.isConnected || props.disabled || !mergedOpen.value || !samePath(activePath.value.slice(0, path.length), path))
+          return;
+        if (owner) {
+          if (owner.modeFocusGeneration !== modeFocusGeneration || owner.navigationVersion !== navigationVersion || owner !== focusOwner)
+            return;
+          if (active !== current && !(active === owner.ownerDocument.body && owner.sawRenderBlur))
+            return;
+        }
+        if (!pathHasDisabledOption(path)) {
+          const nextColumn = columnIndex + 1;
+          const nextIndexes = enabledIndexes(nextColumn);
+          if (nextIndexes.length)
+            focusColumnIndex(nextColumn, nextIndexes[0]);
+          else if (current.ownerDocument.activeElement === current.ownerDocument.body && !current.disabled)
+            current.focus();
+        }
+      } finally {
+        retire(owner);
+      }
     };
     const handleTriggerKeydown = (event) => {
       if (event.key === "ArrowDown" || event.key === "ArrowUp" || event.key === "Enter" || event.key === " ") {
@@ -372,9 +821,45 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         });
       }
     };
-    const handleOptionKeydown = (event, option, columnIndex) => {
-      var _a, _b, _c, _d, _e;
+    const handleOptionKeydown = (event, option, columnIndex, optionIndex = -1) => {
+      var _a, _b, _c;
       const current = event.currentTarget;
+      if (virtualEnabled.value) {
+        const indexes = enabledIndexes(columnIndex);
+        const currentIndex = optionIndex >= 0 ? indexes.indexOf(optionIndex) : indexes.findIndex((index2) => {
+          var _a2;
+          return ((_a2 = columns.value[columnIndex]) == null ? void 0 : _a2[index2]) === option;
+        });
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          if (indexes.length)
+            focusColumnIndex(columnIndex, indexes[(currentIndex + (event.key === "ArrowDown" ? 1 : -1) + indexes.length) % indexes.length]);
+        } else if (event.key === "Home" || event.key === "End") {
+          event.preventDefault();
+          if (indexes.length)
+            focusColumnIndex(columnIndex, event.key === "Home" ? indexes[0] : indexes.at(-1));
+        } else if (event.key === "Escape") {
+          event.preventDefault();
+          requestOpen(false);
+          void nextTick(() => {
+            var _a2;
+            return (_a2 = triggerRef.value) == null ? void 0 : _a2.focus();
+          });
+        } else if ((event.key === "Enter" || event.key === " ") && !option.disabled) {
+          event.preventDefault();
+          void enterChildColumn(option, columnIndex, current);
+        } else if (event.key === "ArrowRight" && isBranch(option)) {
+          event.preventDefault();
+          void enterChildColumn(option, columnIndex, current);
+        } else if (event.key === "ArrowLeft" && columnIndex > 0) {
+          event.preventDefault();
+          const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1];
+          const parentIndex = (columns.value[columnIndex - 1] ?? []).findIndex((candidate) => candidate.value === parentValue);
+          if (parentIndex >= 0)
+            focusColumnIndex(columnIndex - 1, parentIndex, true);
+        }
+        return;
+      }
       const options = Array.from(((_a = current.parentElement) == null ? void 0 : _a.querySelectorAll(".aheart-cascader__option:not(:disabled)")) ?? []);
       const index = options.indexOf(current);
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
@@ -399,7 +884,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       } else if (event.key === "ArrowLeft" && columnIndex > 0) {
         event.preventDefault();
         const parentValue = focusedPath.value[columnIndex - 1] ?? activePath.value[columnIndex - 1];
-        (_e = Array.from(((_d = panelRef.value) == null ? void 0 : _d.querySelectorAll(`[data-cascader-column="${columnIndex - 1}"]`)) ?? []).find((element) => element.dataset.cascaderToken === cascaderKeyToken(parentValue))) == null ? void 0 : _e.focus();
+        const parentIndex = (columns.value[columnIndex - 1] ?? []).findIndex((candidate) => candidate.value === parentValue);
+        if (parentIndex >= 0)
+          focusColumnIndex(columnIndex - 1, parentIndex, true);
       }
     };
     onBeforeUnmount(invalidateLoads);
@@ -416,17 +903,45 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const floatingPosition = useFloatingPosition({
       reference: triggerRef,
       floating: panelRef,
-      open: () => motion.isMounted.value && motion.phase.value !== "hidden",
+      open: () => !props.disabled && motion.isMounted.value && motion.phase.value !== "hidden",
       placement: () => props.placement,
       strategy: "fixed",
       offset: 4,
-      autoAdjustOverflow: () => props.autoAdjustOverflow
+      autoAdjustOverflow: () => props.autoAdjustOverflow,
+      autoUpdateOptions: { elementResize: false }
+    });
+    const viewportBudget = usePopupViewportBudget({
+      trigger: triggerRef,
+      popup: panelRef,
+      placement: floatingPosition.placement,
+      open: computed(() => virtualEnabled.value && !props.disabled && mergedOpen.value && motion.isMounted.value && motion.phase.value !== "hidden"),
+      maximum: computed(() => {
+        var _a;
+        return ((_a = virtualConfig.value) == null ? void 0 : _a.height) ?? 256;
+      }),
+      search: searchRef
+    });
+    const effectiveVirtualConfig = computed(() => {
+      const config = virtualConfig.value;
+      if (!config)
+        return { height: 0, estimateSize: 32, overscan: 0 };
+      return { ...config, height: Math.max(0, viewportBudget.value.treeHeight) };
     });
     const panelClass = computed(() => [
       `aheart-floating--${floatingPosition.placement.value}`,
-      `is-${motion.phase.value}`
+      `is-${motion.phase.value}`,
+      { "is-virtual": virtualEnabled.value }
     ]);
-    const panelStyle = computed(() => floatingPosition.popupStyle.value);
+    const panelStyle = computed(() => [
+      floatingPosition.popupStyle.value,
+      virtualEnabled.value ? {
+        display: "flex",
+        flexDirection: "column",
+        minBlockSize: "0",
+        overflowY: "hidden",
+        maxBlockSize: `${viewportBudget.value.popupHeight}px`
+      } : void 0
+    ]);
     useFloatingDismiss({
       open: mergedOpen,
       trigger: triggerRef,
@@ -518,33 +1033,117 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           }, [
             __props.showSearch ? withDirectives((openBlock(), createElementBlock("input", {
               key: 0,
+              ref_key: "searchRef",
+              ref: searchRef,
               "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => searchText.value = $event),
               class: "aheart-cascader__search",
               type: "search",
               placeholder: "搜索",
-              "aria-label": "搜索级联选项"
-            }, null, 512)), [
+              "aria-label": "搜索级联选项",
+              onKeydown: handleSearchInputKeydown,
+              onFocus: handleSearchInputFocus,
+              onBlur: handleSearchInputBlur
+            }, null, 544)), [
               [vModelText, searchText.value]
             ]) : createCommentVNode("", true),
-            searchText.value.trim() ? (openBlock(), createElementBlock("div", _hoisted_7, [
+            searchText.value.trim() && virtualEnabled.value ? (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+              searchResults.value.length > 0 ? (openBlock(), createBlock(_sfc_main$2, {
+                key: 0,
+                ref: (element) => setVirtualListRef("search", element),
+                "class-name": "aheart-cascader__search-results",
+                items: searchResults.value,
+                config: effectiveVirtualConfig.value,
+                "active-index": searchRovingIndex.value,
+                "pinned-indexes": searchPinnedIndexes.value,
+                enabled: virtualEnabled.value && mergedOpen.value && !__props.disabled,
+                "row-key": (_index, result) => pathToken(result.path),
+                "disabled-index": (_index, result) => __props.disabled || result.disabled
+              }, {
+                row: withCtx(({ index, option: result, tabindex }) => [
+                  createElementVNode("button", {
+                    class: "aheart-cascader__option",
+                    type: "button",
+                    tabindex,
+                    "data-cascader-path": pathKey(result.path),
+                    "data-cascader-path-token": pathToken(result.path),
+                    disabled: __props.disabled || result.disabled,
+                    onClick: ($event) => selectPath(result.path),
+                    onFocus: ($event) => handleSearchFocus(result.path),
+                    onKeydown: ($event) => handleSearchKeydown($event, result.path, index)
+                  }, toDisplayString(result.labels.join(" / ")), 41, _hoisted_7)
+                ]),
+                _: 1
+              }, 8, ["items", "config", "active-index", "pinned-indexes", "enabled", "row-key", "disabled-index"])) : createCommentVNode("", true),
+              searchResults.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_8, "暂无匹配选项")) : createCommentVNode("", true)
+            ], 64)) : searchText.value.trim() ? (openBlock(), createElementBlock("div", _hoisted_9, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(searchResults.value, (result) => {
                 return openBlock(), createElementBlock("button", {
                   key: pathToken(result.path),
                   class: "aheart-cascader__option",
                   type: "button",
                   "data-cascader-path": pathKey(result.path),
+                  "data-cascader-path-token": pathToken(result.path),
                   disabled: __props.disabled || result.disabled,
                   onClick: ($event) => selectPath(result.path)
-                }, toDisplayString(result.labels.join(" / ")), 9, _hoisted_8);
+                }, toDisplayString(result.labels.join(" / ")), 9, _hoisted_10);
               }), 128)),
-              searchResults.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_9, "暂无匹配选项")) : createCommentVNode("", true)
+              searchResults.value.length === 0 ? (openBlock(), createElementBlock("div", _hoisted_11, "暂无匹配选项")) : createCommentVNode("", true)
             ])) : (openBlock(), createElementBlock("div", {
-              key: 2,
+              key: 3,
               ref_key: "columnsRef",
               ref: columnsRef,
               class: "aheart-cascader__columns"
             }, [
-              (openBlock(true), createElementBlock(Fragment, null, renderList(columns.value, (column, columnIndex) => {
+              virtualEnabled.value ? (openBlock(true), createElementBlock(Fragment, { key: 0 }, renderList(columns.value, (column, columnIndex) => {
+                return openBlock(), createBlock(_sfc_main$2, {
+                  key: columnPrefixToken(columnIndex),
+                  ref_for: true,
+                  ref: (element) => setVirtualListRef(columnPrefixToken(columnIndex), element),
+                  "class-name": "aheart-cascader__column",
+                  items: column,
+                  config: effectiveVirtualConfig.value,
+                  "active-index": rovingIndex(columnIndex),
+                  "pinned-indexes": pinnedIndexes(columnIndex),
+                  enabled: virtualEnabled.value && mergedOpen.value && !__props.disabled,
+                  "row-key": (optionIndex, option) => rowToken(columnIndex, optionIndex, option),
+                  "disabled-index": (optionIndex, option) => __props.disabled || option.disabled || isLoading(columnIndex, option)
+                }, {
+                  row: withCtx(({ index: optionIndex, option, tabindex }) => [
+                    createElementVNode("button", {
+                      class: normalizeClass(["aheart-cascader__option", { "is-active": activePath.value[columnIndex] === option.value, "is-selected": isSelected(columnIndex, option), "is-loading": isLoading(columnIndex, option), "is-error": isLoadError(columnIndex, option) }]),
+                      type: "button",
+                      tabindex,
+                      "data-cascader-value": option.value,
+                      "data-cascader-token": cascaderKeyToken(option.value),
+                      id: optionId(columnIndex, optionIndex, option),
+                      "data-cascader-column": columnIndex,
+                      disabled: __props.disabled || option.disabled || isLoading(columnIndex, option),
+                      "aria-busy": isLoading(columnIndex, option) ? "true" : void 0,
+                      "aria-label": isLoadError(columnIndex, option) ? `${option.label}，加载失败，按回车或点击重试` : void 0,
+                      onClick: ($event) => handleOption(option, columnIndex),
+                      onFocus: ($event) => handleOptionFocus(option, columnIndex),
+                      onBlur: handleOptionBlur,
+                      onFocusout: handleOptionBlur,
+                      onKeydown: ($event) => handleOptionKeydown($event, option, columnIndex, optionIndex)
+                    }, [
+                      createElementVNode("span", null, toDisplayString(option.label), 1),
+                      isLoading(columnIndex, option) ? (openBlock(), createBlock(_sfc_main$1, {
+                        key: 0,
+                        name: "loading",
+                        size: 16,
+                        spin: "",
+                        "aria-hidden": "true"
+                      })) : isLoadError(columnIndex, option) ? (openBlock(), createElementBlock("span", _hoisted_13, "重试")) : isBranch(option) ? (openBlock(), createBlock(_sfc_main$1, {
+                        key: 2,
+                        name: "chevron-right",
+                        size: 16,
+                        "aria-hidden": "true"
+                      })) : createCommentVNode("", true)
+                    ], 42, _hoisted_12)
+                  ]),
+                  _: 2
+                }, 1032, ["items", "config", "active-index", "pinned-indexes", "enabled", "row-key", "disabled-index"]);
+              }), 128)) : (openBlock(true), createElementBlock(Fragment, { key: 1 }, renderList(columns.value, (column, columnIndex) => {
                 return openBlock(), createElementBlock("div", {
                   key: columnIndex,
                   class: "aheart-cascader__column"
@@ -556,14 +1155,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                       type: "button",
                       "data-cascader-value": option.value,
                       "data-cascader-token": cascaderKeyToken(option.value),
-                      id: optionId(columnIndex, optionIndex),
+                      id: optionId(columnIndex, optionIndex, option),
                       "data-cascader-column": columnIndex,
                       disabled: __props.disabled || option.disabled || isLoading(columnIndex, option),
                       "aria-busy": isLoading(columnIndex, option) ? "true" : void 0,
                       "aria-label": isLoadError(columnIndex, option) ? `${option.label}，加载失败，按回车或点击重试` : void 0,
                       onClick: ($event) => handleOption(option, columnIndex),
                       onFocus: ($event) => handleOptionFocus(option, columnIndex),
-                      onKeydown: ($event) => handleOptionKeydown($event, option, columnIndex)
+                      onBlur: handleOptionBlur,
+                      onFocusout: handleOptionBlur,
+                      onKeydown: ($event) => handleOptionKeydown($event, option, columnIndex, optionIndex)
                     }, [
                       createElementVNode("span", null, toDisplayString(option.label), 1),
                       isLoading(columnIndex, option) ? (openBlock(), createBlock(_sfc_main$1, {
@@ -572,13 +1173,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
                         size: 16,
                         spin: "",
                         "aria-hidden": "true"
-                      })) : isLoadError(columnIndex, option) ? (openBlock(), createElementBlock("span", _hoisted_11, "重试")) : isBranch(option) ? (openBlock(), createBlock(_sfc_main$1, {
+                      })) : isLoadError(columnIndex, option) ? (openBlock(), createElementBlock("span", _hoisted_15, "重试")) : isBranch(option) ? (openBlock(), createBlock(_sfc_main$1, {
                         key: 2,
                         name: "chevron-right",
                         size: 16,
                         "aria-hidden": "true"
                       })) : createCommentVNode("", true)
-                    ], 42, _hoisted_10);
+                    ], 42, _hoisted_14);
                   }), 128))
                 ]);
               }), 128))

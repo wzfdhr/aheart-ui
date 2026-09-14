@@ -38,12 +38,12 @@
 
 ## 已批准延期的三组件虚拟化
 
-批准日期：2026-09-07；来源：当前任务的明确问答，见[D4收尾记录](../reviews/2026-09-07-d4-closeout.md)。作为后续独立工作跟踪，尚未创建新的执行任务，也未指定排期。
+批准延期日期：2026-09-07；来源：当前任务的明确问答，见[D4收尾记录](../reviews/2026-09-07-d4-closeout.md)。D8闭环后，用户持续优化目标已授权执行此独立阶段，当前分支为 `codex/d4-tree-virtualization`，见[阶段矩阵](2026-09-10-d4-deferred-virtualization.md)。Tree功能子阶段已在 `dc8c299` 通过独立开发、测试、设计及产品验收，正在进入TreeSelect RED；下面三项只有联合性能/消费者/最终审核与交付门禁完成后才勾选，不把功能子阶段通过写成已合并交付。
 
-- [ ] Tree虚拟化：先评审可见节点窗口化与展开/勾选/焦点、ARIA、懒加载及动态高度契约，再实施和验收。
-- [ ] TreeSelect虚拟化：先评审搜索结果、已选节点、活动项与Tree复用关系，再实施和验收。
-- [ ] Cascader虚拟化：先评审多列窗口化、活动路径、键盘、异步加载与动态高度契约，再实施和验收。
-- [ ] 共用前置门禁：单独批准API、依赖与体积方案，保留SSR/iframe和键盘契约，执行开发、独立测试、必要设计及产品验收。延期批准不替代实施授权。
+- [x] Tree虚拟化功能子阶段：生产候选`dc8c299`通过窗口化、展开/勾选/焦点、ARIA、懒加载、动态高度和独立开发/设计/测试/产品验收；联合消费者、性能和交付仍由下方共用门禁约束。
+- [x] TreeSelect虚拟化功能子阶段：生产候选`ad18e3b`与测试清理`586dfac`通过搜索/已选节点/活动项/Tree复用、独立开发/设计/测试经理/产品验收，P0/P1/P2=`0/0/0`；联合消费者/性能/交付仍由下方共用门禁约束。
+- [x] Cascader虚拟化功能子阶段：生产候选`7964d86`通过多列窗口化、typed path、键盘、异步加载/重试、动态高度、受控拒绝、iframe/owner realm及独立开发/设计/测试/产品验收，P0/P1/P2=`0/0/0`；联合消费者、性能和交付仍由下方共用门禁约束。
+- [x] 共用前置门禁：生产候选`cf2a24c`和浏览器测试收尾`3618e16`通过真实tgz、714检查点性能/体积、SSR/iframe、完整仓库、四角色终审与产品验收，P0/P1/P2=`0/0/0`；PR/CI/merge/Pages/线上仍由交付门禁单独约束。
 
 ## D5 Table / Pagination
 
@@ -81,14 +81,16 @@
 
 ## D8 AI
 
-- [x] AIStreamEventV2 版本、requestId、sequence、revision（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] 重复/乱序/断线重连和服务端最终消息处理（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] AIChatPanel 卸载、切会话 abort 与迟到事件隔离（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] 审批、取消、重试 pending/success/error 和幂等标识（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] Workbench 单一状态源，桌面/移动不再双实例分叉（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] reorderable、任务依赖约束及锁定原因（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] AIForm 范围、格式、跨字段、异步规则、reset/validate 完整；复用核心 Form（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
-- [x] 工具调用展示业务摘要、输入状态与结果，不展示隐藏推理（D8 四角色本地审核通过；交付链待 PR/CI/merge/Pages）。
+D8 delivery is closed through [PR #24](https://github.com/wzfdhr/aheart-ui/pull/24): frozen head `a65de98`, exact-head push/PR CI, squash merge `4a7511f`, master CI, Pages and live AI interaction validation all passed. The detailed matrix is [here](2026-09-09-d8-ai.md).
+
+- [x] AIStreamEventV2 版本、requestId、sequence、revision（D8 四角色审核与完整交付链通过）。
+- [x] 重复/乱序/断线重连和服务端最终消息处理（D8 四角色审核与完整交付链通过）。
+- [x] AIChatPanel 卸载、切会话 abort 与迟到事件隔离（D8 四角色审核与完整交付链通过）。
+- [x] 审批、取消、重试 pending/success/error 和幂等标识（D8 四角色审核与完整交付链通过）。
+- [x] Workbench 单一状态源，桌面/移动不再双实例分叉（D8 四角色审核与完整交付链通过）。
+- [x] reorderable、任务依赖约束及锁定原因（D8 四角色审核与完整交付链通过）。
+- [x] AIForm 范围、格式、跨字段、异步规则、reset/validate 完整；复用核心 Form（D8 四角色审核与完整交付链通过）。
+- [x] 工具调用展示业务摘要、输入状态与结果，不展示隐藏推理（D8 四角色审核与完整交付链通过）。
 
 ## 延后项与 D0–D3 最终复核
 
