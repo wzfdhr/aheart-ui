@@ -1049,6 +1049,7 @@ export function recomputeEvidence(report) {
     ensure(Array.isArray(bundle?.files) && bundle.files.length > 0, `${side} gzip evidence must list files`, errors)
     const files = bundle?.files ?? []
     const names = files.map(file => file.path)
+    ensure(files.some(file => file.path.endsWith('.js') && Buffer.from(file.contentBase64 ?? '', 'base64').toString('utf8').trim().length > 0), `${side} gzip JavaScript is empty`, errors)
     ensure(new Set(names).size === names.length, `${side} gzip evidence contains duplicate assets`, errors)
     ensure(names.some(name => name.endsWith('.js')) && names.some(name => name.endsWith('.css')) && names.some(name => name.includes('/')), `${side} gzip evidence must include recursive JS/CSS assets`, errors)
     ensure(names.every(name => /\.(?:js|css)$/.test(name) && !name.startsWith('/')), `${side} gzip evidence contains a non-JS/CSS asset`, errors)

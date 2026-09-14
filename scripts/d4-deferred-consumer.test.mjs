@@ -1128,6 +1128,20 @@ test('D4 integration tests rebuild the approved baseline from repository history
   assert.ok(browsers >= 0 && browsers < tests, 'real consumer integration tests require browsers before pnpm test')
 })
 
+test('consumer gzip bundle preserves component entry exports', async () => {
+  const source = await deferredCollectorSource()
+  const bundle = source.slice(source.indexOf('async function buildAssets('), source.indexOf('async function buildAssets(') + 1800)
+  assert.match(bundle, /preserveEntrySignatures:\s*['"]strict['"]/u, 'gzip must measure live component exports, not a tree-shaken empty application entry')
+})
+
+test('gzip validation rejects an empty JavaScript entry', () => {
+  const report = fullReport()
+  for (const file of report.gzip.candidate.files) {
+    if (file.path.endsWith('.js')) file.contentBase64 = Buffer.from('\n').toString('base64')
+  }
+  assert.throws(() => validateReport(report), /gzip JavaScript is empty/u)
+})
+
 test('candidate public type probe is persisted before long browser collection', async () => {
   const source = await deferredCollectorSource()
   const collectSide = source.slice(source.indexOf('async function collectSide('), source.indexOf('export async function finalizeCollectedReport'))

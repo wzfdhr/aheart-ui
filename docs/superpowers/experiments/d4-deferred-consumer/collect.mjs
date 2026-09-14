@@ -324,7 +324,10 @@ async function buildAssets(root) {
   const previousCwd = process.cwd()
   process.chdir(root)
   try {
-    await build({ root: '.', configFile: false, logLevel: 'error', build: { outDir: outputDir, emptyOutDir: true, minify: 'esbuild', sourcemap: false, rollupOptions: { input: entry, external: ['vue'] } } })
+    const result = await build({ root: '.', configFile: false, logLevel: 'error', build: { outDir: outputDir, emptyOutDir: true, minify: 'esbuild', sourcemap: false, rollupOptions: { input: entry, preserveEntrySignatures: 'strict', external: ['vue'] } } })
+    const outputs = (Array.isArray(result) ? result : [result]).flatMap(item => item.output ?? [])
+    const entryChunk = outputs.find(item => item.type === 'chunk' && item.isEntry)
+    assert(entryChunk && ['Tree', 'TreeSelect', 'Cascader'].every(name => entryChunk.exports.includes(name)), 'gzip entry must retain all three component exports')
   } finally {
     process.chdir(previousCwd)
   }
