@@ -19,7 +19,7 @@ Measured gates from the reopened report:
 - Maximum 10k virtual/full median ratio: 43.96% (Cascader coarse), below 50%.
 - Maximum 10k virtual first-interaction median: 196ms, below 500ms.
 - Maximum mounted virtual rows: 16, below the 24-row budget.
-- Chromium long-task maximum: 100ms; CLS maximum: 0.1; Firefox/WebKit unsupported metrics remain explicitly capability-gated rather than fabricated.
+- Chromium's 270 observer rounds recorded no long-task or layout-shift entries: measured maximum long task 0ms and CLS 0. The 100ms and 0.1 values previously listed here were acceptance limits, not measurements. Firefox/WebKit unsupported metrics remain explicitly capability-gated rather than fabricated.
 - SSR/hydration: 8/8 combinations recorded and validator-reopened.
 - Iframe resources: 105 before, 0 after; post-unmount interactions 0 in the bound report.
 - Cleanup: baseline and candidate each Chromium 28, Firefox 28, WebKit 28, page 82, preview server 1; temporary artifacts removed after persistence.
