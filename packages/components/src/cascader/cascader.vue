@@ -525,13 +525,19 @@ const isSelected = (columnIndex: number, option: CascaderOption) => {
 }
 const isLoading = (columnIndex: number, option: CascaderOption) => loadingPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]))
 const isLoadError = (columnIndex: number, option: CascaderOption) => errorPaths.value.some((path) => samePath(path, [...activePath.value.slice(0, columnIndex), option.value]))
+let selectionFocus: { restore: () => void; clear: () => void } | undefined
+const clearSelectionFocus = () => { selectionFocus?.clear(); selectionFocus = undefined }
+onBeforeUnmount(clearSelectionFocus)
+watch([() => props.disabled, () => props.options], clearSelectionFocus)
 const requestOpen = (open: boolean) => {
   if (props.disabled) return
+  if (open) clearSelectionFocus()
   if (!open) { revealGeneration += 1; invalidateModeFocus() }
   openState.setState(open, { force: true })
 }
 watch(mergedOpen, (open, previousOpen) => {
   if (previousOpen && !open) {
+    selectionFocus?.restore()
     revealGeneration += 1
     invalidateModeFocus()
     suspendVirtualLists()
@@ -561,6 +567,28 @@ const selectPath = (path: CascaderPath) => {
       : [...selectedPaths.value, path]
     emitValue(paths)
     return
+  }
+  clearSelectionFocus()
+  const document = panelRef.value?.ownerDocument
+  const focused = document?.activeElement
+  if (document && focused && panelRef.value?.contains(focused)) {
+    const cancel = () => { if (selectionFocus === pending) clearSelectionFocus() }
+    const focus = (event: FocusEvent) => { if (event.target !== focused) cancel() }
+    const clear = () => {
+      document.removeEventListener('focusin', focus, true)
+      document.removeEventListener('pointerdown', cancel, true)
+      document.removeEventListener('keydown', cancel, true)
+    }
+    const pending = { clear, restore: () => { void nextTick(() => {
+      if (selectionFocus !== pending) return
+      const trigger = triggerRef.value
+      clearSelectionFocus()
+      if (!props.disabled && !mergedOpen.value && trigger?.isConnected && (document.activeElement === focused || document.activeElement === document.body)) trigger.focus()
+    }) } }
+    selectionFocus = pending
+    document.addEventListener('focusin', focus, true)
+    document.addEventListener('pointerdown', cancel, true)
+    document.addEventListener('keydown', cancel, true)
   }
   emitValue(path)
   requestOpen(false)

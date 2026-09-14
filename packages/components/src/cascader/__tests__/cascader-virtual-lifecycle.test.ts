@@ -82,6 +82,55 @@ beforeEach(() => {
   Object.defineProperty(window, 'cancelAnimationFrame', { configurable: true, value: (id: number) => { rafQueue.delete(id) } })
 })
 
+it.each([false, true])('returns keyboard search selection focus to trigger with virtual=%s', async virtual => {
+  const wrapper = mountCascader({ options: options(10), virtual, showSearch: true, defaultOpen: true })
+  await settle()
+  await wrapper.find('input').setValue('Item 2')
+  await settle()
+  const row = wrapper.find('.aheart-cascader__search-results .aheart-cascader__option')
+  ;(row.element as HTMLElement).focus()
+  await row.trigger('keydown', { key: 'Enter' })
+  if (!virtual) await row.trigger('click') // jsdom does not synthesize a native button's Enter click.
+  await settle()
+  expect(wrapper.find('[role="combobox"]').attributes('aria-expanded')).toBe('false')
+  expect(document.activeElement).toBe(wrapper.find('[role="combobox"]').element)
+  expect(wrapper.emitted('change')).toHaveLength(1)
+})
+
+it.each(['refused', 'multiple', 'external', 'external-blur', 'accepted', 'delayed'] as const)('respects %s focus ownership after search selection', async mode => {
+  const outside = document.createElement('button')
+  document.body.append(outside)
+  let wrapper: ReturnType<typeof mountCascader>
+  wrapper = mountCascader({ options: options(10), virtual: true, showSearch: true,
+    ...(mode === 'refused' || mode === 'accepted' || mode === 'delayed' ? { open: true } : { defaultOpen: true }),
+    multiple: mode === 'multiple',
+    onOpenChange: (open: boolean) => {
+      if (!open && mode === 'external') outside.focus()
+      if (!open && mode === 'external-blur') { outside.focus(); outside.blur() }
+      if (!open && mode === 'accepted') void wrapper.setProps({ open: false })
+    }
+  })
+  try {
+    await settle()
+    await wrapper.find('input').setValue('Item 2')
+    await settle()
+    const row = wrapper.find('.aheart-cascader__search-results .aheart-cascader__option')
+    ;(row.element as HTMLElement).focus()
+    await row.trigger('keydown', { key: 'Enter' })
+    await settle()
+    if (mode === 'delayed') { await wrapper.setProps({ open: false }); await settle() }
+    const trigger = wrapper.find('[role="combobox"]')
+    if (mode === 'refused' || mode === 'multiple') {
+      expect(trigger.attributes('aria-expanded')).toBe('true')
+      expect(document.activeElement).toBe(row.element)
+    } else {
+      expect(trigger.attributes('aria-expanded')).toBe('false')
+      expect(document.activeElement).toBe(mode === 'external' ? outside : mode === 'external-blur' ? document.body : trigger.element)
+    }
+    expect(wrapper.emitted('change')).toHaveLength(1)
+  } finally { outside.remove() }
+})
+
 afterEach(() => {
   for (const wrapper of wrappers.splice(0)) wrapper.unmount()
   ownerObservers.length = 0

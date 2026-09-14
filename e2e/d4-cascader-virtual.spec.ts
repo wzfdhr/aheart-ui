@@ -306,6 +306,7 @@ test('search virtualizes 10k leaves, supports End+Enter, no-result and clear rec
   await expect(focusedResult).toContainText('Search leaf 09998')
   await focusedResult.press('Enter')
   await expect(field(page, 'cascader-virtual-main').getByRole('combobox')).toContainText('Search leaf 09998')
+  await expect(field(page, 'cascader-virtual-main').getByRole('combobox')).toBeFocused()
   await field(page, 'cascader-virtual-main').getByRole('combobox').click()
   const reopened = await panel(page)
   await reopened.getByRole('searchbox', { name: '搜索级联选项' }).fill('no-match-anywhere')
