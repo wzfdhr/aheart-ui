@@ -1,5 +1,7 @@
 # D4 deferred virtualization final development-manager review
 
+> Superseded on 2026-09-14: the combined PASS is withdrawn pending corrected gzip evidence and independent re-review. Both old bundle JS entries were empty; +172 bytes is CSS-only. See [the confirmed P2 and repair record](../evidence/d4-deferred-consumer/gzip-empty-entry-red.md). The historical findings below are not current merge approval.
+
 Date: 2026-09-13. Final production candidate: `cf2a24c1460187041f622ddd0a01831076f91ab0`. Browser-test closeout: `3618e16bcdf7bdf3439ae3255529cc934588e4a3`. Baseline: master `4a7511f9594d0a74906e427e158d02343ba33a22`.
 
 ## Scope and review independence

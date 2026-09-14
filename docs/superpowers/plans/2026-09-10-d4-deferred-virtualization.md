@@ -1,5 +1,7 @@
 # Deferred D4 virtualization delivery matrix
 
+> 2026-09-14 correction: the combined real-consumer gzip gate and four-role final approval below are reopened. Empty JavaScript invalidated the old +172-byte result; historical checked entries are not current closure evidence. See [confirmed P2](../evidence/d4-deferred-consumer/gzip-empty-entry-red.md). Independent final review must be re-established after correction.
+
 Baseline: master `4a7511f9594d0a74906e427e158d02343ba33a22`. Branch: `codex/d4-tree-virtualization`. Architecture: [three-component contract](../specs/2026-09-10-d4-deferred-virtualization-architecture.md).
 
 This is the independent follow-up authorized by the persistent optimization goal. It implements the Tree, TreeSelect and Cascader virtualization that D4 previously recorded as deferred. It does not reopen or rewrite the already merged Select delivery.

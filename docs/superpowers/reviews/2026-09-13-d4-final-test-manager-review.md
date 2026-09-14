@@ -1,5 +1,7 @@
 # D4 deferred virtualization final test-manager review
 
+> Superseded on 2026-09-14: combined release PASS is withdrawn. The old gzip consumer produced empty JS and does not establish the size gate. See [the confirmed P2 and repair record](../evidence/d4-deferred-consumer/gzip-empty-entry-red.md). Corrected measurements and independent final review remain required.
+
 Date: 2026-09-13. Final production candidate: `cf2a24c1460187041f622ddd0a01831076f91ab0`. Final browser-test candidate: `3618e16bcdf7bdf3439ae3255529cc934588e4a3`.
 
 ## Method and boundary
