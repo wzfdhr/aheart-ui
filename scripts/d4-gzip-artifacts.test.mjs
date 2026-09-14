@@ -6,6 +6,12 @@ import path from 'node:path'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 
+test('gzip recollection fixes CommonJS wrapping and requires repeat-build equality', async () => {
+  const source = await readFile(new URL('./d4-gzip-recollect.mjs', import.meta.url), 'utf8')
+  assert.match(source, /strictRequires:\s*true/)
+  assert.match(source, /gzip repeat build differs/)
+})
+
 test('gzip artifacts are reopened with exact asset sets and embedded bytes', async () => {
   const { persistGzipArtifacts, verifyGzipArtifacts, verifyGzipSupplement } = await import('./d4-gzip-artifacts.mjs')
   const root = await mkdtemp(path.join(tmpdir(), 'd4-gzip-binding-'))

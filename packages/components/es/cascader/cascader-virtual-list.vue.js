@@ -27,6 +27,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const pendingKey = ref();
     let focusRetry = 0;
     let focusTimer;
+    let cancelFocusTimer;
     let focusGeneration = 0;
     const pendingRows = /* @__PURE__ */ new Map();
     const rowReportedSizes = /* @__PURE__ */ new Map();
@@ -236,8 +237,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       pendingKey.value = requestedKey;
       const generation = ++focusGeneration;
       focusRetry = 0;
-      if (focusTimer !== void 0)
-        ownerWindow == null ? void 0 : ownerWindow.clearTimeout(focusTimer);
+      cancelFocusTimer == null ? void 0 : cancelFocusTimer();
       if (active.value) {
         if (scrollRef.value) {
           scrollRef.value.scrollTop = clamped * props.config.estimateSize;
@@ -270,16 +270,28 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
         if (focusRetry++ < 4 && alive) {
           const view = (_c = scrollRef.value) == null ? void 0 : _c.ownerDocument.defaultView;
-          if (view == null ? void 0 : view.requestAnimationFrame)
-            focusTimer = view.requestAnimationFrame(() => {
-              focusTimer = void 0;
+          if (view) {
+            const useFrame = typeof view.requestAnimationFrame === "function" && typeof view.cancelAnimationFrame === "function";
+            const callback = () => {
+              if (focusTimer === handle) {
+                focusTimer = void 0;
+                cancelFocusTimer = void 0;
+              }
               void nextTick(commit);
-            });
-          else if (view)
-            focusTimer = view.setTimeout(() => {
-              focusTimer = void 0;
-              void nextTick(commit);
-            }, 0);
+            };
+            const handle = useFrame ? view.requestAnimationFrame(callback) : view.setTimeout(callback, 0);
+            focusTimer = handle;
+            cancelFocusTimer = () => {
+              if (useFrame)
+                view.cancelAnimationFrame(handle);
+              else
+                view.clearTimeout(handle);
+              if (focusTimer === handle) {
+                focusTimer = void 0;
+                cancelFocusTimer = void 0;
+              }
+            };
+          }
         } else if (pendingKey.value === requestedKey)
           pendingKey.value = void 0;
       };
@@ -295,15 +307,10 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const focusFirst = () => focusIndex(firstEnabled());
     const focusLast = () => focusIndex(lastEnabled());
     const cancelFocus = () => {
-      var _a, _b;
       focusGeneration++;
       pendingKey.value = void 0;
       focusRetry = 0;
-      if (focusTimer !== void 0)
-        (_a = ownerWindow == null ? void 0 : ownerWindow.cancelAnimationFrame) == null ? void 0 : _a.call(ownerWindow, focusTimer);
-      if (focusTimer !== void 0)
-        (_b = ownerWindow == null ? void 0 : ownerWindow.clearTimeout) == null ? void 0 : _b.call(ownerWindow, focusTimer);
-      focusTimer = void 0;
+      cancelFocusTimer == null ? void 0 : cancelFocusTimer();
     };
     const suspend = () => {
       cancelFocus();

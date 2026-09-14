@@ -61,6 +61,7 @@ export async function verifyGzipSupplement(report) {
     const evidence = report.sides[side]
     assert.equal(evidence.tarballSha256, source.packages[side].sha256, 'supplement package binding mismatch')
     await verifyGzipArtifacts(evidence.binding, evidence.files)
+    if (evidence.repeatBinding) await verifyGzipArtifacts(evidence.repeatBinding, evidence.files)
     totals[side] = evidence.files.reduce((sum, file) => sum + file.gzipBytes, 0)
     assert.equal(evidence.gzipBytes, totals[side], 'supplement total mismatch')
   }

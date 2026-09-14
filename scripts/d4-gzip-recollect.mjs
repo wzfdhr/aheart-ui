@@ -43,7 +43,8 @@ try {
     await writeFile(entry, entryText)
     const { build } = await import(pathToFileURL(path.join(root, 'node_modules/vite/dist/node/index.js')).href)
     const bundle = path.join(root, 'bundle')
-    const built = await build({ root, configFile: false, logLevel: 'error', build: { outDir: bundle, minify: 'esbuild', sourcemap: false, rollupOptions: { input: entry, preserveEntrySignatures: 'strict', external: ['vue'] } } })
+    const buildOptions = { root, configFile: false, logLevel: 'error', build: { outDir: bundle, minify: 'esbuild', sourcemap: false, commonjsOptions: { strictRequires: true }, rollupOptions: { input: entry, preserveEntrySignatures: 'strict', external: ['vue'] } } }
+    const built = await build(buildOptions)
     const chunks = (Array.isArray(built) ? built : [built]).flatMap(item => item.output)
     const entryChunk = chunks.find(item => item.type === 'chunk' && item.isEntry)
     assert(entryChunk && ['Tree', 'TreeSelect', 'Cascader'].every(name => entryChunk.exports.includes(name)), 'missing component exports')
@@ -61,7 +62,13 @@ try {
     await walk()
     const binding = await persistGzipArtifacts(bundle, path.join(root, 'evidence'), files)
     await verifyGzipArtifacts(binding, files)
-    result.sides[side] = { tarballSha256: hash(tarball), entry: entryChunk.fileName, exports: entryChunk.exports, lockSha256: hash(await readFile(path.join(root, 'pnpm-lock.yaml'))), files, binding, gzipBytes: files.reduce((sum, file) => sum + file.gzipBytes, 0) }
+    await build(buildOptions)
+    const firstFiles = [...files]
+    files.length = 0
+    await walk()
+    assert.deepEqual([...files].sort((a, b) => a.path.localeCompare(b.path)), [...firstFiles].sort((a, b) => a.path.localeCompare(b.path)), 'gzip repeat build differs')
+    const repeatBinding = await persistGzipArtifacts(bundle, path.join(root, 'repeat-evidence'), files)
+    result.sides[side] = { tarballSha256: hash(tarball), entry: entryChunk.fileName, exports: entryChunk.exports, lockSha256: hash(await readFile(path.join(root, 'pnpm-lock.yaml'))), files, binding, repeatBinding, strictRequires: true, gzipBytes: files.reduce((sum, file) => sum + file.gzipBytes, 0) }
   }
   result.deltaBytes = result.sides.candidate.gzipBytes - result.sides.baseline.gzipBytes
   result.limitBytes = 12 * 1024
