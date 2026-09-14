@@ -39,6 +39,8 @@ jobs:
           cache: pnpm
       - name: Install
         run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
       - name: Unit and script tests
         run: pnpm test
 
@@ -134,6 +136,8 @@ jobs:
           cache: pnpm
       - name: Install
         run: pnpm install --frozen-lockfile
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium
       - name: Verify Release Tarballs
         run: pnpm release:pack
       - name: Pack and run isolated consumers
