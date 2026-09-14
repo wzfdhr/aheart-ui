@@ -2,7 +2,6 @@ import { defineComponent, useAttrs, computed, ref, watch, onBeforeUnmount, openB
 import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
-import "./style.css.js";
 import { useAheartConfig } from "../config/context.js";
 const _hoisted_1 = { class: "aheart-upload__trigger" };
 const _hoisted_2 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "disabled", "multiple"];

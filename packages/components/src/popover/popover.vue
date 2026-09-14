@@ -82,7 +82,6 @@ import {
   type PopoverSemanticInfo,
   type PopoverSemanticStyles
 } from './types'
-import './style.css'
 
 defineOptions({
   name: 'APopover'

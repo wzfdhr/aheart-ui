@@ -3,7 +3,6 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const usePointerDrag = require("../utils/use-pointer-drag.js");
 const solver = require("./solver.js");
-require("./style.css.js");
 const SPLITTER_HANDLE_SIZE = 6;
 const splitterProps = {
   sizes: Array,

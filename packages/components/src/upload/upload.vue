@@ -27,7 +27,6 @@ import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-c
 import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
 import type { UploadFailureReason, UploadFile, UploadRequest, UploadRequestHandle } from './types'
-import './style.css'
 
 defineOptions({ name: 'AUpload', inheritAttrs: false })
 

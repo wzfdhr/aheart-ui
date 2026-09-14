@@ -10,7 +10,6 @@ import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { usePopupViewportBudget } from "../utils/use-popup-viewport-budget.js";
 import _sfc_main$2 from "./cascader-virtual-list.vue.js";
 import { normalizeCascaderVirtual } from "./virtual-options.js";
-import "./style.css.js";
 const _hoisted_1 = ["tabindex", "aria-expanded", "aria-disabled", "aria-activedescendant", "aria-labelledby", "aria-describedby"];
 const _hoisted_2 = {
   key: 0,

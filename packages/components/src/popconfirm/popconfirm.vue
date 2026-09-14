@@ -125,7 +125,6 @@ import {
   type PopconfirmSemanticInfo,
   type PopconfirmSemanticStyles
 } from './types'
-import './style.css'
 
 defineOptions({
   name: 'APopconfirm'

@@ -8,7 +8,6 @@ const internalContext = require("./internal-context.js");
 const listContext = require("./list-context.js");
 const namePath = require("./name-path.js");
 const types = require("./types.js");
-require("./style.css.js");
 const _hoisted_1 = ["data-name"];
 const _hoisted_2 = ["for"];
 const _hoisted_3 = {

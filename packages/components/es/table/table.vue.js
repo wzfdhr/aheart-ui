@@ -8,7 +8,6 @@ import { useStableId } from "../utils/use-stable-id.js";
 import { tableProps, tableEmits } from "./types.js";
 import { normalizeTableVirtual } from "./virtual-options.js";
 import { useTableVirtual } from "./use-table-virtual.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["data-table-narrow-left", "data-table-right-downgraded", "data-table-virtual-fallback", "data-fallback-reason", "aria-busy", "inert"];
 const _hoisted_2 = {

@@ -1,7 +1,6 @@
 import { defineComponent, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createBlock, withCtx, createVNode, unref } from "vue";
 import _sfc_main$1 from "./checkable-tag.vue.js";
 import { tagGroupProps, tagGroupEmits } from "./types.js";
-import "./style.css.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ATagGroup"

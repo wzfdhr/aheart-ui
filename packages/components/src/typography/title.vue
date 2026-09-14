@@ -34,7 +34,6 @@
 import { computed, ref, toRef } from 'vue'
 import { TypographyRenderNode, useTypographyCopyable } from './copyable'
 import { titleProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ATitle'

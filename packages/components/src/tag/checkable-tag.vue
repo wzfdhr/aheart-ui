@@ -23,7 +23,6 @@
 <script setup lang="ts">
 import { computed, defineComponent, useSlots, type PropType, type VNodeChild } from 'vue'
 import { checkableTagEmits, checkableTagProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ACheckableTag'

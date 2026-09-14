@@ -1,6 +1,5 @@
 import { defineComponent, useSlots, computed, openBlock, createBlock, resolveDynamicComponent, normalizeClass, normalizeStyle, withCtx, createElementBlock, renderSlot, createVNode, unref, createCommentVNode, createElementVNode } from "vue";
 import { tagProps, tagEmits } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

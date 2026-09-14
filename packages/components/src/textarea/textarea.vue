@@ -41,7 +41,6 @@ import type { PropType, VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { textareaEmits, textareaProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ATextarea'

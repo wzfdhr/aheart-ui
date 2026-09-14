@@ -77,7 +77,6 @@ import {
   type SkeletonParagraphConfig,
   type SkeletonTitleConfig
 } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ASkeleton'

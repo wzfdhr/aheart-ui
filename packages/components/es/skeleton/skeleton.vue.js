@@ -1,6 +1,5 @@
 import { defineComponent, computed, renderSlot, openBlock, createElementBlock, normalizeClass, normalizeStyle, createCommentVNode, createVNode, unref, Fragment, renderList } from "vue";
 import { skeletonProps } from "./types.js";
-import "./style.css.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ASkeleton"

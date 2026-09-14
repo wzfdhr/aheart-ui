@@ -195,7 +195,6 @@ import { usePopupViewportBudget } from '../utils/use-popup-viewport-budget'
 import type { CascaderKey, CascaderLoadContext, CascaderOption, CascaderPath, CascaderValue } from './types'
 import CascaderVirtualList, { type CascaderVirtualListExpose } from './cascader-virtual-list.vue'
 import { normalizeCascaderVirtual } from './virtual-options'
-import './style.css'
 
 defineOptions({ name: 'ACascader' })
 

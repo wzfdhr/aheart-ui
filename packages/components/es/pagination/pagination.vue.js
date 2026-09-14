@@ -1,7 +1,6 @@
 import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, toDisplayString, createCommentVNode, createElementVNode, Fragment, renderList, withDirectives, withKeys, vModelText, createVNode, unref } from "vue";
 import { paginationProps, paginationEmits } from "./types.js";
 import { normalizePageSize, normalizeTotal, getPageCount, normalizeCurrent } from "./pagination-state.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["aria-label"];
 const _hoisted_2 = ["disabled", "aria-label"];

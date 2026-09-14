@@ -19,7 +19,6 @@
 <script setup lang="ts">
 import { computed, defineComponent, type PropType, useSlots, type VNodeChild } from 'vue'
 import { badgeProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ABadge'

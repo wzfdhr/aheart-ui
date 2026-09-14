@@ -1,6 +1,5 @@
 import { defineComponent, ref, computed, onMounted, nextTick, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createTextVNode, toDisplayString } from "vue";
 import { radioProps, radioEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["title"];
 const _hoisted_2 = { class: "aheart-radio__box" };

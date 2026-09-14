@@ -2,7 +2,6 @@ import { defineComponent, ref, computed, onMounted, nextTick, openBlock, createE
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import _sfc_main$1 from "../icon/icon.vue.js";
 import { switchProps, switchEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["aria-checked", "aria-busy", "disabled"];
 const _sfc_main = /* @__PURE__ */ defineComponent({

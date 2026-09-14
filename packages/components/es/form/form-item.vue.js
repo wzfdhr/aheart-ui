@@ -6,7 +6,6 @@ import { formInternalContextKey } from "./internal-context.js";
 import { formListNameContextKey } from "./list-context.js";
 import { namePathKey } from "./name-path.js";
 import { formItemProps, formContextKey } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["data-name"];
 const _hoisted_2 = ["for"];
 const _hoisted_3 = {

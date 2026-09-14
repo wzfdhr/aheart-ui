@@ -2,7 +2,6 @@ import { defineComponent, useSlots, computed, h, openBlock, createElementBlock, 
 import Button from "../button/index.js";
 import _sfc_main$1 from "./dropdown.vue.js";
 import { dropdownButtonProps, dropdownButtonEmits } from "./types.js";
-import "./style.css.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "ADropdownButton"

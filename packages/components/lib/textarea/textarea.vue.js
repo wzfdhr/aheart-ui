@@ -3,7 +3,6 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const usePropPresence = require("../utils/use-prop-presence.js");
 const types = require("./types.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["id", "value", "placeholder", "rows", "disabled", "readonly", "maxlength", "aria-invalid"];
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({

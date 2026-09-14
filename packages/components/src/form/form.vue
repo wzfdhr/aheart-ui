@@ -36,7 +36,6 @@ import {
   type FormInternalContext,
   type FormListController
 } from './internal-context'
-import './style.css'
 
 defineOptions({
   name: 'AForm'

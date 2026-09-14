@@ -1,7 +1,6 @@
 import { defineComponent, ref, computed, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, Fragment, renderList, createBlock, nextTick } from "vue";
 import _sfc_main$1 from "./menu-node.vue.js";
 import { menuProps, menuEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

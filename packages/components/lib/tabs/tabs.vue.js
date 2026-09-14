@@ -2,7 +2,6 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
 const types = require("./types.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-orientation"];
 const _hoisted_2 = ["id", "aria-selected", "aria-controls", "disabled", "tabindex", "onClick", "onKeydown"];

@@ -14,7 +14,6 @@ import {
   type DropdownClickInfo,
   type DropdownOpenChangeInfo
 } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ADropdownButton'

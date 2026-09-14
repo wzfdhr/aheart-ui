@@ -1,6 +1,5 @@
 import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createCommentVNode } from "vue";
 import { dividerProps } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["aria-orientation"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

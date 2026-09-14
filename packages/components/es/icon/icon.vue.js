@@ -1,7 +1,6 @@
 import { defineComponent, useSlots, computed, markRaw, toRaw, watchEffect, warn, openBlock, createElementBlock, normalizeClass, normalizeStyle, unref, renderSlot, createBlock, resolveDynamicComponent, createCommentVNode } from "vue";
 import { iconComponents, warnedUnknownIconNames } from "./icons.js";
 import { iconProps } from "./types.js";
-import "./style.css.js";
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{
     name: "AIcon"

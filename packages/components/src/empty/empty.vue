@@ -24,7 +24,6 @@
 import { computed, defineComponent, type PropType, useSlots, type VNodeChild } from 'vue'
 import { useAheartConfig } from '../config'
 import { EMPTY_PRESENTED_IMAGE_DEFAULT, EMPTY_PRESENTED_IMAGE_SIMPLE, emptyProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AEmpty'

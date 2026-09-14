@@ -32,7 +32,6 @@ import { resolveConfigValue, useAheartConfig } from '../config'
 import { usePropPresence } from '../utils/use-prop-presence'
 import AIcon from '../icon/icon.vue'
 import { switchEmits, switchProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ASwitch'

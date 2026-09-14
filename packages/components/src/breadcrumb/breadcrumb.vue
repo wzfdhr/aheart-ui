@@ -65,7 +65,6 @@
 <script setup lang="ts">
 import { computed, defineComponent, type PropType, type VNodeChild } from 'vue'
 import { breadcrumbProps, type BreadcrumbItem, type BreadcrumbRouteItem, type BreadcrumbSeparatorItem } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ABreadcrumb'

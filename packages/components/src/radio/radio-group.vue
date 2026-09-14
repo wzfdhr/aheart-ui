@@ -53,7 +53,6 @@ import {
   type RadioOption,
   type RadioValue
 } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ARadioGroup'

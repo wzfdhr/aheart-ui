@@ -45,7 +45,6 @@
 <script setup lang="ts">
 import { computed, defineComponent, onBeforeUnmount, ref, useSlots, watch, type PropType, type VNodeChild } from 'vue'
 import { spinProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ASpin'

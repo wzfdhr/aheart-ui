@@ -106,7 +106,8 @@ Final D0–D3 candidate `619fbe6` also closes the previously recorded default da
 
 - [ ] 三个 tarball 在无 workspace 软链的临时 Vue 消费项目安装。
 - [ ] ESM/CJS、类型、CSS、按需导入、插件安装与 SSR。
-  - 当前已知：根入口 named import 的真实 Vite consumer 仍保留 Table/Cascader/TreeSelect/Upload 等无关代码；Form.List 阶段以公开 `es/form/index.js` 子路径隔离验证，不把该结果冒充根入口按需导入通过。D9 必须修复并复测。
+  - [x] 根入口 named import 的真实 Vite consumer 已修复并通过：生成 ESM/CJS module roots 标记 `sideEffects:false`，组件 CSS 改为显式 `style.css` 入口；root bundle 不再保留无关 Table/Cascader/TreeSelect/Upload。
+  - [ ] 三包完整 ESM/CJS、插件安装、SSR/hydration 组合仍待 D9 总消费者门禁。
 - [ ] 引入覆盖率，R1 状态机 branch coverage ≥80%。
 - [ ] CI 拆为 unit/typecheck/build/docs/browser/consumer。
 - [ ] 消除重复 QG5 E2E，核实 CI 耗时改善。

@@ -1,6 +1,5 @@
 import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, Fragment, createElementVNode } from "vue";
 import { badgeProps } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["title"];
 const _hoisted_2 = ["title"];
 const _hoisted_3 = {

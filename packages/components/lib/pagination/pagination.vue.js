@@ -3,7 +3,6 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const types = require("./types.js");
 const paginationState = require("./pagination-state.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-label"];
 const _hoisted_2 = ["disabled", "aria-label"];

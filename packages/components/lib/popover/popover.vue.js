@@ -10,7 +10,6 @@ const useTeleportReady = require("../utils/use-teleport-ready.js");
 const useStableId = require("../utils/use-stable-id.js");
 const useTriggerAria = require("../utils/use-trigger-aria.js");
 const types = require("./types.js");
-require("./style.css.js");
 const _hoisted_1 = ["aria-controls", "aria-expanded"];
 const _hoisted_2 = ["id", "aria-labelledby", "aria-hidden"];
 const _hoisted_3 = ["id"];

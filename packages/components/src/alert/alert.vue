@@ -40,7 +40,6 @@
 <script setup lang="ts">
 import { computed, defineComponent, type PropType, ref, useSlots, type VNodeChild } from 'vue'
 import { alertEmits, alertProps, type AlertClosableConfig } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AAlert'

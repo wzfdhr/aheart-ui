@@ -3,7 +3,6 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const icons = require("./icons.js");
 const types = require("./types.js");
-require("./style.css.js");
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
   ...{
     name: "AIcon"

@@ -15,7 +15,6 @@ import { useStableId } from "../utils/use-stable-id.js";
 import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { usePopupViewportBudget } from "../utils/use-popup-viewport-budget.js";
 import { normalizeTreeSelectVirtual } from "./virtual-options.js";
-import "./style.css.js";
 const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby", "aria-invalid"];
 const _hoisted_2 = {
   key: 0,

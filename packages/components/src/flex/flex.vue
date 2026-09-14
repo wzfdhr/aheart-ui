@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { flexProps, type FlexGap } from './types'
-import './style.css'
 
 defineOptions({
   name: 'AFlex'

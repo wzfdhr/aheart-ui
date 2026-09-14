@@ -1,6 +1,5 @@
 import { defineComponent, useSlots, ref, watch, onBeforeUnmount, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, renderSlot, createBlock, unref, createVNode, createCommentVNode, toDisplayString } from "vue";
 import { spinProps } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["aria-busy"];
 const _sfc_main = /* @__PURE__ */ defineComponent({
   ...{

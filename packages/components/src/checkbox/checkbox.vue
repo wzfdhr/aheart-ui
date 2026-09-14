@@ -28,7 +28,6 @@ import { computed, nextTick, onMounted, ref, watchEffect } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { checkboxEmits, checkboxProps } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ACheckbox'

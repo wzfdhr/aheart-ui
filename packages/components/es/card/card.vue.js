@@ -1,6 +1,5 @@
 import { defineComponent, useSlots, computed, ref, watch, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createCommentVNode, createElementVNode, createVNode, unref, Fragment, renderList, createBlock } from "vue";
 import { cardProps, cardEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["id", "aria-selected", "aria-controls", "disabled", "tabindex", "onClick"];
 const _hoisted_2 = ["id", "role", "aria-labelledby"];

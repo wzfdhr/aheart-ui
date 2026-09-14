@@ -20,7 +20,6 @@
 import { Comment, Fragment, computed, defineComponent, useSlots, type PropType, type VNode, type VNodeChild } from 'vue'
 import { useAheartConfig } from '../config'
 import { spaceProps, type SpaceSize } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ASpace'

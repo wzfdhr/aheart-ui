@@ -1,7 +1,6 @@
 import { defineComponent, useAttrs, useSlots, ref, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, createElementVNode, mergeProps, nextTick } from "vue";
 import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import { inputProps, inputEmits } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];
 const _hoisted_2 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "type", "value", "placeholder", "disabled", "readonly", "maxlength"];

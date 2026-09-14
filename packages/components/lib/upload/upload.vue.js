@@ -4,7 +4,6 @@ const vue = require("vue");
 const controlContext = require("../form/control-context.js");
 const useControllableState = require("../utils/use-controllable-state.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
-require("./style.css.js");
 const context = require("../config/context.js");
 const _hoisted_1 = { class: "aheart-upload__trigger" };
 const _hoisted_2 = ["id", "aria-labelledby", "aria-describedby", "aria-invalid", "disabled", "multiple"];

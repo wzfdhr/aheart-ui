@@ -1,6 +1,5 @@
 import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, Fragment, renderList, createElementVNode, createVNode, unref, toDisplayString, createCommentVNode, withModifiers } from "vue";
 import { messageProps, messageEmits } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["onClick", "onMouseenter", "onMouseleave"];
 const _hoisted_2 = {
   key: 0,

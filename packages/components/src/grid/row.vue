@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { rowProps, type GridBreakpoint, type GridGutter } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ARow'

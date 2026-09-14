@@ -1,0 +1,13 @@
+{
+  "name": "aheart-root-entry-consumer",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "aheart-ui": "file:./aheart-ui.tgz",
+    "vue": "3.5.38"
+  },
+  "devDependencies": {
+    "vite": "5.0.12",
+    "typescript": "5.4.5"
+  }
+}

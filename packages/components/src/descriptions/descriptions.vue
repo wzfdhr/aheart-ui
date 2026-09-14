@@ -58,7 +58,6 @@
 import { computed, defineComponent, type PropType, useSlots, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { descriptionsProps, type DescriptionItem } from './types'
-import './style.css'
 
 defineOptions({
   name: 'ADescriptions'

@@ -1,6 +1,5 @@
 import { defineComponent, useSlots, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, renderSlot, createBlock, unref, createCommentVNode, Fragment, createTextVNode, toDisplayString } from "vue";
 import { emptyProps, EMPTY_PRESENTED_IMAGE_SIMPLE, EMPTY_PRESENTED_IMAGE_DEFAULT } from "./types.js";
-import "./style.css.js";
 import { useAheartConfig } from "../config/context.js";
 const _hoisted_1 = ["src"];
 const _hoisted_2 = {

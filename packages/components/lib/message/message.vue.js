@@ -2,7 +2,6 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
 const types = require("./types.js");
-require("./style.css.js");
 const _hoisted_1 = ["onClick", "onMouseenter", "onMouseleave"];
 const _hoisted_2 = {
   key: 0,

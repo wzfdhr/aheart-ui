@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
-import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -25,6 +25,13 @@ for (const packageDir of packages) {
     }
   })
 }
+
+test('components generated module roots are marked side-effect free for root named-import tree shaking', async () => {
+  const esmPackage = JSON.parse(await readFile(path.join(workspaceRoot, 'packages/components/es/package.json'), 'utf8'))
+  const cjsPackage = JSON.parse(await readFile(path.join(workspaceRoot, 'packages/components/lib/package.json'), 'utf8'))
+  assert.equal(esmPackage.sideEffects, false)
+  assert.equal(cjsPackage.sideEffects, false)
+})
 
 test('dnd package exports resolve consumer types for business records and standalone values', async (t) => {
   const fixtureDir = await mkdtemp(path.join(tmpdir(), 'aheart-dnd-types-'))

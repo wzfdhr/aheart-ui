@@ -1,6 +1,5 @@
 import { defineComponent, computed, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, Fragment, renderList, createVNode, unref, createCommentVNode } from "vue";
 import { breadcrumbProps } from "./types.js";
-import "./style.css.js";
 const _hoisted_1 = ["aria-current", "aria-disabled"];
 const _hoisted_2 = ["onClick"];
 const _hoisted_3 = ["href", "onClick"];

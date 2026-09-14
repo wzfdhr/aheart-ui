@@ -235,7 +235,6 @@ import {
 } from './types'
 import { normalizeTableVirtual } from './virtual-options'
 import { useTableVirtual } from './use-table-virtual'
-import './style.css'
 
 defineOptions({
   name: 'ATable'
