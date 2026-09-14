@@ -451,11 +451,10 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           if (event.target === focused && mergedOpen.value && focused.isConnected)
             cancel();
         };
+        const listeners = [["focusin", focus], ["focusout", blur], ["pointerdown", cancel], ["keydown", cancel]];
         const clear = () => {
-          document.removeEventListener("focusin", focus, true);
-          document.removeEventListener("focusout", blur, true);
-          document.removeEventListener("pointerdown", cancel, true);
-          document.removeEventListener("keydown", cancel, true);
+          for (const [type, listener] of listeners)
+            document.removeEventListener(type, listener, true);
         };
         const pending = { clear, restore: () => {
           void vue.nextTick(() => {
@@ -468,10 +467,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           });
         } };
         selectionFocus = pending;
-        document.addEventListener("focusin", focus, true);
-        document.addEventListener("focusout", blur, true);
-        document.addEventListener("pointerdown", cancel, true);
-        document.addEventListener("keydown", cancel, true);
+        for (const [type, listener] of listeners)
+          document.addEventListener(type, listener, true);
       }
       emitValue(path);
       requestOpen(false);
