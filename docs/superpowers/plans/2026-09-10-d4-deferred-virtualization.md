@@ -1,6 +1,6 @@
 # Deferred D4 virtualization delivery matrix
 
-> 2026-09-14 correction: the combined real-consumer gzip gate and four-role final approval below are reopened. Empty JavaScript invalidated the old +172-byte result; historical checked entries are not current closure evidence. See [confirmed P2](../evidence/d4-deferred-consumer/gzip-empty-entry-red.md). Independent final review must be re-established after correction.
+> 2026-09-14 correction: empty JavaScript invalidated the old +172-byte result and dependent final approval. The corrected c608a9b full report and durable gzip supplement now pass; final whole-repository and four-role gates below remain open until their candidate-bound evidence is accepted. See [original P2](../evidence/d4-deferred-consumer/gzip-empty-entry-red.md).
 
 Baseline: master `4a7511f9594d0a74906e427e158d02343ba33a22`. Branch: `codex/d4-tree-virtualization`. Architecture: [three-component contract](../specs/2026-09-10-d4-deferred-virtualization-architecture.md).
 
@@ -14,9 +14,11 @@ This is the independent follow-up authorized by the persistent optimization goal
 - [x] Tree GREEN implementation and functional development/design/test/product reviews: candidate `dc8c299`, independent unit91/91, developer28/28, isolated five-browser45/45, fresh lazy visual supplement and product P0/P1/P2=`0/0/0`. Joint final phase gates below remain open.
 - [x] TreeSelect genuine RED, GREEN implementation and functional development/design/test/product reviews: production candidate `ad18e3b`, test-isolation closeout `586dfac`; maintained142/142, public types, TreeSelect50/50, Tree45/45, independent ownership24/24 and13 freshly opened final screenshots. Independent developer, design, test-manager and product verdicts are P0/P1/P2=`0/0/0`. Combined phase gates below remain open.
 - [x] Cascader genuine RED, GREEN implementation and functional development/design/test/product reviews: production candidate `7964d86`; maintained135/135, recovery8–13 40/40, five-project Cascader60/60, geometry15/15, TreeSelect50/50 and typecheck passed. Thirteen final screenshots were individually opened; independent development, design, test-manager and product verdicts are P0/P1/P2=`0/0/0`. Combined phase gates below remain open.
-- [x] Real tgz consumer, 1k/5k/10k performance, gzip, SSR/hydration and iframe evidence: production candidate `cf2a24c`, 714 checkpoints, max long task 0ms, validator passed and `acceptanceEligible=true`.
-- [x] Frozen production/test candidates passed full repository gates, generated outputs and zero new skips: unit 1432/79/200/233, E2E 808 passed/127 existing skips/0 failed, skip-site delta 0.
-- [x] Four final independent role reports with P0/P1/P2=`0/0/0`; each is separated from component production implementation, and component substages retain their earlier independent implementation/test/design/product reports.
+- [x] Real tgz consumer, 1k/5k/10k performance, SSR/hydration and iframe evidence: production candidate `c608a9b`, 714 checkpoints, saved-report validator passed. Measured Chromium long task0ms/CLS0; eight hydration combinations; iframe105→0. See [full report evidence](../evidence/d4-deferred-consumer/full-green-c608a9b.md).
+- [x] Independently reopened durable gzip double-build for c608a9b: +12,261B <=12,288B; actual component exports and both build artifact sets verified. See [size evidence](../evidence/d4-deferred-consumer/gzip-c608a9b-green.md).
+- [x] Final whole-repository automated gates for production c608a9b: both a9734e3 CI groups passed; independent test manager verified unit1459/79/200, scripts238, types/determinism/generated/docs/pack, E2E808 passed/127 existing skips, QG5 62 passed/3 existing skips and no new skip lines. See [independent test report](../reviews/2026-09-14-d4-independent-final-test.md). Any later final merge head still requires its own CI checks.
+- [x] Independent development-manager review for production c608a9b: scoped P0/P1/P2=0/0/0. See [development report](../reviews/2026-09-14-d4-independent-final-dev.md).
+- [ ] Four final independent role reports with P0/P1/P2=`0/0/0`. Earlier component substages retain their historical reports; withdrawn final reports do not satisfy this gate.
 - [ ] Final PR exact-head push/PR CI, squash merge, master CI, Pages and live deployed verification.
 
 Form.List, D0-D3 final review, D9, physical devices, npm publication and aheart-ui v2 remain outside this phase.
