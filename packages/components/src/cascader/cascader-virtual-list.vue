@@ -62,6 +62,7 @@ let measurementRaf: number | undefined
 const pendingKey = ref<string>()
 let focusRetry = 0
 let focusTimer: number | undefined
+let cancelFocusTimer: (() => void) | undefined
 let focusGeneration = 0
 const pendingRows = new Map<HTMLElement, number>()
 const rowReportedSizes = new Map<HTMLElement, number>()
@@ -253,7 +254,7 @@ const focusIndex = (index: number) => {
   pendingKey.value = requestedKey
   const generation = ++focusGeneration
   focusRetry = 0
-  if (focusTimer !== undefined) ownerWindow?.clearTimeout(focusTimer)
+  cancelFocusTimer?.()
   if (active.value) {
     // scrollToIndex is authoritative in a real browser; assigning the offset and
     // dispatching scroll also makes the handoff deterministic in SSR/jsdom owners.
@@ -279,8 +280,20 @@ const focusIndex = (index: number) => {
     }
     if (focusRetry++ < 4 && alive) {
       const view = scrollRef.value?.ownerDocument.defaultView
-      if (view?.requestAnimationFrame) focusTimer = view.requestAnimationFrame(() => { focusTimer = undefined; void nextTick(commit) })
-      else if (view) focusTimer = view.setTimeout(() => { focusTimer = undefined; void nextTick(commit) }, 0)
+      if (view) {
+        const useFrame = typeof view.requestAnimationFrame === 'function' && typeof view.cancelAnimationFrame === 'function'
+        const callback = () => {
+          if (focusTimer === handle) { focusTimer = undefined; cancelFocusTimer = undefined }
+          void nextTick(commit)
+        }
+        const handle = useFrame ? view.requestAnimationFrame(callback) : view.setTimeout(callback, 0)
+        focusTimer = handle
+        cancelFocusTimer = () => {
+          if (useFrame) view.cancelAnimationFrame(handle)
+          else view.clearTimeout(handle)
+          if (focusTimer === handle) { focusTimer = undefined; cancelFocusTimer = undefined }
+        }
+      }
     } else if (pendingKey.value === requestedKey) pendingKey.value = undefined
   }
   void nextTick(commit)
@@ -296,9 +309,7 @@ const cancelFocus = () => {
   focusGeneration++
   pendingKey.value = undefined
   focusRetry = 0
-  if (focusTimer !== undefined) ownerWindow?.cancelAnimationFrame?.(focusTimer)
-  if (focusTimer !== undefined) ownerWindow?.clearTimeout?.(focusTimer)
-  focusTimer = undefined
+  cancelFocusTimer?.()
 }
 const suspend = () => {
   cancelFocus()

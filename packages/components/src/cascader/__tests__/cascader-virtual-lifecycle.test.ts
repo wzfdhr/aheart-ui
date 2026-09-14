@@ -3,6 +3,7 @@ import { createSSRApp, h, nextTick } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Cascader from '../cascader.vue'
+import CascaderVirtualList from '../cascader-virtual-list.vue'
 
 type Option = { value: string; label: string; children?: Option[]; isLeaf?: boolean }
 type OwnerObserver = { callback: ResizeObserverCallback; disconnect: ReturnType<typeof vi.fn>; observed: Element[] }
@@ -47,6 +48,27 @@ const mountCascader = (props: Record<string, unknown>, extra: Record<string, unk
   ...extra,
   props: { getPopupContainer: (trigger: HTMLElement) => trigger.parentElement!, ...props } as never
 }))
+
+it.each([false, true])('cancels superseded focus retries on unmount with enabled=%s', async enabled => {
+  const wrapper = track(mount(CascaderVirtualList, {
+    attachTo: document.body,
+    props: { enabled, items: options(10), config: { height: 240, estimateSize: 32, overscan: 4 }, className: 'focus-retry-test', rowKey: index => String(index), disabledIndex: () => false }
+  }))
+  await settle()
+  const api = wrapper.vm as unknown as { focusIndex: (index: number) => void; suspend: () => void }
+  // No option slot: each request must queue a retry instead of focusing a row.
+  api.focusIndex(1)
+  await nextTick()
+  const firstFrames = new Set(rafQueue.keys())
+  expect(firstFrames.size).toBeGreaterThan(0)
+  api.focusIndex(2)
+  await nextTick()
+  api.suspend()
+  wrapper.unmount()
+  await nextTick()
+  expect([...firstFrames].filter(id => rafQueue.has(id))).toEqual([])
+  expect(rafQueue.size).toBe(0)
+})
 
 beforeEach(() => {
   ownerObservers.length = 0
