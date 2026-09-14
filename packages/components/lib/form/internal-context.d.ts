@@ -6,6 +6,7 @@ export interface FormListReconcileResult {
 export interface FormListController {
     name: FormNamePath;
     owner: string;
+    needsReconcile: (items: readonly unknown[]) => boolean;
     reconcile: (items: readonly unknown[]) => FormListReconcileResult | undefined;
     reset: (items: readonly unknown[]) => void;
 }

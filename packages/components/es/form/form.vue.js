@@ -299,6 +299,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const fieldNames = /* @__PURE__ */ new Map();
     const getFieldNames = () => Array.from(fieldNames.entries()).filter(([key]) => !retiredFieldNames.has(key)).map(([, name]) => name).concat(Object.keys(props.rules).filter((name) => !fieldNames.has(namePathKey(name)) && !retiredFieldNames.has(namePathKey(name))).map((name) => name));
     const validateFields = (names) => {
+      flushPendingListReconciliation();
       const startRevision = validationRevision;
       const targets = names ?? getFieldNames();
       const results = targets.map((name) => validateField(name));
@@ -315,6 +316,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const validate = () => validateFields();
     const resetFields = (names) => {
+      flushPendingListReconciliation();
       const targetNames = (names ?? getFieldNames()).map(normalizeNamePath);
       submissionRun += 1;
       validationRevision += 1;
@@ -589,13 +591,41 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       }
     };
-    const observeModel = () => {
-      if (listMutationDepth > 0)
+    let externalListReconcileScheduled = false;
+    let externalListPreviousModel;
+    const needsExternalListReconcile = () => Array.from(new Set(listControllers.values())).some((controller) => {
+      const value = getNamePathValue(props.model, controller.name);
+      return controller.needsReconcile(Array.isArray(value) ? value : []);
+    });
+    const flushPendingListReconciliation = () => {
+      if (!externalListReconcileScheduled)
         return;
-      const previous = observedModel;
+      externalListReconcileScheduled = false;
+      const previous = externalListPreviousModel ?? observedModel;
+      externalListPreviousModel = void 0;
+      if (disposed)
+        return;
       const skippedValueInvalidation = reconcileExternalLists();
       observedModel = cloneValues();
       processModelChanges(previous, skippedValueInvalidation);
+    };
+    const scheduleExternalListReconciliation = () => {
+      if (externalListReconcileScheduled)
+        return;
+      externalListReconcileScheduled = true;
+      externalListPreviousModel = observedModel;
+      queueMicrotask(flushPendingListReconciliation);
+    };
+    const observeModel = () => {
+      if (listMutationDepth > 0)
+        return;
+      if (externalListReconcileScheduled || needsExternalListReconcile()) {
+        scheduleExternalListReconciliation();
+        return;
+      }
+      const previous = observedModel;
+      observedModel = cloneValues();
+      processModelChanges(previous);
     };
     watch(() => props.model, observeModel, { deep: true, flush: "sync" });
     watch(() => props.rules, () => {
@@ -675,6 +705,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const notifyFieldChange = (name) => {
       var _a;
+      flushPendingListReconciliation();
       observeModel();
       const key = namePathKey(name);
       const value = getNamePathValue(props.model, name);
@@ -686,6 +717,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const notifyFieldBlur = (name) => {
       var _a;
+      flushPendingListReconciliation();
       observeModel();
       if (shouldTrigger((_a = fieldStates[namePathKey(name)]) == null ? void 0 : _a.validateTrigger, "blur"))
         queueValidation(name, "blur");
@@ -778,6 +810,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       },
       mutateList(name, owner, oldIndexToNewIndex, mutation) {
         var _a;
+        flushPendingListReconciliation();
         const direct = listControllers.get(namePathKey(name));
         const controller = (direct == null ? void 0 : direct.owner) === owner ? direct : Array.from(new Set(listControllers.values())).find((item) => item.owner === owner);
         if (!controller)
@@ -840,6 +873,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       finishSubmission(validationResult);
     };
     const setFieldsErrors = (fields) => {
+      flushPendingListReconciliation();
       fields.forEach(({ name, errors }) => {
         const key = namePathKey(name);
         fieldNames.set(key, normalizeNamePath(name));

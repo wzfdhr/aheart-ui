@@ -81,6 +81,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const controller = {
       name: fullName.value,
       owner: owner.value,
+      needsReconcile: (items) => previousItems.length !== items.length || previousItems.some((item, index) => !Object.is(item, items[index])),
       reconcile: reconcileItems,
       reset(items) {
         resetInitialTokens(items);

@@ -99,6 +99,7 @@ if (!form) devWarn('must be rendered inside AForm; operations are disabled')
 const controller: FormListController = {
   name: fullName.value,
   owner: owner.value,
+  needsReconcile: items => previousItems.length !== items.length || previousItems.some((item, index) => !Object.is(item, items[index])),
   reconcile: reconcileItems,
   reset(items) {
     resetInitialTokens(items)

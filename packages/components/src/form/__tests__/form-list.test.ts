@@ -242,7 +242,7 @@ describe('Form.List optimization', () => {
     const form = wrapper.vm as unknown as { setFieldsErrors: (fields: Array<{ name: readonly (string | number)[]; errors: string[] }>) => void; getFieldError: (name: readonly (string | number)[]) => string[] }
     form.setFieldsErrors([{ name: ['users', 1, 'id'], errors: ['belongs-to-b'] }])
     model.users = [b, a]
-    await nextTick()
+    await flushPromises()
     expect(slot.fields.map(field => field.key)).toEqual([bKey, aKey])
     expect(form.getFieldError(['users', 0, 'id'])).toEqual(['belongs-to-b'])
     expect(form.getFieldError(['users', 1, 'id'])).toEqual([])
@@ -260,13 +260,57 @@ describe('Form.List optimization', () => {
     const form = wrapper.vm as unknown as { setFieldsErrors: (fields: Array<{ name: readonly (string | number)[]; errors: string[] }>) => void; getFieldError: (name: readonly (string | number)[]) => string[] }
     form.setFieldsErrors([{ name: ['values', 0], errors: ['old-a'] }])
     model.values[0] = 'edited'
-    await nextTick()
+    await flushPromises()
     expect(slot.fields[0].key).toBe(aKey)
     expect(form.getFieldError(['values', 0])).toEqual([])
 
     model.values = ['edited', 'inserted', 'b', 'c']
-    await nextTick()
+    await flushPromises()
     expect(slot.fields.map(field => field.key)).toEqual([aKey, expect.any(String), bKey, cKey])
+  })
+
+  it('reconciles in-place external reverse and splice mutations without recycling retained object keys', async () => {
+    const a = { id: 'a' }
+    const b = { id: 'b' }
+    const c = { id: 'c' }
+    const inserted = { id: 'x' }
+    const model = reactive({ users: [a, b, c] })
+    let slot!: SlotState
+    const wrapper = mount(Form, { props: { model }, slots: { default: () => h(requireFormList(), { name: 'users' }, { default: (state: SlotState) => {
+      slot = state
+      return state.fields.map(field => h(FormItem, { key: field.key, name: [field.name, 'id'] }))
+    } }) } })
+    await nextTick()
+    const [aKey, bKey, cKey] = slot.fields.map(field => field.key)
+    const form = wrapper.vm as unknown as { setFieldsErrors: (fields: Array<{ name: readonly (string | number)[]; errors: string[] }>) => void; getFieldError: (name: readonly (string | number)[]) => string[] }
+    form.setFieldsErrors([{ name: ['users', 0, 'id'], errors: ['a-error'] }])
+    model.users.reverse()
+    await flushPromises()
+    expect(slot.fields.map(field => field.key)).toEqual([cKey, bKey, aKey])
+    expect(form.getFieldError(['users', 2, 'id'])).toEqual(['a-error'])
+    model.users.splice(1, 0, inserted)
+    await flushPromises()
+    expect(slot.fields.map(field => field.key)).toEqual([cKey, expect.any(String), bKey, aKey])
+    model.users.splice(2, 1)
+    await flushPromises()
+    expect(slot.fields.map(field => field.key)).toEqual([cKey, expect.any(String), aKey])
+  })
+
+  it('flushes a pending external reorder before immediate validation reads field paths', async () => {
+    const invalid = { id: 'invalid', email: '' }
+    const valid = { id: 'valid', email: 'ok@example.com' }
+    const model = reactive({ users: [invalid, valid] })
+    const requiredRules = [{ required: true, message: 'required' }]
+    const wrapper = mount(Form, { props: { model }, slots: { default: () => h(requireFormList(), { name: 'users' }, { default: (state: SlotState) => state.fields.map(field => h(FormItem, {
+      key: field.key,
+      name: [field.name, 'email'],
+      rules: requiredRules
+    })) }) } })
+    await nextTick()
+    model.users.reverse()
+    const form = wrapper.vm as unknown as { validate: () => unknown }
+    const result = await Promise.resolve(form.validate()) as { errorFields: Array<{ name: unknown; errors: string[] }> }
+    expect(result.errorFields).toEqual([{ name: ['users', 1, 'email'], errors: ['required'] }])
   })
 
   it('moves nested list controllers, field keys and errors with an outer logical item', async () => {

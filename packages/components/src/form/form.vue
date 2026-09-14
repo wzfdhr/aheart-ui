@@ -417,6 +417,7 @@ const getFieldNames = () => Array.from(fieldNames.entries()).filter(([key]) => !
   .concat(Object.keys(props.rules).filter((name) => !fieldNames.has(namePathKey(name)) && !retiredFieldNames.has(namePathKey(name))).map((name) => name as FormNamePath))
 
 const validateFields = (names?: FormNamePath[]) => {
+  flushPendingListReconciliation()
   const startRevision = validationRevision
   const targets = names ?? getFieldNames()
   const results = targets.map((name) => validateField(name))
@@ -439,6 +440,7 @@ const validateFields = (names?: FormNamePath[]) => {
 const validate = () => validateFields()
 
 const resetFields = (names?: FormNamePath[]) => {
+  flushPendingListReconciliation()
   const targetNames = (names ?? getFieldNames()).map(normalizeNamePath)
   submissionRun += 1
   validationRevision += 1
@@ -734,12 +736,40 @@ const processModelChanges = (previous: FormModel, skippedValueInvalidation = new
   }
 }
 
-const observeModel = () => {
-  if (listMutationDepth > 0) return
-  const previous = observedModel
+let externalListReconcileScheduled = false
+let externalListPreviousModel: FormModel | undefined
+const needsExternalListReconcile = () => Array.from(new Set(listControllers.values())).some(controller => {
+  const value = getNamePathValue(props.model, controller.name)
+  return controller.needsReconcile(Array.isArray(value) ? value : [])
+})
+
+const flushPendingListReconciliation = () => {
+  if (!externalListReconcileScheduled) return
+  externalListReconcileScheduled = false
+  const previous = externalListPreviousModel ?? observedModel
+  externalListPreviousModel = undefined
+  if (disposed) return
   const skippedValueInvalidation = reconcileExternalLists()
   observedModel = cloneValues()
   processModelChanges(previous, skippedValueInvalidation)
+}
+
+const scheduleExternalListReconciliation = () => {
+  if (externalListReconcileScheduled) return
+  externalListReconcileScheduled = true
+  externalListPreviousModel = observedModel
+  queueMicrotask(flushPendingListReconciliation)
+}
+
+const observeModel = () => {
+  if (listMutationDepth > 0) return
+  if (externalListReconcileScheduled || needsExternalListReconcile()) {
+    scheduleExternalListReconciliation()
+    return
+  }
+  const previous = observedModel
+  observedModel = cloneValues()
+  processModelChanges(previous)
 }
 watch(() => props.model, observeModel, { deep: true, flush: 'sync' })
 watch(() => props.rules, () => {
@@ -816,6 +846,7 @@ const resolveOwnedName = (name: FormNamePath, owner: string) => {
 }
 
 const notifyFieldChange = (name: FormNamePath) => {
+    flushPendingListReconciliation()
     observeModel()
     const key = namePathKey(name)
     const value = getNamePathValue(props.model, name)
@@ -825,6 +856,7 @@ const notifyFieldChange = (name: FormNamePath) => {
 }
 
 const notifyFieldBlur = (name: FormNamePath) => {
+    flushPendingListReconciliation()
     observeModel()
     if (shouldTrigger(fieldStates[namePathKey(name)]?.validateTrigger, 'blur')) queueValidation(name, 'blur')
 }
@@ -912,6 +944,7 @@ const formInternalContext: FormInternalContext = {
     if (current?.owner === owner) listControllers.delete(key)
   },
   mutateList(name, owner, oldIndexToNewIndex, mutation) {
+    flushPendingListReconciliation()
     const direct = listControllers.get(namePathKey(name))
     const controller = direct?.owner === owner ? direct : Array.from(new Set(listControllers.values())).find(item => item.owner === owner)
     if (!controller) return false
@@ -979,6 +1012,7 @@ const handleSubmit = (event: Event) => {
 }
 
 const setFieldsErrors = (fields: Array<{ name: FormNamePath; errors: string[] }>) => {
+  flushPendingListReconciliation()
   fields.forEach(({ name, errors }) => {
     const key = namePathKey(name)
     fieldNames.set(key, normalizeNamePath(name))

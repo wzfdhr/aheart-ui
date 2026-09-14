@@ -89,6 +89,8 @@ The model remains the source of truth. Form's synchronous observer asks FormList
 
 External mutations use the same path-state reconciliation and async invalidation rules as component operations. They do not emit a synthetic update event because Form currently accepts a mutable model rather than a controlled `v-model` contract.
 
+In-place array methods can expose intermediate setter states to Vue's synchronous deep watcher (for example, `reverse()` transiently duplicates one endpoint). Form therefore coalesces structural external-list reconciliation into one microtask and commits keys/state from the final array. Ordinary nested field-value changes remain on the existing synchronous Form observation path. Component-owned operations remain synchronous atomic transactions because they provide an explicit index map.
+
 ## Initialization, reset and lifecycle
 
 - Model value wins over `initialValue`; FormList never overwrites an existing empty array. Form's internal `initializeList` operation records an accepted initial value in both the model and the mutable reset snapshot, so `resetFields([listPath])` restores it even though Form setup ran before the child list mounted.
