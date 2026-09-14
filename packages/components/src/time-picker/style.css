@@ -35,7 +35,7 @@
 .aheart-time-picker--borderless .aheart-time-picker__input { border-color: transparent; box-shadow: none; }
 .aheart-time-picker--underlined .aheart-time-picker__input { border-width: 0 0 1px; border-radius: 0; box-shadow: none; }
 .aheart-time-picker--warning .aheart-time-picker__input { border-color: #faad14; }
-.aheart-time-picker--error .aheart-time-picker__input { border-color: #ff4d4f; }
+.aheart-time-picker--error .aheart-time-picker__input { border-color: var(--aheart-color-danger, #b42318); }
 
 .aheart-time-picker__input {
   box-sizing: border-box;
@@ -249,7 +249,7 @@
 .aheart-time-range-picker--borderless .aheart-time-range-picker__selector { border-color: transparent; box-shadow: none; }
 .aheart-time-range-picker--underlined .aheart-time-range-picker__selector { border-width: 0 0 1px; border-radius: 0; box-shadow: none; }
 .aheart-time-range-picker--warning .aheart-time-range-picker__selector { border-color: #faad14; }
-.aheart-time-range-picker--error .aheart-time-range-picker__selector { border-color: #ff4d4f; }
+.aheart-time-range-picker--error .aheart-time-range-picker__selector { border-color: var(--aheart-color-danger, #b42318); }
 .aheart-time-range-picker.is-disabled .aheart-time-range-picker__selector { background: var(--aheart-color-bg-disabled); color: var(--aheart-color-text-secondary); }
 .aheart-time-range-picker__panel { z-index: var(--aheart-z-index-popup, 1050); display: flex; overflow: hidden; border: 1px solid var(--aheart-color-border); border-radius: var(--aheart-radius); background: var(--aheart-color-bg-elevated); box-shadow: var(--aheart-shadow); opacity: 0; transform: translate(var(--aheart-floating-motion-x, 0), var(--aheart-floating-motion-y, -4px)) scale(.98); transition: opacity var(--aheart-motion-duration-fast), transform var(--aheart-motion-duration-fast); }
 .aheart-time-range-picker__panel.is-entered { opacity: 1; transform: translate(0, 0) scale(1); }
