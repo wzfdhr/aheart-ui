@@ -57,6 +57,20 @@ export interface FormFieldState {
     validateTrigger: FormValidateTrigger | FormValidateTrigger[] | false;
     preserve: boolean;
 }
+export interface FormListField {
+    key: string;
+    name: number;
+    fieldKey: string;
+}
+export interface FormListOperations {
+    add: (defaultValue?: unknown, insertIndex?: number) => void;
+    remove: (index: number | readonly number[]) => void;
+    move: (from: number, to: number) => void;
+}
+export interface FormListSlotProps extends FormListOperations {
+    fields: FormListField[];
+    errors: string[];
+}
 export interface FormContext {
     requiredMark: ComputedRef<FormRequiredMark>;
     colon: ComputedRef<boolean>;
@@ -172,5 +186,18 @@ export declare const formItemProps: {
         readonly default: undefined;
     };
 };
+export declare const formListProps: {
+    readonly name: {
+        readonly type: PropType<FormNamePath>;
+        readonly required: true;
+    };
+    readonly initialValue: PropType<unknown[]>;
+    readonly rules: PropType<FormRule[]>;
+    readonly preserve: {
+        readonly type: BooleanConstructor;
+        readonly default: undefined;
+    };
+};
 export type FormProps = ExtractPropTypes<typeof formProps>;
 export type FormItemProps = ExtractPropTypes<typeof formItemProps>;
+export type FormListProps = ExtractPropTypes<typeof formListProps>;

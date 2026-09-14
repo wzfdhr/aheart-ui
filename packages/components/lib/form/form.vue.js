@@ -3,6 +3,7 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const types = require("./types.js");
 const namePath = require("./name-path.js");
+const internalContext = require("./internal-context.js");
 require("./style.css.js");
 const context = require("../config/context.js");
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
@@ -92,8 +93,12 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const retiredFieldNames = /* @__PURE__ */ new Set();
     const validationRuns = /* @__PURE__ */ new Map();
     const externalErrors = vue.reactive(/* @__PURE__ */ new Map());
+    const fieldOwners = /* @__PURE__ */ new Map();
+    const recentlyRemappedOwners = /* @__PURE__ */ new Set();
+    const listControllers = /* @__PURE__ */ new Map();
     let submissionRun = 0;
     let validationRevision = 0;
+    let listMutationDepth = 0;
     let disposed = false;
     let resetting = false;
     const staleValidation = Symbol("stale-validation");
@@ -316,26 +321,44 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       submissionRun += 1;
       validationRevision += 1;
       resetting = true;
+      listMutationDepth += 1;
       pendingValidations.clear();
+      try {
+        targetNames.forEach((name) => {
+          const key = namePath.namePathKey(name);
+          validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1);
+          externalErrors.delete(key);
+          if (typeof name === "string" && Object.prototype.hasOwnProperty.call(initialValues, name)) {
+            namePath.setNamePathValue(props.model, name, cloneInitialValue(initialValues[name]));
+          } else if (typeof name !== "string" && namePath.getNamePathValue(initialValues, name) !== void 0) {
+            namePath.setNamePathValue(props.model, name, cloneInitialValue(namePath.getNamePathValue(initialValues, name)));
+          } else {
+            namePath.deleteNamePathValue(props.model, name);
+          }
+          if (fieldStates[key]) {
+            fieldStates[key].errors = [];
+            fieldStates[key].validating = false;
+          }
+        });
+        const targetKeys = new Set(targetNames.map(namePath.namePathKey));
+        const controllers = Array.from(new Set(listControllers.values())).filter((controller) => targetKeys.has(namePath.namePathKey(controller.name))).sort((left, right) => namePath.namePathSegments(left.name).length - namePath.namePathSegments(right.name).length);
+        for (const controller of controllers) {
+          if (listControllers.get(namePath.namePathKey(controller.name)) !== controller)
+            continue;
+          const value = namePath.getNamePathValue(props.model, controller.name);
+          controller.reset(Array.isArray(value) ? value : []);
+          remapOwnedListState(controller.name, /* @__PURE__ */ new Map(), controller.owner);
+        }
+      } finally {
+        listMutationDepth -= 1;
+        resetting = false;
+      }
+      observedModel = cloneValues();
       targetNames.forEach((name) => {
         const key = namePath.namePathKey(name);
-        validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1);
-        externalErrors.delete(key);
-        if (typeof name === "string" && Object.prototype.hasOwnProperty.call(initialValues, name)) {
-          namePath.setNamePathValue(props.model, name, cloneInitialValue(initialValues[name]));
-        } else if (typeof name !== "string" && namePath.getNamePathValue(initialValues, name) !== void 0) {
-          namePath.setNamePathValue(props.model, name, cloneInitialValue(namePath.getNamePathValue(initialValues, name)));
-        } else {
-          namePath.deleteNamePathValue(props.model, name);
-        }
-        if (fieldStates[key]) {
-          fieldStates[key].errors = [];
-          fieldStates[key].validating = false;
-        }
+        if (fieldNames.has(key))
+          notifiedValues.set(key, cloneInitialValue(namePath.getNamePathValue(props.model, name)));
       });
-      resetting = false;
-      observedModel = cloneValues();
-      targetNames.forEach((name) => notifiedValues.set(namePath.namePathKey(name), cloneInitialValue(namePath.getNamePathValue(props.model, name))));
     };
     const clearValidate = (names) => {
       const targetNames = names ?? getFieldNames();
@@ -441,22 +464,140 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     const shouldTrigger = (trigger, event) => trigger !== false && (trigger === event || Array.isArray(trigger) && trigger.includes(event));
-    const observeModel = () => {
+    const isOwnedBy = (owner, prefix) => owner === prefix || (owner == null ? void 0 : owner.startsWith(`${prefix}/`)) === true;
+    const warnFormList = (message) => {
+    };
+    const remapOwnedListState = (listName, oldIndexToNewIndex, ownerPrefix) => {
       var _a;
-      const previous = observedModel;
-      observedModel = cloneValues();
+      const skippedValueInvalidation = /* @__PURE__ */ new Set();
+      const fieldSnapshots = Array.from(fieldNames.entries()).flatMap(([oldKey, name]) => {
+        const owner = fieldOwners.get(oldKey);
+        const match = owner && isOwnedBy(owner, ownerPrefix) ? namePath.matchListDescendant(name, listName) : void 0;
+        if (!match)
+          return [];
+        const nextName = namePath.remapListDescendant(name, listName, oldIndexToNewIndex);
+        return [{
+          oldKey,
+          oldIndex: match.index,
+          nextName,
+          state: fieldStates[oldKey],
+          options: fieldOptions.get(oldKey),
+          run: validationRuns.get(oldKey) ?? 0,
+          external: externalErrors.get(oldKey),
+          notified: notifiedValues.get(oldKey),
+          hasNotified: notifiedValues.has(oldKey),
+          owner
+        }];
+      });
+      const nestedControllers = Array.from(new Set(listControllers.values())).flatMap((controller) => {
+        const match = isOwnedBy(controller.owner, ownerPrefix) ? namePath.matchListDescendant(controller.name, listName) : void 0;
+        if (!match)
+          return [];
+        return [{ controller, oldKey: namePath.namePathKey(controller.name), nextName: namePath.remapListDescendant(controller.name, listName, oldIndexToNewIndex) }];
+      });
+      for (const snapshot of fieldSnapshots) {
+        delete fieldStates[snapshot.oldKey];
+        fieldNames.delete(snapshot.oldKey);
+        fieldOptions.delete(snapshot.oldKey);
+        pendingValidations.delete(snapshot.oldKey);
+        notifiedValues.delete(snapshot.oldKey);
+        externalErrors.delete(snapshot.oldKey);
+        fieldOwners.delete(snapshot.oldKey);
+        validationRuns.set(snapshot.oldKey, snapshot.run + 1);
+        retiredFieldNames.delete(snapshot.oldKey);
+      }
+      for (const { controller, oldKey } of nestedControllers) {
+        if (listControllers.get(oldKey) === controller)
+          listControllers.delete(oldKey);
+      }
+      for (const snapshot of fieldSnapshots) {
+        if (!snapshot.nextName || !snapshot.state)
+          continue;
+        const nextKey = namePath.namePathKey(snapshot.nextName);
+        const nextIndex = (_a = namePath.matchListDescendant(snapshot.nextName, listName)) == null ? void 0 : _a.index;
+        if (fieldNames.has(nextKey) && !fieldSnapshots.some((candidate) => candidate.oldKey === nextKey)) {
+          warnFormList(`cannot remap field state to occupied path ${namePath.namePathLabel(snapshot.nextName)}`);
+          continue;
+        }
+        snapshot.state.validating = false;
+        snapshot.state.dependencies = snapshot.state.dependencies.map(
+          (dependency) => namePath.remapListDescendant(dependency, listName, oldIndexToNewIndex) ?? dependency
+        );
+        fieldStates[nextKey] = snapshot.state;
+        fieldNames.set(nextKey, snapshot.nextName);
+        if (snapshot.options)
+          fieldOptions.set(nextKey, snapshot.options);
+        validationRuns.set(nextKey, snapshot.run + 1);
+        if (snapshot.external)
+          externalErrors.set(nextKey, snapshot.external);
+        notifiedValues.set(nextKey, snapshot.hasNotified ? cloneInitialValue(snapshot.notified) : cloneInitialValue(namePath.getNamePathValue(props.model, snapshot.nextName)));
+        if (snapshot.owner)
+          fieldOwners.set(nextKey, snapshot.owner);
+        retiredFieldNames.delete(nextKey);
+        if (nextIndex !== snapshot.oldIndex) {
+          skippedValueInvalidation.add(nextKey);
+          if (snapshot.owner) {
+            const remappedOwner = snapshot.owner;
+            recentlyRemappedOwners.add(remappedOwner);
+            void vue.nextTick(() => recentlyRemappedOwners.delete(remappedOwner));
+          }
+        }
+      }
+      for (const { controller, nextName } of nestedControllers) {
+        if (!nextName)
+          continue;
+        const nextKey = namePath.namePathKey(nextName);
+        const occupied = listControllers.get(nextKey);
+        if (occupied && occupied !== controller) {
+          warnFormList(`cannot remap nested list to occupied path ${namePath.namePathLabel(nextName)}`);
+          continue;
+        }
+        controller.name = nextName;
+        listControllers.set(nextKey, controller);
+      }
+      validationRevision += 1;
+      submissionRun += 1;
+      return skippedValueInvalidation;
+    };
+    const reconcileExternalLists = () => {
+      const skippedValueInvalidation = /* @__PURE__ */ new Set();
+      const controllers = Array.from(new Set(listControllers.values())).sort((left, right) => namePath.namePathSegments(left.name).length - namePath.namePathSegments(right.name).length);
+      for (const controller of controllers) {
+        if (listControllers.get(namePath.namePathKey(controller.name)) !== controller)
+          continue;
+        const value = namePath.getNamePathValue(props.model, controller.name);
+        const items = Array.isArray(value) ? value : [];
+        const result = controller.reconcile(items);
+        if (!result)
+          continue;
+        for (const key of remapOwnedListState(controller.name, result.oldIndexToNewIndex, controller.owner)) {
+          skippedValueInvalidation.add(key);
+        }
+      }
+      return skippedValueInvalidation;
+    };
+    const processModelChanges = (previous, skippedValueInvalidation = /* @__PURE__ */ new Set()) => {
+      var _a;
       for (const name of getFieldNames()) {
         const key = namePath.namePathKey(name);
-        if (!isSameFormValue(namePath.getNamePathValue(previous, name), namePath.getNamePathValue(props.model, name))) {
+        if (!skippedValueInvalidation.has(key) && !isSameFormValue(namePath.getNamePathValue(previous, name), namePath.getNamePathValue(props.model, name))) {
           invalidateField(name);
           clearExternalError(name);
         }
         const dependencies = ((_a = fieldStates[key]) == null ? void 0 : _a.dependencies) ?? [];
-        if (!resetting && dependencies.some((path) => !isSameFormValue(namePath.getNamePathValue(previous, path), namePath.getNamePathValue(props.model, path)))) {
+        if (!resetting && !skippedValueInvalidation.has(key) && dependencies.some((path) => !isSameFormValue(namePath.getNamePathValue(previous, path), namePath.getNamePathValue(props.model, path)))) {
           invalidateField(name);
           queueValidation(name);
         }
       }
+    };
+    const observeModel = () => {
+      if (listMutationDepth > 0)
+        return;
+      const previous = observedModel;
+      const skippedValueInvalidation = reconcileExternalLists();
+      observedModel = cloneValues();
+      processModelChanges(previous, skippedValueInvalidation);
     };
     vue.watch(() => props.model, observeModel, { deep: true, flush: "sync" });
     vue.watch(() => props.rules, () => {
@@ -473,48 +614,92 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         state.preserve = ((_b = fieldOptions.get(key)) == null ? void 0 : _b.preserve) ?? props.preserve;
       });
     }, { deep: true });
+    const registerField = (name, rules, validateFirst, messageVariables, options, owner) => {
+      var _a, _b;
+      const key = namePath.namePathKey(name);
+      const previousState = fieldStates[key];
+      const previousOwner = fieldOwners.get(key);
+      const effectiveTrigger = (options == null ? void 0 : options.validateTrigger) === void 0 ? props.validateTrigger : options.validateTrigger;
+      const effectivePreserve = (options == null ? void 0 : options.preserve) === void 0 ? props.preserve : options.preserve;
+      const changed = previousState && (!isSameFormValue(previousState.rules, rules) || previousState.validateFirst !== validateFirst || !isSameFormValue(previousState.messageVariables, messageVariables) || !isSameFormValue(previousState.dependencies, (options == null ? void 0 : options.dependencies) ?? []));
+      retiredFieldNames.delete(key);
+      fieldNames.set(key, namePath.normalizeNamePath(name));
+      if (!notifiedValues.has(key))
+        notifiedValues.set(key, cloneInitialValue(namePath.getNamePathValue(props.model, name)));
+      fieldOptions.set(key, { validateTrigger: options == null ? void 0 : options.validateTrigger, preserve: options == null ? void 0 : options.preserve });
+      if (owner === void 0)
+        fieldOwners.delete(key);
+      else
+        fieldOwners.set(key, owner);
+      const lifecycleRemap = owner !== void 0 && previousOwner === owner && recentlyRemappedOwners.delete(owner);
+      if (changed && !lifecycleRemap)
+        invalidateField(name);
+      fieldStates[key] = {
+        errors: ((_a = fieldStates[key]) == null ? void 0 : _a.errors) ?? [],
+        validating: ((_b = fieldStates[key]) == null ? void 0 : _b.validating) ?? false,
+        rules,
+        validateFirst,
+        messageVariables,
+        dependencies: (options == null ? void 0 : options.dependencies) ?? [],
+        validateTrigger: effectiveTrigger,
+        preserve: effectivePreserve
+      };
+    };
+    const unregisterField = (name, owner) => {
+      const key = namePath.namePathKey(name);
+      if (owner !== void 0 && fieldOwners.get(key) !== owner)
+        return;
+      const state = fieldStates[key];
+      retiredFieldNames.add(key);
+      validationRevision += 1;
+      validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1);
+      externalErrors.delete(key);
+      delete fieldStates[key];
+      fieldNames.delete(key);
+      fieldOptions.delete(key);
+      pendingValidations.delete(key);
+      notifiedValues.delete(key);
+      fieldOwners.delete(key);
+      if (owner)
+        recentlyRemappedOwners.delete(owner);
+      if ((state == null ? void 0 : state.preserve) === false)
+        namePath.deleteNamePathValue(props.model, name);
+    };
+    const resolveOwnedName = (name, owner) => {
+      const directKey = namePath.namePathKey(name);
+      if (fieldOwners.get(directKey) === owner)
+        return fieldNames.get(directKey) ?? name;
+      for (const [key, candidateOwner] of fieldOwners) {
+        if (candidateOwner === owner)
+          return fieldNames.get(key) ?? name;
+      }
+      return void 0;
+    };
+    const notifyFieldChange = (name) => {
+      var _a;
+      observeModel();
+      const key = namePath.namePathKey(name);
+      const value = namePath.getNamePathValue(props.model, name);
+      if (isSameFormValue(value, notifiedValues.get(key)))
+        return;
+      notifiedValues.set(key, cloneInitialValue(value));
+      if (shouldTrigger((_a = fieldStates[key]) == null ? void 0 : _a.validateTrigger, "change"))
+        queueValidation(name, "change");
+    };
+    const notifyFieldBlur = (name) => {
+      var _a;
+      observeModel();
+      if (shouldTrigger((_a = fieldStates[namePath.namePathKey(name)]) == null ? void 0 : _a.validateTrigger, "blur"))
+        queueValidation(name, "blur");
+    };
     const formContext = {
       requiredMark: vue.computed(() => props.requiredMark),
       colon: vue.computed(() => props.colon),
       registerField(name, rules, validateFirst, messageVariables, options) {
-        var _a, _b;
-        const key = namePath.namePathKey(name);
-        const previousState = fieldStates[key];
-        const effectiveTrigger = (options == null ? void 0 : options.validateTrigger) === void 0 ? props.validateTrigger : options.validateTrigger;
-        const effectivePreserve = (options == null ? void 0 : options.preserve) === void 0 ? props.preserve : options.preserve;
-        const changed = previousState && (!isSameFormValue(previousState.rules, rules) || previousState.validateFirst !== validateFirst || !isSameFormValue(previousState.messageVariables, messageVariables) || !isSameFormValue(previousState.dependencies, (options == null ? void 0 : options.dependencies) ?? []));
-        retiredFieldNames.delete(key);
-        fieldNames.set(key, namePath.normalizeNamePath(name));
-        if (!notifiedValues.has(key))
-          notifiedValues.set(key, cloneInitialValue(namePath.getNamePathValue(props.model, name)));
-        fieldOptions.set(key, { validateTrigger: options == null ? void 0 : options.validateTrigger, preserve: options == null ? void 0 : options.preserve });
-        if (changed)
-          invalidateField(name);
-        fieldStates[key] = {
-          errors: ((_a = fieldStates[key]) == null ? void 0 : _a.errors) ?? [],
-          validating: ((_b = fieldStates[key]) == null ? void 0 : _b.validating) ?? false,
-          rules,
-          validateFirst,
-          messageVariables,
-          dependencies: (options == null ? void 0 : options.dependencies) ?? [],
-          validateTrigger: effectiveTrigger,
-          preserve: effectivePreserve
-        };
+        registerField(name, rules, validateFirst, messageVariables, options);
       },
       unregisterField(name) {
-        const key = namePath.namePathKey(name);
-        const state = fieldStates[key];
-        retiredFieldNames.add(key);
-        validationRevision += 1;
-        validationRuns.set(key, (validationRuns.get(key) ?? 0) + 1);
-        externalErrors.delete(key);
-        delete fieldStates[key];
-        fieldNames.delete(key);
-        fieldOptions.delete(key);
-        pendingValidations.delete(key);
-        notifiedValues.delete(key);
-        if ((state == null ? void 0 : state.preserve) === false)
-          namePath.deleteNamePathValue(props.model, name);
+        unregisterField(name);
       },
       getFieldErrors(name) {
         return getFieldError(name);
@@ -527,24 +712,110 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return getRules(name).some((rule) => rule.required);
       },
       onFieldChange(name) {
-        var _a;
-        observeModel();
-        const key = namePath.namePathKey(name);
-        const value = namePath.getNamePathValue(props.model, name);
-        if (isSameFormValue(value, notifiedValues.get(key)))
-          return;
-        notifiedValues.set(key, cloneInitialValue(value));
-        if (shouldTrigger((_a = fieldStates[key]) == null ? void 0 : _a.validateTrigger, "change"))
-          queueValidation(name, "change");
+        notifyFieldChange(name);
       },
       onFieldBlur(name) {
-        var _a;
-        observeModel();
-        if (shouldTrigger((_a = fieldStates[namePath.namePathKey(name)]) == null ? void 0 : _a.validateTrigger, "blur"))
-          queueValidation(name, "blur");
+        notifyFieldBlur(name);
       }
     };
     vue.provide(types.formContextKey, formContext);
+    const formInternalContext = {
+      registerOwnedField(name, owner, rules, validateFirst, messageVariables, options) {
+        registerField(name, rules, validateFirst, messageVariables, options, owner);
+      },
+      unregisterOwnedField(name, owner) {
+        unregisterField(name, owner);
+      },
+      getFieldErrors: getFieldError,
+      isFieldValidating(name) {
+        var _a;
+        return ((_a = fieldStates[namePath.namePathKey(name)]) == null ? void 0 : _a.validating) ?? false;
+      },
+      isFieldRequired(name) {
+        return getRules(name).some((rule) => rule.required);
+      },
+      onOwnedFieldChange(name, owner) {
+        const currentName = resolveOwnedName(name, owner);
+        if (currentName !== void 0)
+          notifyFieldChange(currentName);
+      },
+      onOwnedFieldBlur(name, owner) {
+        const currentName = resolveOwnedName(name, owner);
+        if (currentName !== void 0)
+          notifyFieldBlur(currentName);
+      },
+      initializeList(name, initialValue) {
+        const current = namePath.getNamePathValue(props.model, name);
+        if (current !== void 0 || initialValue === void 0)
+          return Array.isArray(current) ? current : void 0;
+        const cloned = cloneInitialValue(initialValue);
+        listMutationDepth += 1;
+        try {
+          namePath.setNamePathValue(props.model, name, cloned);
+          namePath.setNamePathValue(initialValues, name, cloneInitialValue(initialValue));
+          observedModel = cloneValues();
+        } finally {
+          listMutationDepth -= 1;
+        }
+        return namePath.getNamePathValue(props.model, name);
+      },
+      getValue(name) {
+        return namePath.getNamePathValue(props.model, name);
+      },
+      registerList(controller) {
+        const key = namePath.namePathKey(controller.name);
+        const current = listControllers.get(key);
+        if (current && current.owner !== controller.owner) {
+          warnFormList(`duplicate live list path ${namePath.namePathLabel(controller.name)}; the first owner remains active`);
+          return false;
+        }
+        listControllers.set(key, controller);
+        return true;
+      },
+      unregisterList(name, owner) {
+        const key = namePath.namePathKey(name);
+        const current = listControllers.get(key);
+        if ((current == null ? void 0 : current.owner) === owner)
+          listControllers.delete(key);
+      },
+      mutateList(name, owner, oldIndexToNewIndex, mutation) {
+        var _a;
+        const direct = listControllers.get(namePath.namePathKey(name));
+        const controller = (direct == null ? void 0 : direct.owner) === owner ? direct : Array.from(new Set(listControllers.values())).find((item) => item.owner === owner);
+        if (!controller)
+          return false;
+        const current = namePath.getNamePathValue(props.model, controller.name);
+        if (current !== void 0 && !Array.isArray(current))
+          return false;
+        const previous = observedModel;
+        const ownerDocument = (_a = formElement.value) == null ? void 0 : _a.ownerDocument;
+        const activeElement = ownerDocument == null ? void 0 : ownerDocument.activeElement;
+        listMutationDepth += 1;
+        try {
+          let items = current;
+          if (!items) {
+            items = [];
+            namePath.setNamePathValue(props.model, controller.name, items);
+          }
+          mutation(items);
+          const skipped = remapOwnedListState(controller.name, oldIndexToNewIndex, owner);
+          observedModel = cloneValues();
+          processModelChanges(previous, skipped);
+        } finally {
+          listMutationDepth -= 1;
+        }
+        notifyFieldChange(controller.name);
+        void vue.nextTick(() => {
+          if (!ownerDocument || !(activeElement == null ? void 0 : activeElement.isConnected) || typeof activeElement.focus !== "function")
+            return;
+          if (ownerDocument.activeElement === ownerDocument.body || ownerDocument.activeElement === null) {
+            activeElement.focus({ preventScroll: true });
+          }
+        });
+        return true;
+      }
+    };
+    vue.provide(internalContext.formInternalContextKey, formInternalContext);
     const handleSubmit = (event) => {
       emit("submit", event);
       pendingValidations.clear();

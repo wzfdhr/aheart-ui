@@ -104,13 +104,13 @@ FormList is renderless and adds no generic list semantics, buttons, labels, focu
 
 ## Diagnostics and unsupported input
 
-Development warnings cover missing Form parent, unsafe/empty name paths through the existing normalizer, non-array model values, invalid indices, duplicate/invalid remove indices, and two live FormList coordinators attempting to own the same full path. The first live owner remains authoritative until it unregisters; a duplicate is render-safe but its operations are no-ops. Production remains safe and deterministic. No warning is emitted for an intentional equal-index move or no-op remove array.
+Development warnings cover missing Form parent, non-array model values, invalid indices, duplicate/invalid remove indices, and two live FormList coordinators attempting to own the same full path. Unsafe or empty paths retain the existing Form normalizer's thrown security error instead of being downgraded. The first live list owner remains authoritative; a duplicate instance is render-safe but inert for its lifetime and must remount after the first owner unregisters to acquire ownership. Production remains safe and deterministic for operation/input diagnostics. No warning is emitted for an intentional equal-index move or no-op remove array.
 
 ## Verification gates
 
 - Genuine RED for missing exports/component plus behavioral failures for add, insert, multi-remove, move, nested lists, stable DOM identity, path remap, errors, dependencies, async stale results, initial value, reset, preserve, external mutations and non-array fallback.
 - Focused unit/type/SSR tests, then full components tests, AI tests, typecheck, deterministic double build, generated output and release pack.
 - Browser tests in desktop/mobile Chromium, desktop Firefox and desktop/mobile WebKit for dynamic operations, validation/error movement, keyboard-operable consumer controls, focus retention on move, nested paths, zoom/narrow layout, iframe realm, hydration and teardown diagnostics.
-- Real packed consumer with no workspace links validates ESM/CJS/types/CSS/SSR/hydration and Form-only tree-shaken import.
+- Real packed consumer with no workspace links validates root ESM/CJS/types/CSS plus SSR/hydration and a Form-only build through the published `es/form/index.js` subpath. It must reject unrelated Table/Cascader/TreeSelect/Upload code in that bundle. Root-entry by-demand tree shaking remains a D9 package-architecture gate and is not silently redefined by this phase.
 - Independent development-manager, test-manager, screenshot-first design and product acceptance reports; P0/P1/P2 must be `0/0/0` before PR Ready or merge.
 - Exact-head PR CI, squash merge, master CI, Pages and deployed interaction verification complete the phase. npm publication, D9 physical-device gates and v2 remain later work.

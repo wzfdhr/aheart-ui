@@ -12,6 +12,31 @@ const normalizeNamePath = (name) => {
   }
   return [...name];
 };
+const namePathSegments = (name) => {
+  const normalized = normalizeNamePath(name);
+  return typeof normalized === "string" ? [normalized] : [...normalized];
+};
+const resolveNamePath = (prefix, name) => {
+  const normalized = normalizeNamePath(name);
+  return prefix === void 0 ? normalized : [...namePathSegments(prefix), ...namePathSegments(normalized)];
+};
+const matchListDescendant = (name, listName) => {
+  const nameSegments = namePathSegments(name);
+  const listSegments = namePathSegments(listName);
+  if (nameSegments.length <= listSegments.length || !listSegments.every((segment, index2) => Object.is(nameSegments[index2], segment)))
+    return void 0;
+  const index = nameSegments[listSegments.length];
+  if (typeof index !== "number")
+    return void 0;
+  return { index, tail: nameSegments.slice(listSegments.length + 1) };
+};
+const remapListDescendant = (name, listName, oldIndexToNewIndex) => {
+  const match = matchListDescendant(name, listName);
+  if (!match)
+    return void 0;
+  const nextIndex = oldIndexToNewIndex.get(match.index);
+  return nextIndex === void 0 ? void 0 : [...namePathSegments(listName), nextIndex, ...match.tail];
+};
 const namePathKey = (name) => {
   const normalized = normalizeNamePath(name);
   return typeof normalized === "string" ? `s:${normalized}` : `p:${JSON.stringify(normalized.map((segment) => [typeof segment, segment]))}`;
@@ -63,8 +88,12 @@ const deleteNamePathValue = (model, name) => {
 export {
   deleteNamePathValue,
   getNamePathValue,
+  matchListDescendant,
   namePathKey,
   namePathLabel,
+  namePathSegments,
   normalizeNamePath,
+  remapListDescendant,
+  resolveNamePath,
   setNamePathValue
 };

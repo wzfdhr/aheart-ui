@@ -109,6 +109,7 @@ const components = [
   index$E.default,
   index$F.default,
   index$F.FormItem,
+  index$F.FormList,
   index$G.default
 ];
 const AheartUI = {
@@ -142,8 +143,10 @@ exports.Empty = index$o.default;
 exports.PRESENTED_IMAGE_DEFAULT = index$o.PRESENTED_IMAGE_DEFAULT;
 exports.PRESENTED_IMAGE_SIMPLE = index$o.PRESENTED_IMAGE_SIMPLE;
 exports.Flex = index$a.default;
+exports.AFormList = index$F.FormList;
 exports.Form = index$F.default;
 exports.FormItem = index$F.FormItem;
+exports.FormList = index$F.FormList;
 exports.Col = index$b.Col;
 exports.Grid = index$b.default;
 exports.Row = index$b.Row;

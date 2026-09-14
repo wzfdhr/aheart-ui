@@ -1,6 +1,6 @@
 <template>
   <AFormControlSlot v-if="noStyle" />
-  <div v-else ref="itemRef" v-show="!hidden" class="aheart-form-item" :class="formItemClass" :data-name="typeof name === 'string' ? name : JSON.stringify(name)">
+  <div v-else ref="itemRef" v-show="!hidden" class="aheart-form-item" :class="formItemClass" :data-name="dataName">
     <label
       v-if="$slots.label || (label !== undefined && label !== null)"
       class="aheart-form-item__label"
@@ -44,6 +44,9 @@ import { cloneVNode, Fragment, computed, defineComponent, inject, isVNode, nextT
 import Tooltip from '../tooltip/tooltip.vue'
 import { useStableId } from '../utils/use-stable-id'
 import { formControlKey, mergeAriaIds } from './control-context'
+import { formInternalContextKey } from './internal-context'
+import { formListNameContextKey } from './list-context'
+import { namePathKey } from './name-path'
 import {
   formContextKey,
   formItemProps,
@@ -60,6 +63,8 @@ defineOptions({
 
 const props = defineProps(formItemProps)
 const formContext = inject(formContextKey, undefined)
+const formInternalContext = inject(formInternalContextKey, undefined)
+const formListContext = inject(formListNameContextKey, undefined)
 const ATooltip = Tooltip
 const slots = useSlots()
 const itemRef = ref<HTMLElement>()
@@ -94,13 +99,34 @@ const declaredControlId = () => {
   return find(slots.default?.() ?? [])
 }
 let disposed = false
+const resolvedName = computed<FormNamePath | undefined>(() =>
+  props.name === undefined ? undefined : formListContext?.resolveName(props.name) ?? props.name
+)
+const resolvedOwner = computed<string | undefined>(() =>
+  props.name === undefined ? undefined : formListContext?.resolveOwner(props.name)
+)
+const resolvedDependencies = computed(() =>
+  (props.dependencies ?? []).map(dependency => formListContext?.resolveName(dependency) ?? dependency)
+)
+const dataName = computed(() => {
+  const name = resolvedName.value
+  return name === undefined ? undefined : typeof name === 'string' ? name : JSON.stringify(name)
+})
 const notifyControl = (kind: 'change' | 'blur') => {
-  const name = typeof props.name === 'string' ? props.name : props.name ? [...props.name] : undefined
+  const currentName = resolvedName.value
+  const name = typeof currentName === 'string' ? currentName : currentName ? [...currentName] : undefined
+  const owner = resolvedOwner.value
   if (name === undefined) return
   void nextTick(() => {
-    if (disposed || JSON.stringify(name) !== JSON.stringify(props.name)) return
-    if (kind === 'change') formContext?.onFieldChange(name)
-    else formContext?.onFieldBlur(name)
+    const latestName = resolvedName.value
+    if (disposed || latestName === undefined) return
+    if (formInternalContext && owner) {
+      if (kind === 'change') formInternalContext.onOwnedFieldChange(name, owner)
+      else formInternalContext.onOwnedFieldBlur(name, owner)
+    } else if (namePathKey(name) === namePathKey(latestName)) {
+      if (kind === 'change') formContext?.onFieldChange(name)
+      else formContext?.onFieldBlur(name)
+    }
   })
 }
 const syncExplicitControlId = () => {
@@ -169,19 +195,34 @@ const labelMessageVariable = computed(() =>
   typeof props.label === 'string' || typeof props.label === 'number' ? String(props.label) : undefined
 )
 const effectiveMessageVariables = computed<FormMessageVariables>(() => ({
-  name: typeof props.name === 'string' ? props.name : props.name?.join('.') ?? '',
+  name: typeof resolvedName.value === 'string' ? resolvedName.value : resolvedName.value?.join('.') ?? '',
   ...(labelMessageVariable.value !== undefined ? { label: labelMessageVariable.value } : {}),
   ...props.messageVariables
 }))
-const fieldErrors = computed(() => (props.name !== undefined ? (formContext?.getFieldErrors(props.name) ?? []) : []))
-const isRequired = computed(() => Boolean(props.required || (props.name !== undefined && formContext?.isFieldRequired(props.name))))
+const fieldErrors = computed(() => {
+  const name = resolvedName.value
+  if (name === undefined) return []
+  return resolvedOwner.value && formInternalContext
+    ? formInternalContext.getFieldErrors(name)
+    : formContext?.getFieldErrors(name) ?? []
+})
+const isRequired = computed(() => {
+  const name = resolvedName.value
+  if (props.required) return true
+  if (name === undefined) return false
+  return resolvedOwner.value && formInternalContext
+    ? formInternalContext.isFieldRequired(name)
+    : formContext?.isFieldRequired(name) ?? false
+})
 const showRequiredMark = computed(() => isRequired.value && formContext?.requiredMark.value !== false)
 const showOptionalMark = computed(
   () => Boolean(props.label || props.name) && !isRequired.value && formContext?.requiredMark.value === 'optional'
 )
 const effectiveValidateStatus = computed(() =>
   props.validateStatus ??
-  (props.name !== undefined && formContext?.isFieldValidating(props.name)
+  (resolvedName.value !== undefined && (resolvedOwner.value && formInternalContext
+    ? formInternalContext.isFieldValidating(resolvedName.value)
+    : formContext?.isFieldValidating(resolvedName.value))
     ? 'validating'
     : fieldErrors.value.length > 0
       ? 'error'
@@ -242,19 +283,24 @@ const AFormControlSlot = defineComponent({
 })
 
 let registeredName: FormNamePath | undefined
+let registeredOwner: string | undefined
 watch(
-  () => [props.name, effectiveRules.value, props.validateFirst, effectiveMessageVariables.value, props.dependencies, props.validateTrigger, props.preserve] as const,
-  ([name, rules, validateFirst, messageVariables, dependencies, validateTrigger, preserve]) => {
+  () => [resolvedName.value, effectiveRules.value, props.validateFirst, effectiveMessageVariables.value, resolvedDependencies.value, props.validateTrigger, props.preserve, resolvedOwner.value] as const,
+  ([name, rules, validateFirst, messageVariables, dependencies, validateTrigger, preserve, owner]) => {
     const previousName = registeredName
+    const previousOwner = registeredOwner
 
-    if (previousName !== undefined && JSON.stringify(previousName) !== JSON.stringify(name)) {
-      formContext?.unregisterField(previousName)
+    if (previousName !== undefined && (name === undefined || namePathKey(previousName) !== namePathKey(name) || previousOwner !== owner)) {
+      if (previousOwner && formInternalContext) formInternalContext.unregisterOwnedField(previousName, previousOwner)
+      else formContext?.unregisterField(previousName)
     }
 
     if (name !== undefined) {
-      formContext?.registerField(name, rules, validateFirst, messageVariables, { dependencies, validateTrigger, preserve })
+      if (owner && formInternalContext) formInternalContext.registerOwnedField(name, owner, rules, validateFirst, messageVariables, { dependencies, validateTrigger, preserve })
+      else formContext?.registerField(name, rules, validateFirst, messageVariables, { dependencies, validateTrigger, preserve })
     }
     registeredName = typeof name === 'string' ? name : name ? [...name] : undefined
+    registeredOwner = owner
   },
   { immediate: true, deep: true }
 )
@@ -262,7 +308,8 @@ watch(
 onBeforeUnmount(() => {
   disposed = true
   if (registeredName !== undefined) {
-    formContext?.unregisterField(registeredName)
+    if (registeredOwner && formInternalContext) formInternalContext.unregisterOwnedField(registeredName, registeredOwner)
+    else formContext?.unregisterField(registeredName)
   }
 })
 

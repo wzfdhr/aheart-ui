@@ -14,7 +14,7 @@ import Dropdown, { DropdownButton } from "./dropdown/index.js";
 import Empty from "./empty/index.js";
 import { PRESENTED_IMAGE_DEFAULT, PRESENTED_IMAGE_SIMPLE } from "./empty/index.js";
 import Flex from "./flex/index.js";
-import Form, { FormItem } from "./form/index.js";
+import Form, { FormItem, FormList } from "./form/index.js";
 import Grid from "./grid/index.js";
 import { Col, Row } from "./grid/index.js";
 import Icon from "./icon/index.js";
@@ -109,6 +109,7 @@ const components = [
   Select,
   Form,
   FormItem,
+  FormList,
   Table
 ];
 const AheartUI = {
@@ -120,6 +121,7 @@ const AheartUI = {
 };
 export {
   DropdownButton as ADropdownButton,
+  FormList as AFormList,
   Alert,
   Badge,
   BadgeRibbon,
@@ -145,6 +147,7 @@ export {
   Flex,
   Form,
   FormItem,
+  FormList,
   Grid,
   Icon,
   Input,

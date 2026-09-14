@@ -14,6 +14,36 @@ export const normalizeNamePath = (name: FormNamePath): FormNamePath => {
   return [...name]
 }
 
+export const namePathSegments = (name: FormNamePath): Array<string | number> => {
+  const normalized = normalizeNamePath(name)
+  return typeof normalized === 'string' ? [normalized] : [...normalized]
+}
+
+export const resolveNamePath = (prefix: FormNamePath | undefined, name: FormNamePath): FormNamePath => {
+  const normalized = normalizeNamePath(name)
+  return prefix === undefined ? normalized : [...namePathSegments(prefix), ...namePathSegments(normalized)]
+}
+
+export const matchListDescendant = (name: FormNamePath, listName: FormNamePath) => {
+  const nameSegments = namePathSegments(name)
+  const listSegments = namePathSegments(listName)
+  if (nameSegments.length <= listSegments.length || !listSegments.every((segment, index) => Object.is(nameSegments[index], segment))) return undefined
+  const index = nameSegments[listSegments.length]
+  if (typeof index !== 'number') return undefined
+  return { index, tail: nameSegments.slice(listSegments.length + 1) }
+}
+
+export const remapListDescendant = (
+  name: FormNamePath,
+  listName: FormNamePath,
+  oldIndexToNewIndex: ReadonlyMap<number, number>
+): FormNamePath | undefined => {
+  const match = matchListDescendant(name, listName)
+  if (!match) return undefined
+  const nextIndex = oldIndexToNewIndex.get(match.index)
+  return nextIndex === undefined ? undefined : [...namePathSegments(listName), nextIndex, ...match.tail]
+}
+
 export const namePathKey = (name: FormNamePath): string => {
   const normalized = normalizeNamePath(name)
   return typeof normalized === 'string'

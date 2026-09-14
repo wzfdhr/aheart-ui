@@ -2,10 +2,14 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const form_vue_vue_type_script_setup_true_lang = require("./form.vue.js");
 const formItem_vue_vue_type_script_setup_true_lang = require("./form-item.vue.js");
+const formList_vue_vue_type_script_setup_true_lang = require("./form-list.vue.js");
 const install = require("../utils/install.js");
 const Form = install.withInstall(form_vue_vue_type_script_setup_true_lang.default, "AForm");
 const FormItem = install.withInstall(formItem_vue_vue_type_script_setup_true_lang.default, "AFormItem");
+const FormList = install.withInstall(formList_vue_vue_type_script_setup_true_lang.default, "AFormList");
 const Form$1 = Form;
 exports.AFormItem = FormItem;
+exports.AFormList = FormList;
 exports.FormItem = FormItem;
+exports.FormList = FormList;
 exports.default = Form$1;

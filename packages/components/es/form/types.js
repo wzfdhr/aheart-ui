@@ -91,9 +91,19 @@ const formItemProps = {
   },
   preserve: { type: Boolean, default: void 0 }
 };
+const formListProps = {
+  name: {
+    type: [String, Array],
+    required: true
+  },
+  initialValue: Array,
+  rules: Array,
+  preserve: { type: Boolean, default: void 0 }
+};
 export {
   formContextKey,
   formEmits,
   formItemProps,
+  formListProps,
   formProps
 };
