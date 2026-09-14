@@ -47,6 +47,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+
       - name: Test
         run: pnpm test
 
@@ -75,9 +78,6 @@ jobs:
 
       - name: Verify Release Tarballs
         run: pnpm release:pack
-
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
 
       - name: End-to-End Tests
         id: e2e
