@@ -63,6 +63,35 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.17.0
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: R1 branch coverage
+        run: pnpm test:coverage:r1
+      - name: Upload coverage evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: d9-r1-coverage-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            packages/components/coverage/
+            packages/dnd/coverage/
+            packages/ai/coverage/
+          if-no-files-found: error
+
   build-generated:
     runs-on: ubuntu-latest
     steps:
@@ -149,7 +178,7 @@ jobs:
           pnpm --dir packages/components pack --json --pack-destination "$pack_dir" > "$pack_dir/pack.json"
           pnpm --dir packages/dnd pack --json --pack-destination "$pack_dir" > "$pack_dir/dnd-pack.json"
           pnpm --dir packages/ai pack --json --pack-destination "$pack_dir" > "$pack_dir/ai-pack.json"
-          components_tarball="$pack_dir/aheart-ui-1.0.0.tgz"
+          components_tarball="$pack_dir/aheart-ui-1.1.0.tgz"
           dnd_tarball="$pack_dir/aheart-ui-dnd-1.0.0.tgz"
           ai_tarball="$pack_dir/aheart-ui-ai-1.0.0.tgz"
           node scripts/root-entry-consumer.mjs --tarball "$components_tarball" --out "$root_out"

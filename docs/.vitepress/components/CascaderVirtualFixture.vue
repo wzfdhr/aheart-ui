@@ -28,6 +28,7 @@ const lazyOpen = ref(false)
 let lazyRequestToken = 0
 const replaceNextLazyLoad = ref(false)
 const lazyOwnerRef = ref<HTMLElement | null>(null)
+const lazyPendingResolvers = new Map<number, () => void>()
 
 const virtualConfig = computed(() => virtual.value ? {
   height: viewportHint.value === 'short' ? 180 : 256,
@@ -111,6 +112,15 @@ const onControlledValue = (next: CascaderValue) => {
 const lazyOptions = ref<CascaderOption[]>([{ value: 'lazy-root', label: 'Lazy root', isLeaf: false }])
 const replaceLazyOptions = () => { lazyRevision.value++; lazyRequestToken++; lazyOptions.value = [{ value: `lazy-root-${lazyRevision.value}`, label: 'Lazy root replaced', isLeaf: false }] }
 const armLazyReplacement = () => { replaceNextLazyLoad.value = true }
+const releaseLazyLoad = () => {
+  const resolver = lazyPendingResolvers.get(lazyAttempts.value)
+  if (!resolver) return
+  lazyPendingResolvers.delete(lazyAttempts.value)
+  resolver()
+}
+if (typeof window !== 'undefined') {
+  ;(window as typeof window & { __cascaderVirtualReleaseLazy?: () => void }).__cascaderVirtualReleaseLazy = releaseLazyLoad
+}
 const transitionLazy = (next: typeof lazyState.value) => { lazyState.value = next; lazyHistory.value = [...lazyHistory.value, next] }
 const loadLazy = async (_option: CascaderOption, { signal }: { signal: AbortSignal }) => {
   const attempt = ++lazyAttempts.value
@@ -121,16 +131,21 @@ const loadLazy = async (_option: CascaderOption, { signal }: { signal: AbortSign
     const ownerWindow = lazyOwnerRef.value?.ownerDocument.defaultView ?? globalThis.window
     ownerWindow.setTimeout(replaceLazyOptions, 0)
   }
-  const ownerWindow = lazyOwnerRef.value?.ownerDocument.defaultView ?? globalThis.window
+  if (attempt === 1) {
+    transitionLazy('error')
+    throw new Error('fixture first attempt failed')
+  }
   await new Promise<void>((resolve, reject) => {
-    // Keep the pending branch comfortably open for WebKit keyboard actions on a busy CI worker.
-    // The test is asserting Escape cancellation, not a timing race against a 180ms mock network.
-    const timer = ownerWindow.setTimeout(resolve, 1000)
-    const abort = () => { ownerWindow.clearTimeout(timer); lazyAborts.value++; transitionLazy('aborted'); reject(new Error('fixture lazy request aborted')) }
+    lazyPendingResolvers.set(attempt, resolve)
+    const abort = () => {
+      lazyPendingResolvers.delete(attempt)
+      lazyAborts.value++
+      transitionLazy('aborted')
+      reject(new Error('fixture lazy request aborted'))
+    }
     signal.addEventListener('abort', abort, { once: true })
   })
   if (request !== lazyRequestToken || signal.aborted) throw new Error('stale lazy request')
-  if (attempt === 1) { transitionLazy('error'); throw new Error('fixture first attempt failed') }
   transitionLazy('success')
   return [{ value: 'lazy-child', label: 'Loaded lazy child' }]
 }

@@ -19,3 +19,5 @@ All three suites passed. V8 branch coverage from the filtered `src/**/*.{ts,vue}
 | AI | 86.22% | 96.41% |
 
 The package Vitest configs exclude generated `es/lib` and test files, use the V8 provider, emit text/JSON summaries, and enforce `branches: 80`. The first coverage invocation without `--environment jsdom` was a tooling RED (`document is not defined`) and is excluded; the corrected command above is the authoritative GREEN.
+
+The final correction adds a CI `coverage` job running `test:coverage:r1`. Its explicit 14-file R1 state-machine manifest passed locally at `3313/3830 = 86.50%` aggregate branch coverage, with every listed file at least 80%; this is separate from the package-level averages.

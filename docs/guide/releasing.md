@@ -1,6 +1,6 @@
 # 发布
 
-本页定义 Aheart UI 三个 npm 包的首次 `1.0.0` 发布流程。日常开发与发布准备不得执行真实发布。
+本页定义 Aheart UI `aheart-ui@1.1.0`、`@aheart-ui/dnd@1.0.0` 和 `@aheart-ui/ai@1.0.0` 的发布流程。日常开发与发布准备不得执行真实发布。
 
 ## 发布前门禁
 
@@ -27,7 +27,7 @@ corepack pnpm release:pack
 
 验证器会临时打包并检查：
 
-- `aheart-ui@1.0.0`
+- `aheart-ui@1.1.0`
 - `@aheart-ui/dnd@1.0.0`
 - `@aheart-ui/ai@1.0.0`
 
@@ -40,7 +40,7 @@ corepack pnpm release:pack
 ```bash
 git status --short
 CI=true corepack pnpm release:check
-git tag -a v1.0.0 -m "Aheart UI v1.0.0"
+git tag -a v1.1.0 -m "Aheart UI v1.1.0"
 ```
 
 随后保持在同一提交发布三个包：
@@ -58,7 +58,7 @@ corepack pnpm --dir packages/ai publish --access public
 ## 发布后验证
 
 ```bash
-npm view aheart-ui@1.0.0 version
+npm view aheart-ui@1.1.0 version
 npm view @aheart-ui/dnd@1.0.0 version
 npm view @aheart-ui/ai@1.0.0 version
 ```
@@ -66,7 +66,7 @@ npm view @aheart-ui/ai@1.0.0 version
 随后在空目录安装三个包，验证 ESM、CommonJS、类型和样式入口。确认无误后推送同一 tag 并创建 GitHub Release：
 
 ```bash
-git push origin v1.0.0
+git push origin v1.1.0
 ```
 
 Git tag、GitHub Release 与 npm tarball 必须来自同一提交。

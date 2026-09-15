@@ -2,6 +2,18 @@
   "schemaVersion": "d9-skip-ledger.v1",
   "generatedFrom": "e2e/**/*.spec.ts",
   "reviewedAt": "2026-09-15",
+  "trackingUrl": "https://github.com/wzfdhr/aheart-ui/pull/30",
+  "ownerDirectory": {
+    "docs-qa": "wzfdhr",
+    "mobile-qa": "wzfdhr",
+    "workbench-qa": "wzfdhr",
+    "ai-qa": "wzfdhr",
+    "browser-qa": "wzfdhr",
+    "quality-qa": "wzfdhr",
+    "overlay-qa": "wzfdhr",
+    "dnd-qa": "wzfdhr",
+    "a11y-qa": "wzfdhr"
+  },
   "defaultExpiry": "2026-12-31",
   "sites": [
     {"id":"D9-SKIP-001","file":"e2e/docs-component-smoke.spec.ts","line":127,"reason":"Desktop crawl is the canonical docs smoke; other projects use their own responsive contract.","owner":"docs-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},

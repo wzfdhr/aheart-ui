@@ -58,7 +58,7 @@ importers:
         specifier: workspace:^
         version: link:../dnd
       aheart-ui:
-        specifier: workspace:^
+        specifier: workspace:^1.1.0
         version: link:../components
     devDependencies:
       '@vitejs/plugin-vue':

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "d9-r1-coverage.v1",
+  "branchThreshold": 80,
+  "files": [
+    "packages/components/src/cascader/cascader.vue",
+    "packages/components/src/date-picker/date-picker.vue",
+    "packages/components/src/table/table.vue",
+    "packages/components/src/tree/tree.vue",
+    "packages/components/src/tree-select/tree-select.vue",
+    "packages/components/src/upload/upload.vue",
+    "packages/components/src/utils/use-async-task.ts",
+    "packages/dnd/src/drag-state.ts",
+    "packages/dnd/src/keyboard-service.ts",
+    "packages/dnd/src/sortable-list.vue",
+    "packages/ai/src/agent-workbench.vue",
+    "packages/ai/src/chat-panel.vue",
+    "packages/ai/src/form.vue",
+    "packages/ai/src/stream-reducer.ts"
+  ]
+}

@@ -131,16 +131,18 @@ test('allows repeatable QG5 baseline collection on master without weakening push
 })
 
 test('splits CI into observable unit, typecheck, build, docs, consumer and browser jobs', () => {
-  for (const job of ['  unit:', '  typecheck:', '  build-generated:', '  docs:', '  consumer:', '  browser:', '  qg5-cross-browser:']) {
+  for (const job of ['  unit:', '  typecheck:', '  coverage:', '  build-generated:', '  docs:', '  consumer:', '  browser:', '  qg5-cross-browser:']) {
     assert.match(workflowSource, new RegExp(`\\n${job}`), `${job} job is missing`)
   }
   assert.match(workflowSource, /pnpm test:e2e:non-qg5/)
   assert.match(workflowSource, /scripts\/root-entry-consumer\.mjs/)
   assert.match(workflowSource, /scripts\/form-list-consumer\.mjs/)
   assert.match(workflowSource, /docs\/superpowers\/experiments\/d8-consumer\/run\.mjs/)
+  assert.match(workflowSource, /pnpm test:coverage:r1/)
   assert.match(workflowSource, /--components-tarball/)
   assert.match(workflowSource, /--dnd-tarball/)
   assert.match(workflowSource, /--ai-tarball/)
+  assert.match(workflowSource, /aheart-ui-1\.1\.0\.tgz/)
   assert.doesNotMatch(workflowSource, /  verify:\n/)
 })
 
@@ -150,4 +152,11 @@ test('exposes dedicated QG5 evidence commands without adding them to the ordinar
   assert.equal(workspacePackage.scripts['collect:qg5-master-stability'], 'node scripts/qg5-master-stability.collect.mjs')
   assert.equal(workspacePackage.scripts['check:qg5-master-stability'], 'node scripts/qg5-master-stability.mjs')
   assert.doesNotMatch(workspacePackage.scripts.test, /qg5-(?:ios-safari|master-stability)\.mjs/)
+})
+
+test('exposes the dedicated R1 coverage gate and evidence manifest', () => {
+  assert.equal(workspacePackage.scripts['test:coverage:r1'], 'corepack pnpm test:coverage && node scripts/d9-r1-coverage.mjs')
+  assert.match(workflowSource, /\n  coverage:\n/)
+  assert.match(workflowSource, /d9-r1-coverage-/)
+  assert.match(workflowSource, /coverage-final\.json|packages\/components\/coverage\//)
 })
