@@ -8,7 +8,7 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.{ts,vue}'],
       exclude: ['src/**/__tests__/**', 'src/**/*.d.ts'],
-      reporter: ['text', 'json-summary'],
+      reporter: ['text', 'json-summary', 'json'],
       thresholds: { branches: 80 }
     }
   }

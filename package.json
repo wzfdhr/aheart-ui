@@ -11,6 +11,7 @@
     "typecheck": "corepack pnpm --filter ./packages/components typecheck && corepack pnpm --filter @aheart-ui/dnd typecheck && corepack pnpm --filter @aheart-ui/ai typecheck",
     "test": "corepack pnpm --filter ./packages/components test && corepack pnpm --filter @aheart-ui/dnd test && corepack pnpm --filter @aheart-ui/ai test && node --test scripts/*.test.mjs",
     "test:coverage": "corepack pnpm --filter ./packages/components test:coverage && corepack pnpm --filter @aheart-ui/dnd test:coverage && corepack pnpm --filter @aheart-ui/ai test:coverage",
+    "test:coverage:r1": "corepack pnpm test:coverage && node scripts/d9-r1-coverage.mjs",
     "docs:dev": "corepack pnpm --dir docs dev",
     "docs:build": "corepack pnpm --dir docs build",
     "test:e2e": "playwright test",

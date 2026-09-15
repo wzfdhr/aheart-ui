@@ -395,6 +395,8 @@ test('lazy first failure, keyboard retry, stale replacement, abort, close and re
   await expectKeyboardFocusIndicator(root)
   await expectTextContrast(root)
   await page.keyboard.press('Enter')
+  await expect(page.getByTestId('cascader-virtual-lazy-state')).toContainText('state=loading; attempts=2')
+  await page.evaluate(() => (window as typeof window & { __cascaderVirtualReleaseLazy?: () => void }).__cascaderVirtualReleaseLazy?.())
   await expect.poll(() => page.getByTestId('cascader-virtual-lazy-state').textContent()).toContain('state=success')
   await expect(popup.locator('[data-cascader-value="lazy-child"]')).toBeFocused()
   await page.getByTestId('cascader-virtual-lazy-reset').click()

@@ -105,12 +105,12 @@ Final D0–D3 candidate `619fbe6` also closes the previously recorded default da
 ## D9 发布与质量门禁
 
 - [ ] 三个 tarball 在无 workspace 软链的临时 Vue 消费项目安装。
-  - [x] 本地 D8 consumer 已从三个真实 tarball 安装并通过；同一 runner 已加入 CI，待修复候选 exact-head 与 master/Pages 复验。
+  - [x] 本地 D8 consumer 已从三个真实 tarball 安装并通过；所有 ESM/CJS 导入均从临时 `node_modules` 解析；同一 runner 已加入 CI，待最终候选 exact-head 与 master/Pages 复验。
 - [ ] ESM/CJS、类型、CSS、按需导入、插件安装与 SSR。
   - [x] 根入口 named import 的真实 Vite consumer 已修复并通过：生成 ESM/CJS module roots 标记 `sideEffects:false`，组件 CSS 改为显式 `style.css` 入口；root bundle 不再保留无关 Table/Cascader/TreeSelect/Upload。
-  - [ ] 三包完整 ESM/CJS、插件安装、SSR/hydration 组合仍待 D9 总消费者门禁。
+  - [x] 三包完整 ESM/CJS、插件安装、SSR/hydration 组合已由隔离 D8 consumer 本地通过，待最终候选 exact-head 与 master/Pages 复验。
 - [ ] 引入覆盖率，R1 状态机 branch coverage ≥80%。
-  - [x] V8 coverage baseline and branch threshold are implemented in all three packages: components 88.36%, DnD 80.37%, AI 86.22%; delivery PR/CI still pending.
+  - [x] V8 coverage 已接入独立 CI job；显式 14 文件 R1 状态机清单每个文件均 ≥80%，本地聚合 `86.50%`。
 - [ ] CI 拆为 unit/typecheck/build/docs/browser/consumer。
   - [x] Candidate workflow splits unit/typecheck/build-generated/docs/consumer/browser and excludes QG5 specs from ordinary browser E2E; exact-head delivery still pending.
 - [ ] 消除重复 QG5 E2E，核实 CI 耗时改善。
