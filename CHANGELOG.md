@@ -2,7 +2,21 @@
 
 Aheart UI 的重要变更统一记录在本文件中。
 
-## [1.0.0] - 未发布
+## [1.1.0] - 未发布
+
+### 新增与改进
+
+- Select、Tree、TreeSelect、Cascader 与 Table 增加大数据虚拟化能力及相应交互保护。
+- Form.List、表格分页与选择、Picker/Upload、浮层焦点管理、DnD/Splitter 和 AI 工作流稳定性得到增强。
+- 核心包根入口支持更有效的按需导入；CI 增加分支覆盖率、独立 tarball 消费和五浏览器质量门禁。
+- 更新 PostCSS 与 nanoid 依赖以修复已知安全问题，并验证 ESM、CommonJS、类型、CSS、SSR 与 hydration 消费路径。
+
+### 发布状态
+
+- 核心包 `aheart-ui@1.1.0` 尚未发布；`@aheart-ui/dnd@1.0.0` 与 `@aheart-ui/ai@1.0.0` 也仍待首次 npm 发布。
+- 发布候选需要重新运行完整本地门禁；npm 发布、tag 和 GitHub Release 尚未完成。
+
+## [1.0.0] - 2026-09-01
 
 ### 新增
 
@@ -17,5 +31,6 @@ Aheart UI 的重要变更统一记录在本文件中。
 
 ### 发布状态
 
-- 尚未执行 npm 发布、创建 Git tag 或 GitHub Release。
+- 核心包 `aheart-ui@1.0.0` 已于 2026-09-01 发布到 npm。
+- `@aheart-ui/dnd` 与 `@aheart-ui/ai` 尚未发布；Git tag 与 GitHub Release 尚未创建。
 - 本版本按产品决策继续暂停英文文档。

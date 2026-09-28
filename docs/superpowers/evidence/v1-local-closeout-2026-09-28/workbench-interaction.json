@@ -1,0 +1,14 @@
+{
+  "route": "/components/ai-agent-workbench",
+  "actions": [
+    "retry summary task",
+    "approve publish task",
+    "open source-data artifact preview"
+  ],
+  "result": {
+    "status": "已完成",
+    "summary": "生成执行摘要已完成重试成功完成 刚刚上 移下 移",
+    "approval": "确认发布到团队知识库该操作由业务层执行，组件只收集人工决定。已批准",
+    "preview": "table来源数据.csv结构化来源清单"
+  }
+}

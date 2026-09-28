@@ -37,7 +37,7 @@
     {"id":"D9-SKIP-019","file":"e2e/qg1-quality-matrix.spec.ts","line":108,"reason":"Quality matrix mobile scenario is owned by the mobile project.","owner":"quality-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-020","file":"e2e/overlay-motion.spec.ts","line":12,"reason":"Overlay motion desktop baseline is owned by the desktop project.","owner":"overlay-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-021","file":"e2e/overlay-motion.spec.ts","line":52,"reason":"Overlay motion desktop baseline is owned by the desktop project.","owner":"overlay-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
-    {"id":"D9-SKIP-022","file":"e2e/q3-form-controls.spec.ts","line":209,"reason":"Coarse-pointer form-control coverage is mobile-only.","owner":"mobile-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
+    {"id":"D9-SKIP-022","file":"e2e/q3-form-controls.spec.ts","line":213,"reason":"Coarse-pointer form-control coverage is mobile-only.","owner":"mobile-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-023","file":"e2e/dnd-splitter.spec.ts","line":193,"reason":"Legacy native dragging compatibility contract is desktop-only.","owner":"dnd-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-024","file":"e2e/dnd-splitter.spec.ts","line":203,"reason":"Trusted device-level touch injection is available in mobile Chromium.","owner":"dnd-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-025","file":"e2e/dnd-splitter.spec.ts","line":239,"reason":"Trusted device-level touch scrolling is available in mobile Chromium.","owner":"dnd-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},

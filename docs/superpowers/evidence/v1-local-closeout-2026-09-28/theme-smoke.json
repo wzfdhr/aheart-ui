@@ -1,0 +1,19 @@
+{
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "colorScheme": "dark",
+  "reducedMotion": true,
+  "before": {
+    "darkClass": true,
+    "motion": "0ms",
+    "tableBackground": "rgb(255, 255, 255)"
+  },
+  "after": {
+    "darkClass": true,
+    "motion": "0ms",
+    "tableBackground": "rgb(17, 19, 24)"
+  },
+  "screenshot": "table-dark-custom.png"
+}

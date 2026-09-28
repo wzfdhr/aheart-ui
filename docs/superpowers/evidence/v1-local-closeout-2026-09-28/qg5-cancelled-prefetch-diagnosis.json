@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "qg5-vitepress-prefetch-cancellation-note.v1",
+  "reviewedAt": "2026-09-28",
+  "sourceLog": "/tmp/aheart-ui-v1-release-check-final-pass.log",
+  "rawTraceRetained": false,
+  "rawTraceNote": "Trace metadata were inspected during the run; later Playwright runs overwrote the raw trace. This note preserves the log-visible asset paths and the observed metadata, not a raw trace.",
+  "observedFailureCount": 20,
+  "observedAssetPaths": [
+    "/assets/components_button.md.D5GZd84V.js",
+    "/assets/components_cascader.md.BTAAjH0r.js",
+    "/assets/components_checkbox.md.D6ivYTCa.js",
+    "/assets/components_config-provider.md.DWRveZnf.js",
+    "/assets/components_date-picker.md.CWIBhGCM.js",
+    "/assets/components_form.md.DoMAB6m_.js",
+    "/assets/components_input-number.md.BKwGwJAL.js",
+    "/assets/components_input.md.CEoZrw6j.js",
+    "/assets/components_menu.md.BM_vD-rP.js",
+    "/assets/components_overview.md.C3-PxhTK.js",
+    "/assets/components_radio.md.B5APyVaK.js",
+    "/assets/components_select.md.DzclnLEX.js",
+    "/assets/components_switch.md.M8F5P0b-.js",
+    "/assets/components_textarea.md.J0KgFdhN.js",
+    "/assets/components_time-picker.md.Bx15KBcE.js",
+    "/assets/components_tree-select.md.By8fj1K4.js",
+    "/assets/components_upload.md.Btqt8kh4.js",
+    "/assets/guide_installation.md.Dz5e-iBN.js",
+    "/assets/guide_introduction.md.Diws6Tyf.js",
+    "/assets/index.md.nnSuqrKZ.js"
+  ],
+  "observedMetadataFromTraceInspection": {
+    "browserProject": "desktop-webkit",
+    "mainFrame": true,
+    "method": "GET",
+    "resourceType": "xhr",
+    "secFetchDest": "empty",
+    "refererMatchedActiveRoute": true,
+    "assetKind": "hashed VitePress markdown prefetch asset",
+    "sameRouteAssetFingerprintCompleted": true
+  },
+  "interpretation": "Likely VitePress speculative route-prefetch cancellation during navigation; the exact-cause statement is an inference from the inspected metadata and completed asset fingerprints.",
+  "guardrail": "The classifier only ignores exact WebKit cancellation reasons when all route, frame, request, header, asset, and fingerprint conditions match. Generic cancellation remains a failure.",
+  "currentEvidence": {
+    "classifierTests": "passed in the full local script test suite",
+    "focusedDesktopWebkitRepeat": "3/3 passed",
+    "fullE2eCurrentCandidateDerivedFrom": "17b3494e4f16972edde3d3d77d058102d6f4ee2c",
+    "fullE2e": "828 passed, 127 intentionally skipped, 0 failed"
+  }
+}

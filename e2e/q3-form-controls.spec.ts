@@ -190,8 +190,12 @@ test('Q3 controls preserve sizing, status colors, theme states, and visible keyb
   await expect(inputNumber).toHaveCSS('border-bottom-color', 'rgb(180, 35, 24)')
 
   await page.goto('/components/checkbox')
+  await waitForHydration(page)
   const checkbox = page.locator('.aheart-demo-panel').first().getByRole('checkbox').first()
   await checkbox.focus()
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Shift+Tab')
+  await expect(checkbox).toBeFocused()
   const focusShadow = await checkbox.evaluate((element) =>
     getComputedStyle(element.nextElementSibling as HTMLElement).boxShadow
   )
@@ -235,6 +239,7 @@ test('coarse-pointer controls provide reachable touch targets and reveal cascade
   await expectTouchTarget('.aheart-time-picker__footer button')
 
   await page.goto('/components/tree-select')
+  await waitForHydration(page)
   await expectTouchTarget('.aheart-tree-select__trigger')
   await page.locator('.aheart-demo-panel').first().getByRole('combobox').click()
   const treePanel = page.locator('.aheart-tree-select__panel')

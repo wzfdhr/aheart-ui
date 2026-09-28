@@ -57,7 +57,8 @@ export function installVitePressRequestTracker(page, projectName) {
 export function setActiveVitePressRoute(page, route) { trackers.get(page)?.setActiveRoute(route) }
 
 export function isIgnorableCancelledVitePressPrefetch(projectName, metadata, request, errorText, completedUrls = new Set()) {
-  if (projectName !== 'desktop-webkit' || errorText.trim().toLowerCase() !== 'load request cancelled' || !metadata?.frame || metadata.method !== 'GET' || metadata.resourceType !== 'xhr' || metadata.secFetchDest !== 'empty' || !metadata.referer || metadata.referer !== normalizeRoute(metadata.activeRoute)) return false
+  const cancellationReason = errorText.trim().toLowerCase()
+  if (projectName !== 'desktop-webkit' || !['load request cancelled', 'cancelled'].includes(cancellationReason) || !metadata?.frame || metadata.method !== 'GET' || metadata.resourceType !== 'xhr' || metadata.secFetchDest !== 'empty' || !metadata.referer || metadata.referer !== normalizeRoute(metadata.activeRoute)) return false
   const url = new URL(request.url())
   const match = url.hostname === '127.0.0.1' ? parseAsset(url.pathname) : null
   if (!match) return false
