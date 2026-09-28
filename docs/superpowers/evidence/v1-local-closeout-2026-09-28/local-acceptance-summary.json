@@ -106,5 +106,30 @@
     "npm tag and GitHub Release"
   ],
   "npmPublishExecuted": false,
-  "v2Started": false
+  "v2Started": false,
+  "githubUploadVerification": {
+    "evidence": "github-upload-verification.json",
+    "pullRequest": {
+      "number": 32,
+      "url": "https://github.com/wzfdhr/aheart-ui/pull/32",
+      "state": "MERGED",
+      "headSha": "8053ebcf177ea0c60891031a09dddadb8485a534"
+    },
+    "masterSha": "d5145c3af4fdfb157fe1a557c392c15321ae8a1f",
+    "mainCi": {
+      "runId": 36427030605,
+      "conclusion": "success"
+    },
+    "pages": {
+      "runId": 36432592641,
+      "conclusion": "success"
+    },
+    "keyRoutesHttp200": [
+      "/",
+      "/components/table",
+      "/guide/releasing",
+      "/components/ai-agent-workbench"
+    ]
+  },
+  "localAcceptanceReport": "L3 GitHub upload verification is recorded in the attached evidence; local release-check remains bound to testedCommit."
 }
