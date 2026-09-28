@@ -11,8 +11,9 @@
 
 ## 测试
 
-- 组件、DnD、AI 单测当前复核分别为 1485、79、200 项通过；R1 的 14 个文件均不低于 80%，聚合 3311/3828（86.49%）。
-- 初次完整浏览器矩阵 955 项中 828 项通过、127 项由项目配置跳过、0 项失败；`test-results/.last-run.json` 记录 `status: passed` 和空 `failedTests`。
+- 候选 `09cf9b64cb9653763aab81d3b96925c62c793701` 上的 `CI=true corepack pnpm release:check` 退出码为 0；组件、DnD、AI 单测分别 1485、79、200 项通过，脚本集 247/247 通过。
+- R1 的 14 个文件均不低于 80%，当前候选聚合 3312/3829（86.50%），最低文件 80.33%。较早的同源码测量为 3311/3828（86.49%），一处分支分母差异没有影响任何门槛。
+- 完整浏览器矩阵 955 项中 828 项通过、127 项由项目配置跳过、0 项失败；`test-results/.last-run.json` 记录 `status: passed` 和空 `failedTests`。独立 consumer 检查已另存三份原始结果与 tarball SHA。
 - WebKit 20 个已取消 Markdown 预取资源的历史失败被单独记录。原始 trace 已被后续 Playwright 运行覆盖；证据 JSON 不冒充原始 trace。
 - 三个隔离 tarball consumer 与最终 `CI=true` 门禁待本目录最终报告绑定到候选提交。
 

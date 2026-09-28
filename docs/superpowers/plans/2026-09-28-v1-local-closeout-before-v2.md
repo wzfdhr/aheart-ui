@@ -1,6 +1,6 @@
 # Aheart UI 现有版本本地收尾计划（v2 暂停）
 
-> 状态：进行中。计划基线为 2026-09-28 核对到的远端 `master` `17b3494`；收尾分支为 `codex/v1-local-closeout`，执行前仍须复核远端最新 SHA。
+> 状态：L0–L2 本地完成；L3 GitHub 上传待完成。计划基线为 2026-09-28 核对到的远端 `master` `17b3494`；收尾分支为 `codex/v1-local-closeout`，推送前仍须复核远端最新 SHA。
 >
 > 范围：现有 `aheart-ui`、`@aheart-ui/dnd`、`@aheart-ui/ai`、中文文档与发布门禁。v2 的 M0–M8、Combobox、独立 Icons/Motion 包和 Resolver 均不在本轮开发范围。
 >
@@ -29,7 +29,7 @@
 **任务**
 
 - [x] 以最新主线为准复核 Table 单选组在多实例 SSR 与 hydration 中的稳定性；主线已有覆盖该风险的稳定 ID、跨实例及 SSR/hydration 测试，无需重复添加同一测试。
-- [ ] 核对 D9 最终修正、38 处有意跳过记录、14 个 R1 文件覆盖门槛与三包独立消费测试；对新的失败做最小范围修复，不把 QG6 延期项或 v2 需求偷偷并入现有版本。
+- [x] 核对 D9 最终修正、38 处有意跳过记录、14 个 R1 文件覆盖门槛与三包独立消费测试；对新的失败做最小范围修复，不把 QG6 延期项或 v2 需求偷偷并入现有版本。D9 skip ledger、14 文件 coverage 与三个无 workspace symlink 的 tarball consumer 均有本地证据。
 - [x] 修正文档与真实发布状态不一致之处，特别是 `CHANGELOG.md` 对已公开的 `aheart-ui@1.0.0` 和待发布的 `1.1.0` 的描述；核对安装与发布指南中的版本、依赖、命令和回滚步骤，并补充暗色 token 与减少动态效果的使用边界。
 - [x] 本轮没有改公开入口或组件样式；运行时源码、类型声明和 `es/lib` 无需同步，E2E 调整与本地验收证据已单独记录。
 
@@ -39,20 +39,20 @@
 
 在固定提交 SHA、干净工作树和 `pnpm@9.15.4` 环境执行，逐项保存命令、退出码、日志与产物 SHA：
 
-- [x] `corepack pnpm install --frozen-lockfile`（在干净收尾克隆通过；候选提交固定后再次复核）。
-- [ ] `corepack pnpm test`、`corepack pnpm typecheck`、`corepack pnpm test:coverage:r1`；14 个 R1 文件逐项达到分支覆盖阈值。
-- [ ] `corepack pnpm check:build-determinism`；连续构建后 `es/lib` 不漂移。
-- [ ] `corepack pnpm docs:build`、`corepack pnpm release:pack`；按 `.github/workflows/ci.yml` 的 `consumer` job 运行 `scripts/root-entry-consumer.mjs`、`scripts/form-list-consumer.mjs` 和 `docs/superpowers/experiments/d8-consumer/run.mjs`，从三个新打出的 tarball 验证 ESM、CJS、类型、CSS、SSR/hydration、基础交互及无 workspace symlink。
-- [ ] `corepack pnpm test:e2e`，包括五组 QG5 浏览器项目；失败时保留 trace、截图、视频并修复根因。
-- [ ] 使用 `corepack pnpm --dir docs preview` 打开生产构建，使用鼠标和键盘完成 Table/表单、Picker/Upload、浮层、DnD/Splitter、AI Workbench 的代表性任务；核对桌面和移动视口、暗色与 reduced-motion。记录操作路径、截图和具体版本。自动化不能替代这一步。
-- [ ] 最后执行 `CI=true corepack pnpm release:check`、`git diff --check` 和干净工作树检查；发布包必须来自同一验收 SHA。
+- [x] `corepack pnpm install --frozen-lockfile`（候选提交 `09cf9b6` 上通过）。
+- [x] `corepack pnpm test`、`corepack pnpm typecheck`、`corepack pnpm test:coverage:r1`；R1 14 个文件均达到 80% 分支阈值，最终聚合 86.50%。
+- [x] `corepack pnpm check:build-determinism`；连续构建后 `es/lib` 不漂移。
+- [x] `corepack pnpm docs:build`、`corepack pnpm release:pack`；按 `.github/workflows/ci.yml` 的 `consumer` job 运行三个脚本，从三个新 tarball 验证 ESM、CJS、类型、CSS、SSR/hydration、基础交互及无 workspace symlink。
+- [x] `CI=true corepack pnpm test:e2e`（由最终 `release:check` 调用），包括五个浏览器项目；955 项中 828 通过、127 按配置跳过、失败 0。
+- [x] 使用 production preview 与桌面鼠标/键盘完成 Table/表单、Picker/Upload、浮层、DnD/Splitter、AI Workbench 代表性任务；检查桌面/移动视口、暗色 token 与 reduced-motion，并保存路径和截图。
+- [x] 在干净候选 SHA `09cf9b6` 上执行 `CI=true corepack pnpm release:check`，退出码 0；`git diff --check` 通过。
 
 **本地退出条件**：所有适用命令通过；交互可在本地实际完成；测试、视觉、SSR、消费端与构建证据分开归档。未通过项保留为明确的阻断项，不用“基本通过”代替。
 
 ## L3：审查与 GitHub 上传
 
-- [ ] 开发、测试、设计、产品四个视角分别审查最终差异与本地证据，记录 P0/P1/P2、结论和待复测项；所有阻断项关闭后固定候选 SHA。
-- [ ] 仅提交 L0–L2 验收范围内的代码、生成物、中文文档与证据索引；Logo 方案和 v2 规划稿继续保全，除非单独决定纳入本次发布。
+- [x] 开发、测试、设计、产品四个视角分别审查最终差异与本地证据，记录 P0/P1/P2、结论和待复测项；本地差异未发现 P0/P1，独立设计/产品签字仍列在 L4。
+- [x] 仅提交 L0–L2 验收范围内的代码、中文文档与证据索引；Logo 方案和 v2 规划稿未混入本次提交。
 - [ ] 推送收尾分支、创建/更新 PR；在精确 head 上通过 CI、五浏览器矩阵、覆盖率、独立消费者与 Pages。合并后在 `master` 的精确 SHA 复核 CI、部署和页面关键路径。
 
 **上传退出条件**：GitHub 主线包含已验收的同一内容；无丢失本地改动；PR、主分、Pages 的 SHA 和证据链可追溯。

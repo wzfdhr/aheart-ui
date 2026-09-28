@@ -53,9 +53,9 @@
     },
     {
       "file": "packages/dnd/src/keyboard-service.ts",
-      "total": 90,
-      "covered": 77,
-      "pct": 85.56
+      "total": 91,
+      "covered": 78,
+      "pct": 85.71
     },
     {
       "file": "packages/dnd/src/sortable-list.vue",
@@ -89,8 +89,19 @@
     }
   ],
   "aggregate": {
+    "total": 3829,
+    "covered": 3312,
+    "pct": 86.5
+  },
+  "testedCommit": "09cf9b64cb9653763aab81d3b96925c62c793701",
+  "evidenceLog": "logs/r1-coverage.log.gz",
+  "evidenceLogCompression": "gzip",
+  "evidenceLogSha256": "aff93d9f76226886c7ae17fa111be7167382aea41e2b3b41cfee8ac56ed00d72",
+  "evidenceLogCompressedSha256": "d254db9a6ad77803f7f8ae3bf8823aeeb375b56ed0fc427a2433fb71cb672c3e",
+  "priorCandidateMeasurement": {
     "total": 3828,
     "covered": 3311,
-    "pct": 86.49
+    "pct": 86.49,
+    "note": "Earlier same-source run; all 14 files also met the 80% threshold."
   }
 }

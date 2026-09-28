@@ -1,0 +1,352 @@
+{
+  "name": "@aheart-ui/ai",
+  "version": "1.0.0",
+  "filename": "/tmp/aheart-ui-v1-consumers-09cf9b6/pack/aheart-ui-ai-1.0.0.tgz",
+  "files": [
+    {
+      "path": "es/actions.vue.d.ts"
+    },
+    {
+      "path": "es/actions.vue.js"
+    },
+    {
+      "path": "es/actions.vue2.js"
+    },
+    {
+      "path": "es/agent-execution.vue.d.ts"
+    },
+    {
+      "path": "es/agent-execution.vue.js"
+    },
+    {
+      "path": "es/agent-execution.vue2.js"
+    },
+    {
+      "path": "es/agent-workbench.vue.d.ts"
+    },
+    {
+      "path": "es/agent-workbench.vue.js"
+    },
+    {
+      "path": "es/agent-workbench.vue2.js"
+    },
+    {
+      "path": "es/attachments.vue.d.ts"
+    },
+    {
+      "path": "es/attachments.vue.js"
+    },
+    {
+      "path": "es/attachments.vue2.js"
+    },
+    {
+      "path": "es/bubble.vue.d.ts"
+    },
+    {
+      "path": "es/bubble.vue.js"
+    },
+    {
+      "path": "es/bubble.vue2.js"
+    },
+    {
+      "path": "es/chat-panel.vue.d.ts"
+    },
+    {
+      "path": "es/chat-panel.vue.js"
+    },
+    {
+      "path": "es/chat-panel.vue2.js"
+    },
+    {
+      "path": "es/conversations.vue.d.ts"
+    },
+    {
+      "path": "es/conversations.vue.js"
+    },
+    {
+      "path": "es/conversations.vue2.js"
+    },
+    {
+      "path": "es/form-field.vue.d.ts"
+    },
+    {
+      "path": "es/form-field.vue.js"
+    },
+    {
+      "path": "es/form-field.vue2.js"
+    },
+    {
+      "path": "es/form-schema.d.ts"
+    },
+    {
+      "path": "es/form-schema.js"
+    },
+    {
+      "path": "es/form.vue.d.ts"
+    },
+    {
+      "path": "es/form.vue.js"
+    },
+    {
+      "path": "es/form.vue2.js"
+    },
+    {
+      "path": "es/index.d.ts"
+    },
+    {
+      "path": "es/index.js"
+    },
+    {
+      "path": "es/package.json"
+    },
+    {
+      "path": "es/process.vue.d.ts"
+    },
+    {
+      "path": "es/process.vue.js"
+    },
+    {
+      "path": "es/process.vue2.js"
+    },
+    {
+      "path": "es/prompts.vue.d.ts"
+    },
+    {
+      "path": "es/prompts.vue.js"
+    },
+    {
+      "path": "es/prompts.vue2.js"
+    },
+    {
+      "path": "es/safe-markdown.d.ts"
+    },
+    {
+      "path": "es/safe-markdown.js"
+    },
+    {
+      "path": "es/sender.vue.d.ts"
+    },
+    {
+      "path": "es/sender.vue.js"
+    },
+    {
+      "path": "es/sender.vue2.js"
+    },
+    {
+      "path": "es/sources.vue.d.ts"
+    },
+    {
+      "path": "es/sources.vue.js"
+    },
+    {
+      "path": "es/sources.vue2.js"
+    },
+    {
+      "path": "es/stream-reducer.d.ts"
+    },
+    {
+      "path": "es/stream-reducer.js"
+    },
+    {
+      "path": "es/style.css"
+    },
+    {
+      "path": "es/thought-chain.vue.d.ts"
+    },
+    {
+      "path": "es/thought-chain.vue.js"
+    },
+    {
+      "path": "es/thought-chain.vue2.js"
+    },
+    {
+      "path": "es/types.d.ts"
+    },
+    {
+      "path": "es/welcome.vue.d.ts"
+    },
+    {
+      "path": "es/welcome.vue.js"
+    },
+    {
+      "path": "es/welcome.vue2.js"
+    },
+    {
+      "path": "lib/actions.vue.d.ts"
+    },
+    {
+      "path": "lib/actions.vue.js"
+    },
+    {
+      "path": "lib/actions.vue2.js"
+    },
+    {
+      "path": "lib/agent-execution.vue.d.ts"
+    },
+    {
+      "path": "lib/agent-execution.vue.js"
+    },
+    {
+      "path": "lib/agent-execution.vue2.js"
+    },
+    {
+      "path": "lib/agent-workbench.vue.d.ts"
+    },
+    {
+      "path": "lib/agent-workbench.vue.js"
+    },
+    {
+      "path": "lib/agent-workbench.vue2.js"
+    },
+    {
+      "path": "lib/attachments.vue.d.ts"
+    },
+    {
+      "path": "lib/attachments.vue.js"
+    },
+    {
+      "path": "lib/attachments.vue2.js"
+    },
+    {
+      "path": "lib/bubble.vue.d.ts"
+    },
+    {
+      "path": "lib/bubble.vue.js"
+    },
+    {
+      "path": "lib/bubble.vue2.js"
+    },
+    {
+      "path": "lib/chat-panel.vue.d.ts"
+    },
+    {
+      "path": "lib/chat-panel.vue.js"
+    },
+    {
+      "path": "lib/chat-panel.vue2.js"
+    },
+    {
+      "path": "lib/conversations.vue.d.ts"
+    },
+    {
+      "path": "lib/conversations.vue.js"
+    },
+    {
+      "path": "lib/conversations.vue2.js"
+    },
+    {
+      "path": "lib/form-field.vue.d.ts"
+    },
+    {
+      "path": "lib/form-field.vue.js"
+    },
+    {
+      "path": "lib/form-field.vue2.js"
+    },
+    {
+      "path": "lib/form-schema.d.ts"
+    },
+    {
+      "path": "lib/form-schema.js"
+    },
+    {
+      "path": "lib/form.vue.d.ts"
+    },
+    {
+      "path": "lib/form.vue.js"
+    },
+    {
+      "path": "lib/form.vue2.js"
+    },
+    {
+      "path": "lib/index.d.ts"
+    },
+    {
+      "path": "lib/index.js"
+    },
+    {
+      "path": "lib/package.json"
+    },
+    {
+      "path": "lib/process.vue.d.ts"
+    },
+    {
+      "path": "lib/process.vue.js"
+    },
+    {
+      "path": "lib/process.vue2.js"
+    },
+    {
+      "path": "lib/prompts.vue.d.ts"
+    },
+    {
+      "path": "lib/prompts.vue.js"
+    },
+    {
+      "path": "lib/prompts.vue2.js"
+    },
+    {
+      "path": "lib/safe-markdown.d.ts"
+    },
+    {
+      "path": "lib/safe-markdown.js"
+    },
+    {
+      "path": "lib/sender.vue.d.ts"
+    },
+    {
+      "path": "lib/sender.vue.js"
+    },
+    {
+      "path": "lib/sender.vue2.js"
+    },
+    {
+      "path": "lib/sources.vue.d.ts"
+    },
+    {
+      "path": "lib/sources.vue.js"
+    },
+    {
+      "path": "lib/sources.vue2.js"
+    },
+    {
+      "path": "lib/stream-reducer.d.ts"
+    },
+    {
+      "path": "lib/stream-reducer.js"
+    },
+    {
+      "path": "lib/style.css"
+    },
+    {
+      "path": "lib/thought-chain.vue.d.ts"
+    },
+    {
+      "path": "lib/thought-chain.vue.js"
+    },
+    {
+      "path": "lib/thought-chain.vue2.js"
+    },
+    {
+      "path": "lib/types.d.ts"
+    },
+    {
+      "path": "lib/welcome.vue.d.ts"
+    },
+    {
+      "path": "lib/welcome.vue.js"
+    },
+    {
+      "path": "lib/welcome.vue2.js"
+    },
+    {
+      "path": "LICENSE"
+    },
+    {
+      "path": "package.json"
+    },
+    {
+      "path": "README.md"
+    }
+  ]
+}
