@@ -1,6 +1,6 @@
 # Aheart UI 现有版本本地收尾计划（v2 暂停）
 
-> 状态：L0–L2 本地完成；L3 GitHub 上传待完成。计划基线为 2026-09-28 核对到的远端 `master` `17b3494`；收尾分支为 `codex/v1-local-closeout`，推送前仍须复核远端最新 SHA。
+> 状态：L0–L3 已完成；L4 外部验收仍待办。启动基线是 2026-09-28 核对的 `master` `17b3494`；本次合并后的 `master` 为 `d5145c3af4fdfb157fe1a557c392c15321ae8a1f`。收尾 PR：[#32](https://github.com/wzfdhr/aheart-ui/pull/32)。
 >
 > 范围：现有 `aheart-ui`、`@aheart-ui/dnd`、`@aheart-ui/ai`、中文文档与发布门禁。v2 的 M0–M8、Combobox、独立 Icons/Motion 包和 Resolver 均不在本轮开发范围。
 >
@@ -53,9 +53,11 @@
 
 - [x] 开发、测试、设计、产品四个视角分别审查最终差异与本地证据，记录 P0/P1/P2、结论和待复测项；本地差异未发现 P0/P1，独立设计/产品签字仍列在 L4。
 - [x] 仅提交 L0–L2 验收范围内的代码、中文文档与证据索引；Logo 方案和 v2 规划稿未混入本次提交。
-- [ ] 推送收尾分支、创建/更新 PR；在精确 head 上通过 CI、五浏览器矩阵、覆盖率、独立消费者与 Pages。合并后在 `master` 的精确 SHA 复核 CI、部署和页面关键路径。
+- [x] 推送收尾分支并创建 PR #32；精确 head `8053ebcf177ea0c60891031a09dddadb8485a534` 的两轮 CI 均通过，包括五浏览器矩阵、coverage、consumer、unit、typecheck、build-generated、docs 和 browser。
+- [x] PR #32 已于 2026-09-28 squash 合入 `master`，merge SHA `d5145c3af4fdfb157fe1a557c392c15321ae8a1f`。该精确主线 SHA 的 [CI run 36427030605](https://github.com/wzfdhr/aheart-ui/actions/runs/36427030605) 全部通过；[Pages run 36432592641](https://github.com/wzfdhr/aheart-ui/actions/runs/36432592641) build/deploy 全部通过。
+- [x] 在部署的该 SHA 上验证关键页面：文档根页、Table、发布指南、AI Agent Workbench 均 HTTP 200；发布指南在线内容包含“回滚与部分发布故障”和 npm dist-tag 回滚说明。逐项请求与 SHA 记录见 [`github-upload-verification.json`](../evidence/v1-local-closeout-2026-09-28/github-upload-verification.json)。
 
-**上传退出条件**：GitHub 主线包含已验收的同一内容；无丢失本地改动；PR、主分、Pages 的 SHA 和证据链可追溯。
+**上传退出条件**：已完成。GitHub 主线包含已验收的同一运行时/测试内容；最终主线只比本地完整门禁提交多证据归档及主线核验文档，不丢失原本地工作；PR、主分、Pages 的 SHA 和证据链可追溯。L4 真机、连续 QG5、独立 D9 签字及 npm 发布继续单独待办。
 
 ## L4：发布与外部验收（单独记录，不冒充本地通过）
 

@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "v1-github-upload-verification.v1",
+  "verifiedAt": "2026-09-28",
+  "pullRequest": {
+    "number": 32,
+    "url": "https://github.com/wzfdhr/aheart-ui/pull/32",
+    "state": "MERGED",
+    "headBranch": "codex/v1-local-closeout",
+    "headSha": "8053ebcf177ea0c60891031a09dddadb8485a534",
+    "baseShaBeforeMerge": "17b3494e4f16972edde3d3d77d058102d6f4ee2c",
+    "mergeSha": "d5145c3af4fdfb157fe1a557c392c15321ae8a1f",
+    "mergedAt": "2026-09-28T13:13:00Z",
+    "ciRuns": [
+      {
+        "id": 36421518102,
+        "event": "push",
+        "headSha": "8053ebcf177ea0c60891031a09dddadb8485a534",
+        "conclusion": "success",
+        "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/36421518102"
+      },
+      {
+        "id": 36421621266,
+        "event": "pull_request",
+        "headSha": "8053ebcf177ea0c60891031a09dddadb8485a534",
+        "conclusion": "success",
+        "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/36421621266"
+      }
+    ]
+  },
+  "master": {
+    "sha": "d5145c3af4fdfb157fe1a557c392c15321ae8a1f",
+    "originMasterMatchedAtVerification": true,
+    "ciRun": {
+      "id": 36427030605,
+      "event": "push",
+      "conclusion": "success",
+      "jobsPassed": [
+        "typecheck",
+        "unit",
+        "browser",
+        "coverage",
+        "consumer",
+        "build-generated",
+        "docs",
+        "qg5-cross-browser (desktop)",
+        "qg5-cross-browser (mobile)",
+        "qg5-cross-browser (desktop-firefox)",
+        "qg5-cross-browser (desktop-webkit)",
+        "qg5-cross-browser (mobile-webkit)"
+      ],
+      "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/36427030605"
+    },
+    "pages": {
+      "runId": 36432592641,
+      "event": "workflow_run",
+      "sourceSha": "d5145c3af4fdfb157fe1a557c392c15321ae8a1f",
+      "conclusion": "success",
+      "buildJob": "success",
+      "deployJob": "success",
+      "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/36432592641",
+      "siteUrl": "https://wzfdhr.github.io/aheart-ui/"
+    }
+  },
+  "pageSmoke": [
+    { "route": "/", "httpStatus": 200 },
+    { "route": "/components/table", "httpStatus": 200 },
+    { "route": "/guide/releasing", "httpStatus": 200 },
+    { "route": "/components/ai-agent-workbench", "httpStatus": 200 }
+  ],
+  "releaseGuideContentVerified": [
+    "回滚与部分发布故障",
+    "npm dist-tag add aheart-ui@1.0.0 latest"
+  ],
+  "originalWorkspacePreservation": {
+    "trackedPatch": "/tmp/aheart-ui-v1-closeout-original-working-tree.patch",
+    "trackedPatchSha256": "0ddc49bb3d2b19c4e8e3469bff4b6314b34e7f54ad59393678d68219b3575298",
+    "trackedPatchContainsOnly": [
+      "packages/components/src/table/__tests__/table.test.ts",
+      "pnpm-workspace.yaml"
+    ],
+    "untrackedManifest": "/tmp/aheart-ui-v1-closeout-original-untracked/manifest.json",
+    "manifestFilesVerified": 10,
+    "logoConceptsAndV2DraftsStillPreserved": true,
+    "invalidAllowBuildsPlaceholderPorted": false
+  },
+  "externalGatesStillPending": [
+    "independent final D9 design/product signoff",
+    "physical iOS Safari interaction acceptance",
+    "10 consecutive QG5 runs on one exact master SHA",
+    "npm publication and clean registry install",
+    "npm tag and GitHub Release"
+  ],
+  "v2Started": false
+}

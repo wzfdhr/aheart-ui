@@ -50,6 +50,13 @@ Tarball SHA-256：
 
 截图覆盖 Table 全页与桌面/移动视口、DatePicker、Upload、DnD、Splitter、Workbench 初始与批准后状态。暗色 token 和 `prefers-reduced-motion` 的结果见 [`theme-smoke.json`](theme-smoke.json)；WebKit 取消预取失败诊断见 [`qg5-cancelled-prefetch-diagnosis.json`](qg5-cancelled-prefetch-diagnosis.json)。
 
+## L3 GitHub 上传核验
+
+- PR [#32](https://github.com/wzfdhr/aheart-ui/pull/32) 的精确 head `8053ebcf177ea0c60891031a09dddadb8485a534` 在 push 与 pull_request 两轮 CI 均全绿，随后于 2026-09-28 squash 合入。
+- 合并 SHA `d5145c3af4fdfb157fe1a557c392c15321ae8a1f` 与核验时 `origin/master` 一致。该 SHA 的主线 CI 全部通过：typecheck、unit、browser、coverage、consumer、build-generated、docs 和五组 QG5 browser 项目。
+- 同一主线 SHA 的 Pages build/deploy 全部成功。线上根页、Table、发布指南和 AI Agent Workbench 路径均返回 HTTP 200，发布指南在线内容已包含新增回滚说明。
+- PR head、master SHA、CI/Pages run URL 和页面请求清单见 [`github-upload-verification.json`](github-upload-verification.json)。原始本地 E2E/覆盖率运行的提交仍明确记录为父提交 `09cf9b6`；合并提交另经精确主线 CI 覆盖。
+
 ## 仍待外部验收
 
 - 独立设计与产品负责人的最终 D9 签字。
@@ -57,4 +64,4 @@ Tarball SHA-256：
 - 同一主线 SHA 的连续 10 次有效 QG5 运行。
 - npm 正式发布、公开 registry 空项目安装、tag 和 GitHub Release。
 
-本报告只证明上述候选 SHA 的本地验收；不代表这些外部发布条件已完成。GitHub 上传和精确 PR head 的远端 CI/Pages 状态在上传后单独记录。
+本报告区分本地验收 SHA、PR head 和合并后 master SHA；外部待办不能由 PR 合并、CI、Pages 或截图代替。本轮未执行 npm publish，也未启动 v2。
