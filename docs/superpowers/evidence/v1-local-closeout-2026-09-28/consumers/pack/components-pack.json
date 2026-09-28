@@ -1,0 +1,3148 @@
+{
+  "name": "aheart-ui",
+  "version": "1.1.0",
+  "filename": "/tmp/aheart-ui-v1-consumers-09cf9b6/pack/aheart-ui-1.1.0.tgz",
+  "files": [
+    {
+      "path": "es/alert/alert.vue.d.ts"
+    },
+    {
+      "path": "es/alert/alert.vue.js"
+    },
+    {
+      "path": "es/alert/alert.vue2.js"
+    },
+    {
+      "path": "es/alert/index.d.ts"
+    },
+    {
+      "path": "es/alert/index.js"
+    },
+    {
+      "path": "es/alert/style.css.js"
+    },
+    {
+      "path": "es/alert/types.d.ts"
+    },
+    {
+      "path": "es/alert/types.js"
+    },
+    {
+      "path": "es/badge/badge.vue.d.ts"
+    },
+    {
+      "path": "es/badge/badge.vue.js"
+    },
+    {
+      "path": "es/badge/badge.vue2.js"
+    },
+    {
+      "path": "es/badge/index.d.ts"
+    },
+    {
+      "path": "es/badge/index.js"
+    },
+    {
+      "path": "es/badge/ribbon.vue.d.ts"
+    },
+    {
+      "path": "es/badge/ribbon.vue.js"
+    },
+    {
+      "path": "es/badge/ribbon.vue2.js"
+    },
+    {
+      "path": "es/badge/style.css.js"
+    },
+    {
+      "path": "es/badge/types.d.ts"
+    },
+    {
+      "path": "es/badge/types.js"
+    },
+    {
+      "path": "es/breadcrumb/breadcrumb.vue.d.ts"
+    },
+    {
+      "path": "es/breadcrumb/breadcrumb.vue.js"
+    },
+    {
+      "path": "es/breadcrumb/breadcrumb.vue2.js"
+    },
+    {
+      "path": "es/breadcrumb/index.d.ts"
+    },
+    {
+      "path": "es/breadcrumb/index.js"
+    },
+    {
+      "path": "es/breadcrumb/style.css.js"
+    },
+    {
+      "path": "es/breadcrumb/types.d.ts"
+    },
+    {
+      "path": "es/breadcrumb/types.js"
+    },
+    {
+      "path": "es/button/button.vue.d.ts"
+    },
+    {
+      "path": "es/button/button.vue.js"
+    },
+    {
+      "path": "es/button/button.vue2.js"
+    },
+    {
+      "path": "es/button/index.d.ts"
+    },
+    {
+      "path": "es/button/index.js"
+    },
+    {
+      "path": "es/button/style.css.js"
+    },
+    {
+      "path": "es/button/types.d.ts"
+    },
+    {
+      "path": "es/button/types.js"
+    },
+    {
+      "path": "es/card/card.vue.d.ts"
+    },
+    {
+      "path": "es/card/card.vue.js"
+    },
+    {
+      "path": "es/card/card.vue2.js"
+    },
+    {
+      "path": "es/card/grid.vue.d.ts"
+    },
+    {
+      "path": "es/card/grid.vue.js"
+    },
+    {
+      "path": "es/card/grid.vue2.js"
+    },
+    {
+      "path": "es/card/index.d.ts"
+    },
+    {
+      "path": "es/card/index.js"
+    },
+    {
+      "path": "es/card/meta.vue.d.ts"
+    },
+    {
+      "path": "es/card/meta.vue.js"
+    },
+    {
+      "path": "es/card/meta.vue2.js"
+    },
+    {
+      "path": "es/card/style.css.js"
+    },
+    {
+      "path": "es/card/types.d.ts"
+    },
+    {
+      "path": "es/card/types.js"
+    },
+    {
+      "path": "es/cascader/cascader-virtual-list.vue.d.ts"
+    },
+    {
+      "path": "es/cascader/cascader-virtual-list.vue.js"
+    },
+    {
+      "path": "es/cascader/cascader-virtual-list.vue2.js"
+    },
+    {
+      "path": "es/cascader/cascader.vue.d.ts"
+    },
+    {
+      "path": "es/cascader/cascader.vue.js"
+    },
+    {
+      "path": "es/cascader/cascader.vue2.js"
+    },
+    {
+      "path": "es/cascader/index.d.ts"
+    },
+    {
+      "path": "es/cascader/index.js"
+    },
+    {
+      "path": "es/cascader/style.css.js"
+    },
+    {
+      "path": "es/cascader/types.d.ts"
+    },
+    {
+      "path": "es/cascader/virtual-options.d.ts"
+    },
+    {
+      "path": "es/cascader/virtual-options.js"
+    },
+    {
+      "path": "es/checkbox/checkbox-group.vue.d.ts"
+    },
+    {
+      "path": "es/checkbox/checkbox-group.vue.js"
+    },
+    {
+      "path": "es/checkbox/checkbox-group.vue2.js"
+    },
+    {
+      "path": "es/checkbox/checkbox.vue.d.ts"
+    },
+    {
+      "path": "es/checkbox/checkbox.vue.js"
+    },
+    {
+      "path": "es/checkbox/checkbox.vue2.js"
+    },
+    {
+      "path": "es/checkbox/index.d.ts"
+    },
+    {
+      "path": "es/checkbox/index.js"
+    },
+    {
+      "path": "es/checkbox/style.css.js"
+    },
+    {
+      "path": "es/checkbox/types.d.ts"
+    },
+    {
+      "path": "es/checkbox/types.js"
+    },
+    {
+      "path": "es/config-provider/config-provider.vue.d.ts"
+    },
+    {
+      "path": "es/config-provider/config-provider.vue.js"
+    },
+    {
+      "path": "es/config-provider/config-provider.vue2.js"
+    },
+    {
+      "path": "es/config-provider/index.d.ts"
+    },
+    {
+      "path": "es/config-provider/index.js"
+    },
+    {
+      "path": "es/config-provider/style.css.js"
+    },
+    {
+      "path": "es/config-provider/types.d.ts"
+    },
+    {
+      "path": "es/config-provider/types.js"
+    },
+    {
+      "path": "es/config/context.d.ts"
+    },
+    {
+      "path": "es/config/context.js"
+    },
+    {
+      "path": "es/config/index.d.ts"
+    },
+    {
+      "path": "es/date-picker/date-picker.vue.d.ts"
+    },
+    {
+      "path": "es/date-picker/date-picker.vue.js"
+    },
+    {
+      "path": "es/date-picker/date-picker.vue2.js"
+    },
+    {
+      "path": "es/date-picker/date-range-picker.vue.d.ts"
+    },
+    {
+      "path": "es/date-picker/date-range-picker.vue.js"
+    },
+    {
+      "path": "es/date-picker/date-range-picker.vue2.js"
+    },
+    {
+      "path": "es/date-picker/date-utils.d.ts"
+    },
+    {
+      "path": "es/date-picker/date-utils.js"
+    },
+    {
+      "path": "es/date-picker/index.d.ts"
+    },
+    {
+      "path": "es/date-picker/index.js"
+    },
+    {
+      "path": "es/date-picker/style.css.js"
+    },
+    {
+      "path": "es/date-picker/types.d.ts"
+    },
+    {
+      "path": "es/date-picker/types.js"
+    },
+    {
+      "path": "es/descriptions/descriptions.vue.d.ts"
+    },
+    {
+      "path": "es/descriptions/descriptions.vue.js"
+    },
+    {
+      "path": "es/descriptions/descriptions.vue2.js"
+    },
+    {
+      "path": "es/descriptions/index.d.ts"
+    },
+    {
+      "path": "es/descriptions/index.js"
+    },
+    {
+      "path": "es/descriptions/style.css.js"
+    },
+    {
+      "path": "es/descriptions/types.d.ts"
+    },
+    {
+      "path": "es/descriptions/types.js"
+    },
+    {
+      "path": "es/divider/divider.vue.d.ts"
+    },
+    {
+      "path": "es/divider/divider.vue.js"
+    },
+    {
+      "path": "es/divider/divider.vue2.js"
+    },
+    {
+      "path": "es/divider/index.d.ts"
+    },
+    {
+      "path": "es/divider/index.js"
+    },
+    {
+      "path": "es/divider/style.css.js"
+    },
+    {
+      "path": "es/divider/types.d.ts"
+    },
+    {
+      "path": "es/divider/types.js"
+    },
+    {
+      "path": "es/drawer/drawer.vue.d.ts"
+    },
+    {
+      "path": "es/drawer/drawer.vue.js"
+    },
+    {
+      "path": "es/drawer/drawer.vue2.js"
+    },
+    {
+      "path": "es/drawer/index.d.ts"
+    },
+    {
+      "path": "es/drawer/index.js"
+    },
+    {
+      "path": "es/drawer/style.css.js"
+    },
+    {
+      "path": "es/drawer/types.d.ts"
+    },
+    {
+      "path": "es/drawer/types.js"
+    },
+    {
+      "path": "es/dropdown/dropdown-button.vue.d.ts"
+    },
+    {
+      "path": "es/dropdown/dropdown-button.vue.js"
+    },
+    {
+      "path": "es/dropdown/dropdown-button.vue2.js"
+    },
+    {
+      "path": "es/dropdown/dropdown.vue.d.ts"
+    },
+    {
+      "path": "es/dropdown/dropdown.vue.js"
+    },
+    {
+      "path": "es/dropdown/dropdown.vue2.js"
+    },
+    {
+      "path": "es/dropdown/index.d.ts"
+    },
+    {
+      "path": "es/dropdown/index.js"
+    },
+    {
+      "path": "es/dropdown/style.css.js"
+    },
+    {
+      "path": "es/dropdown/types.d.ts"
+    },
+    {
+      "path": "es/dropdown/types.js"
+    },
+    {
+      "path": "es/empty/empty.vue.d.ts"
+    },
+    {
+      "path": "es/empty/empty.vue.js"
+    },
+    {
+      "path": "es/empty/empty.vue2.js"
+    },
+    {
+      "path": "es/empty/index.d.ts"
+    },
+    {
+      "path": "es/empty/index.js"
+    },
+    {
+      "path": "es/empty/style.css.js"
+    },
+    {
+      "path": "es/empty/types.d.ts"
+    },
+    {
+      "path": "es/empty/types.js"
+    },
+    {
+      "path": "es/flex/flex.vue.d.ts"
+    },
+    {
+      "path": "es/flex/flex.vue.js"
+    },
+    {
+      "path": "es/flex/flex.vue2.js"
+    },
+    {
+      "path": "es/flex/index.d.ts"
+    },
+    {
+      "path": "es/flex/index.js"
+    },
+    {
+      "path": "es/flex/style.css.js"
+    },
+    {
+      "path": "es/flex/types.d.ts"
+    },
+    {
+      "path": "es/flex/types.js"
+    },
+    {
+      "path": "es/form/control-context.d.ts"
+    },
+    {
+      "path": "es/form/control-context.js"
+    },
+    {
+      "path": "es/form/form-item.vue.d.ts"
+    },
+    {
+      "path": "es/form/form-item.vue.js"
+    },
+    {
+      "path": "es/form/form-item.vue2.js"
+    },
+    {
+      "path": "es/form/form-list.vue.d.ts"
+    },
+    {
+      "path": "es/form/form-list.vue.js"
+    },
+    {
+      "path": "es/form/form-list.vue2.js"
+    },
+    {
+      "path": "es/form/form.vue.d.ts"
+    },
+    {
+      "path": "es/form/form.vue.js"
+    },
+    {
+      "path": "es/form/form.vue2.js"
+    },
+    {
+      "path": "es/form/index.d.ts"
+    },
+    {
+      "path": "es/form/index.js"
+    },
+    {
+      "path": "es/form/internal-context.d.ts"
+    },
+    {
+      "path": "es/form/internal-context.js"
+    },
+    {
+      "path": "es/form/list-context.d.ts"
+    },
+    {
+      "path": "es/form/list-context.js"
+    },
+    {
+      "path": "es/form/name-path.d.ts"
+    },
+    {
+      "path": "es/form/name-path.js"
+    },
+    {
+      "path": "es/form/style.css.js"
+    },
+    {
+      "path": "es/form/types.d.ts"
+    },
+    {
+      "path": "es/form/types.js"
+    },
+    {
+      "path": "es/grid/col.vue.d.ts"
+    },
+    {
+      "path": "es/grid/col.vue.js"
+    },
+    {
+      "path": "es/grid/col.vue2.js"
+    },
+    {
+      "path": "es/grid/index.d.ts"
+    },
+    {
+      "path": "es/grid/index.js"
+    },
+    {
+      "path": "es/grid/row.vue.d.ts"
+    },
+    {
+      "path": "es/grid/row.vue.js"
+    },
+    {
+      "path": "es/grid/row.vue2.js"
+    },
+    {
+      "path": "es/grid/style.css.js"
+    },
+    {
+      "path": "es/grid/types.d.ts"
+    },
+    {
+      "path": "es/grid/types.js"
+    },
+    {
+      "path": "es/icon/icon.vue.d.ts"
+    },
+    {
+      "path": "es/icon/icon.vue.js"
+    },
+    {
+      "path": "es/icon/icon.vue2.js"
+    },
+    {
+      "path": "es/icon/icons.d.ts"
+    },
+    {
+      "path": "es/icon/icons.js"
+    },
+    {
+      "path": "es/icon/index.d.ts"
+    },
+    {
+      "path": "es/icon/index.js"
+    },
+    {
+      "path": "es/icon/style.css.js"
+    },
+    {
+      "path": "es/icon/types.d.ts"
+    },
+    {
+      "path": "es/icon/types.js"
+    },
+    {
+      "path": "es/index.d.ts"
+    },
+    {
+      "path": "es/index.js"
+    },
+    {
+      "path": "es/input-number/index.d.ts"
+    },
+    {
+      "path": "es/input-number/index.js"
+    },
+    {
+      "path": "es/input-number/input-number.vue.d.ts"
+    },
+    {
+      "path": "es/input-number/input-number.vue.js"
+    },
+    {
+      "path": "es/input-number/input-number.vue2.js"
+    },
+    {
+      "path": "es/input-number/style.css.js"
+    },
+    {
+      "path": "es/input-number/types.d.ts"
+    },
+    {
+      "path": "es/input-number/types.js"
+    },
+    {
+      "path": "es/input/index.d.ts"
+    },
+    {
+      "path": "es/input/index.js"
+    },
+    {
+      "path": "es/input/input.vue.d.ts"
+    },
+    {
+      "path": "es/input/input.vue.js"
+    },
+    {
+      "path": "es/input/input.vue2.js"
+    },
+    {
+      "path": "es/input/style.css.js"
+    },
+    {
+      "path": "es/input/types.d.ts"
+    },
+    {
+      "path": "es/input/types.js"
+    },
+    {
+      "path": "es/menu/index.d.ts"
+    },
+    {
+      "path": "es/menu/index.js"
+    },
+    {
+      "path": "es/menu/menu-node.vue.d.ts"
+    },
+    {
+      "path": "es/menu/menu-node.vue.js"
+    },
+    {
+      "path": "es/menu/menu-node.vue2.js"
+    },
+    {
+      "path": "es/menu/menu.vue.d.ts"
+    },
+    {
+      "path": "es/menu/menu.vue.js"
+    },
+    {
+      "path": "es/menu/menu.vue2.js"
+    },
+    {
+      "path": "es/menu/style.css.js"
+    },
+    {
+      "path": "es/menu/types.d.ts"
+    },
+    {
+      "path": "es/menu/types.js"
+    },
+    {
+      "path": "es/message/index.d.ts"
+    },
+    {
+      "path": "es/message/index.js"
+    },
+    {
+      "path": "es/message/message.vue.d.ts"
+    },
+    {
+      "path": "es/message/message.vue.js"
+    },
+    {
+      "path": "es/message/message.vue2.js"
+    },
+    {
+      "path": "es/message/public.d.ts"
+    },
+    {
+      "path": "es/message/public.js"
+    },
+    {
+      "path": "es/message/service.d.ts"
+    },
+    {
+      "path": "es/message/service.js"
+    },
+    {
+      "path": "es/message/style.css.js"
+    },
+    {
+      "path": "es/message/types.d.ts"
+    },
+    {
+      "path": "es/message/types.js"
+    },
+    {
+      "path": "es/modal/index.d.ts"
+    },
+    {
+      "path": "es/modal/index.js"
+    },
+    {
+      "path": "es/modal/modal.vue.d.ts"
+    },
+    {
+      "path": "es/modal/modal.vue.js"
+    },
+    {
+      "path": "es/modal/modal.vue2.js"
+    },
+    {
+      "path": "es/modal/style.css.js"
+    },
+    {
+      "path": "es/modal/types.d.ts"
+    },
+    {
+      "path": "es/modal/types.js"
+    },
+    {
+      "path": "es/package.json"
+    },
+    {
+      "path": "es/pagination/index.d.ts"
+    },
+    {
+      "path": "es/pagination/index.js"
+    },
+    {
+      "path": "es/pagination/pagination-state.d.ts"
+    },
+    {
+      "path": "es/pagination/pagination-state.js"
+    },
+    {
+      "path": "es/pagination/pagination.vue.d.ts"
+    },
+    {
+      "path": "es/pagination/pagination.vue.js"
+    },
+    {
+      "path": "es/pagination/pagination.vue2.js"
+    },
+    {
+      "path": "es/pagination/style.css.js"
+    },
+    {
+      "path": "es/pagination/types.d.ts"
+    },
+    {
+      "path": "es/pagination/types.js"
+    },
+    {
+      "path": "es/picker-core/calendar.d.ts"
+    },
+    {
+      "path": "es/picker-core/calendar.js"
+    },
+    {
+      "path": "es/picker-core/codec.d.ts"
+    },
+    {
+      "path": "es/picker-core/codec.js"
+    },
+    {
+      "path": "es/picker-core/dayjs.d.ts"
+    },
+    {
+      "path": "es/picker-core/dayjs.js"
+    },
+    {
+      "path": "es/picker-core/index.d.ts"
+    },
+    {
+      "path": "es/picker-core/index.js"
+    },
+    {
+      "path": "es/picker-core/selection.d.ts"
+    },
+    {
+      "path": "es/picker-core/selection.js"
+    },
+    {
+      "path": "es/picker-core/time-column-geometry.d.ts"
+    },
+    {
+      "path": "es/picker-core/time-column-geometry.js"
+    },
+    {
+      "path": "es/picker-core/time.d.ts"
+    },
+    {
+      "path": "es/picker-core/time.js"
+    },
+    {
+      "path": "es/picker-core/transaction.d.ts"
+    },
+    {
+      "path": "es/picker-core/transaction.js"
+    },
+    {
+      "path": "es/picker-core/types.d.ts"
+    },
+    {
+      "path": "es/picker-core/viewport.d.ts"
+    },
+    {
+      "path": "es/picker-core/viewport.js"
+    },
+    {
+      "path": "es/plugin.d.ts"
+    },
+    {
+      "path": "es/plugin.js"
+    },
+    {
+      "path": "es/popconfirm/index.d.ts"
+    },
+    {
+      "path": "es/popconfirm/index.js"
+    },
+    {
+      "path": "es/popconfirm/popconfirm.vue.d.ts"
+    },
+    {
+      "path": "es/popconfirm/popconfirm.vue.js"
+    },
+    {
+      "path": "es/popconfirm/popconfirm.vue2.js"
+    },
+    {
+      "path": "es/popconfirm/style.css.js"
+    },
+    {
+      "path": "es/popconfirm/types.d.ts"
+    },
+    {
+      "path": "es/popconfirm/types.js"
+    },
+    {
+      "path": "es/popover/index.d.ts"
+    },
+    {
+      "path": "es/popover/index.js"
+    },
+    {
+      "path": "es/popover/popover.vue.d.ts"
+    },
+    {
+      "path": "es/popover/popover.vue.js"
+    },
+    {
+      "path": "es/popover/popover.vue2.js"
+    },
+    {
+      "path": "es/popover/style.css.js"
+    },
+    {
+      "path": "es/popover/types.d.ts"
+    },
+    {
+      "path": "es/popover/types.js"
+    },
+    {
+      "path": "es/radio/index.d.ts"
+    },
+    {
+      "path": "es/radio/index.js"
+    },
+    {
+      "path": "es/radio/radio-group.vue.d.ts"
+    },
+    {
+      "path": "es/radio/radio-group.vue.js"
+    },
+    {
+      "path": "es/radio/radio-group.vue2.js"
+    },
+    {
+      "path": "es/radio/radio.vue.d.ts"
+    },
+    {
+      "path": "es/radio/radio.vue.js"
+    },
+    {
+      "path": "es/radio/radio.vue2.js"
+    },
+    {
+      "path": "es/radio/style.css.js"
+    },
+    {
+      "path": "es/radio/types.d.ts"
+    },
+    {
+      "path": "es/radio/types.js"
+    },
+    {
+      "path": "es/select/index.d.ts"
+    },
+    {
+      "path": "es/select/index.js"
+    },
+    {
+      "path": "es/select/select.vue.d.ts"
+    },
+    {
+      "path": "es/select/select.vue.js"
+    },
+    {
+      "path": "es/select/select.vue2.js"
+    },
+    {
+      "path": "es/select/style.css.js"
+    },
+    {
+      "path": "es/select/types.d.ts"
+    },
+    {
+      "path": "es/select/types.js"
+    },
+    {
+      "path": "es/select/use-select-virtual.d.ts"
+    },
+    {
+      "path": "es/select/use-select-virtual.js"
+    },
+    {
+      "path": "es/select/virtual-options.d.ts"
+    },
+    {
+      "path": "es/select/virtual-options.js"
+    },
+    {
+      "path": "es/skeleton/index.d.ts"
+    },
+    {
+      "path": "es/skeleton/index.js"
+    },
+    {
+      "path": "es/skeleton/skeleton.vue.d.ts"
+    },
+    {
+      "path": "es/skeleton/skeleton.vue.js"
+    },
+    {
+      "path": "es/skeleton/skeleton.vue2.js"
+    },
+    {
+      "path": "es/skeleton/style.css.js"
+    },
+    {
+      "path": "es/skeleton/types.d.ts"
+    },
+    {
+      "path": "es/skeleton/types.js"
+    },
+    {
+      "path": "es/space/index.d.ts"
+    },
+    {
+      "path": "es/space/index.js"
+    },
+    {
+      "path": "es/space/space.vue.d.ts"
+    },
+    {
+      "path": "es/space/space.vue.js"
+    },
+    {
+      "path": "es/space/space.vue2.js"
+    },
+    {
+      "path": "es/space/style.css.js"
+    },
+    {
+      "path": "es/space/types.d.ts"
+    },
+    {
+      "path": "es/space/types.js"
+    },
+    {
+      "path": "es/spin/index.d.ts"
+    },
+    {
+      "path": "es/spin/index.js"
+    },
+    {
+      "path": "es/spin/spin.vue.d.ts"
+    },
+    {
+      "path": "es/spin/spin.vue.js"
+    },
+    {
+      "path": "es/spin/spin.vue2.js"
+    },
+    {
+      "path": "es/spin/style.css.js"
+    },
+    {
+      "path": "es/spin/types.d.ts"
+    },
+    {
+      "path": "es/spin/types.js"
+    },
+    {
+      "path": "es/splitter/index.d.ts"
+    },
+    {
+      "path": "es/splitter/index.js"
+    },
+    {
+      "path": "es/splitter/solver.d.ts"
+    },
+    {
+      "path": "es/splitter/solver.js"
+    },
+    {
+      "path": "es/splitter/splitter-panel.vue.d.ts"
+    },
+    {
+      "path": "es/splitter/splitter-panel.vue.js"
+    },
+    {
+      "path": "es/splitter/splitter-panel.vue2.js"
+    },
+    {
+      "path": "es/splitter/splitter.vue.d.ts"
+    },
+    {
+      "path": "es/splitter/splitter.vue.js"
+    },
+    {
+      "path": "es/splitter/splitter.vue2.js"
+    },
+    {
+      "path": "es/splitter/style.css.js"
+    },
+    {
+      "path": "es/splitter/types.d.ts"
+    },
+    {
+      "path": "es/steps/index.d.ts"
+    },
+    {
+      "path": "es/steps/index.js"
+    },
+    {
+      "path": "es/steps/steps.vue.d.ts"
+    },
+    {
+      "path": "es/steps/steps.vue.js"
+    },
+    {
+      "path": "es/steps/steps.vue2.js"
+    },
+    {
+      "path": "es/steps/style.css.js"
+    },
+    {
+      "path": "es/steps/types.d.ts"
+    },
+    {
+      "path": "es/steps/types.js"
+    },
+    {
+      "path": "es/style.css"
+    },
+    {
+      "path": "es/switch/index.d.ts"
+    },
+    {
+      "path": "es/switch/index.js"
+    },
+    {
+      "path": "es/switch/style.css.js"
+    },
+    {
+      "path": "es/switch/switch.vue.d.ts"
+    },
+    {
+      "path": "es/switch/switch.vue.js"
+    },
+    {
+      "path": "es/switch/switch.vue2.js"
+    },
+    {
+      "path": "es/switch/types.d.ts"
+    },
+    {
+      "path": "es/switch/types.js"
+    },
+    {
+      "path": "es/table/index.d.ts"
+    },
+    {
+      "path": "es/table/index.js"
+    },
+    {
+      "path": "es/table/style.css.js"
+    },
+    {
+      "path": "es/table/table.vue.d.ts"
+    },
+    {
+      "path": "es/table/table.vue.js"
+    },
+    {
+      "path": "es/table/table.vue2.js"
+    },
+    {
+      "path": "es/table/types.d.ts"
+    },
+    {
+      "path": "es/table/types.js"
+    },
+    {
+      "path": "es/table/use-table-virtual.d.ts"
+    },
+    {
+      "path": "es/table/use-table-virtual.js"
+    },
+    {
+      "path": "es/table/virtual-options.d.ts"
+    },
+    {
+      "path": "es/table/virtual-options.js"
+    },
+    {
+      "path": "es/tabs/index.d.ts"
+    },
+    {
+      "path": "es/tabs/index.js"
+    },
+    {
+      "path": "es/tabs/style.css.js"
+    },
+    {
+      "path": "es/tabs/tabs.vue.d.ts"
+    },
+    {
+      "path": "es/tabs/tabs.vue.js"
+    },
+    {
+      "path": "es/tabs/tabs.vue2.js"
+    },
+    {
+      "path": "es/tabs/types.d.ts"
+    },
+    {
+      "path": "es/tabs/types.js"
+    },
+    {
+      "path": "es/tag/checkable-tag.vue.d.ts"
+    },
+    {
+      "path": "es/tag/checkable-tag.vue.js"
+    },
+    {
+      "path": "es/tag/checkable-tag.vue2.js"
+    },
+    {
+      "path": "es/tag/index.d.ts"
+    },
+    {
+      "path": "es/tag/index.js"
+    },
+    {
+      "path": "es/tag/style.css.js"
+    },
+    {
+      "path": "es/tag/tag-group.vue.d.ts"
+    },
+    {
+      "path": "es/tag/tag-group.vue.js"
+    },
+    {
+      "path": "es/tag/tag-group.vue2.js"
+    },
+    {
+      "path": "es/tag/tag.vue.d.ts"
+    },
+    {
+      "path": "es/tag/tag.vue.js"
+    },
+    {
+      "path": "es/tag/tag.vue2.js"
+    },
+    {
+      "path": "es/tag/types.d.ts"
+    },
+    {
+      "path": "es/tag/types.js"
+    },
+    {
+      "path": "es/textarea/index.d.ts"
+    },
+    {
+      "path": "es/textarea/index.js"
+    },
+    {
+      "path": "es/textarea/style.css.js"
+    },
+    {
+      "path": "es/textarea/textarea.vue.d.ts"
+    },
+    {
+      "path": "es/textarea/textarea.vue.js"
+    },
+    {
+      "path": "es/textarea/textarea.vue2.js"
+    },
+    {
+      "path": "es/textarea/types.d.ts"
+    },
+    {
+      "path": "es/textarea/types.js"
+    },
+    {
+      "path": "es/theme/index.css.js"
+    },
+    {
+      "path": "es/time-picker/index.d.ts"
+    },
+    {
+      "path": "es/time-picker/index.js"
+    },
+    {
+      "path": "es/time-picker/style.css.js"
+    },
+    {
+      "path": "es/time-picker/time-picker.vue.d.ts"
+    },
+    {
+      "path": "es/time-picker/time-picker.vue.js"
+    },
+    {
+      "path": "es/time-picker/time-picker.vue2.js"
+    },
+    {
+      "path": "es/time-picker/time-range-picker.vue.d.ts"
+    },
+    {
+      "path": "es/time-picker/time-range-picker.vue.js"
+    },
+    {
+      "path": "es/time-picker/time-range-picker.vue2.js"
+    },
+    {
+      "path": "es/time-picker/types.d.ts"
+    },
+    {
+      "path": "es/time-picker/types.js"
+    },
+    {
+      "path": "es/tooltip/index.d.ts"
+    },
+    {
+      "path": "es/tooltip/index.js"
+    },
+    {
+      "path": "es/tooltip/style.css.js"
+    },
+    {
+      "path": "es/tooltip/tooltip.vue.d.ts"
+    },
+    {
+      "path": "es/tooltip/tooltip.vue.js"
+    },
+    {
+      "path": "es/tooltip/tooltip.vue2.js"
+    },
+    {
+      "path": "es/tooltip/types.d.ts"
+    },
+    {
+      "path": "es/tooltip/types.js"
+    },
+    {
+      "path": "es/tree-select/index.d.ts"
+    },
+    {
+      "path": "es/tree-select/index.js"
+    },
+    {
+      "path": "es/tree-select/style.css.js"
+    },
+    {
+      "path": "es/tree-select/tree-select.vue.d.ts"
+    },
+    {
+      "path": "es/tree-select/tree-select.vue.js"
+    },
+    {
+      "path": "es/tree-select/tree-select.vue2.js"
+    },
+    {
+      "path": "es/tree-select/virtual-options.d.ts"
+    },
+    {
+      "path": "es/tree-select/virtual-options.js"
+    },
+    {
+      "path": "es/tree/index.d.ts"
+    },
+    {
+      "path": "es/tree/index.js"
+    },
+    {
+      "path": "es/tree/style.css.js"
+    },
+    {
+      "path": "es/tree/tree-check.d.ts"
+    },
+    {
+      "path": "es/tree/tree-check.js"
+    },
+    {
+      "path": "es/tree/tree-focus-bridge.d.ts"
+    },
+    {
+      "path": "es/tree/tree-focus-bridge.js"
+    },
+    {
+      "path": "es/tree/tree-index.d.ts"
+    },
+    {
+      "path": "es/tree/tree-index.js"
+    },
+    {
+      "path": "es/tree/tree-node.vue.d.ts"
+    },
+    {
+      "path": "es/tree/tree-node.vue.js"
+    },
+    {
+      "path": "es/tree/tree-node.vue2.js"
+    },
+    {
+      "path": "es/tree/tree.vue.d.ts"
+    },
+    {
+      "path": "es/tree/tree.vue.js"
+    },
+    {
+      "path": "es/tree/tree.vue2.js"
+    },
+    {
+      "path": "es/tree/types.d.ts"
+    },
+    {
+      "path": "es/tree/types.js"
+    },
+    {
+      "path": "es/tree/use-tree-loader.d.ts"
+    },
+    {
+      "path": "es/tree/use-tree-loader.js"
+    },
+    {
+      "path": "es/tree/use-tree-virtual.d.ts"
+    },
+    {
+      "path": "es/tree/use-tree-virtual.js"
+    },
+    {
+      "path": "es/tree/virtual-options.d.ts"
+    },
+    {
+      "path": "es/tree/virtual-options.js"
+    },
+    {
+      "path": "es/typography/copyable.d.ts"
+    },
+    {
+      "path": "es/typography/copyable.js"
+    },
+    {
+      "path": "es/typography/index.d.ts"
+    },
+    {
+      "path": "es/typography/index.js"
+    },
+    {
+      "path": "es/typography/link.vue.d.ts"
+    },
+    {
+      "path": "es/typography/link.vue.js"
+    },
+    {
+      "path": "es/typography/link.vue2.js"
+    },
+    {
+      "path": "es/typography/paragraph.vue.d.ts"
+    },
+    {
+      "path": "es/typography/paragraph.vue.js"
+    },
+    {
+      "path": "es/typography/paragraph.vue2.js"
+    },
+    {
+      "path": "es/typography/style.css.js"
+    },
+    {
+      "path": "es/typography/text.vue.d.ts"
+    },
+    {
+      "path": "es/typography/text.vue.js"
+    },
+    {
+      "path": "es/typography/text.vue2.js"
+    },
+    {
+      "path": "es/typography/title.vue.d.ts"
+    },
+    {
+      "path": "es/typography/title.vue.js"
+    },
+    {
+      "path": "es/typography/title.vue2.js"
+    },
+    {
+      "path": "es/typography/types.d.ts"
+    },
+    {
+      "path": "es/typography/types.js"
+    },
+    {
+      "path": "es/typography/typography.vue.d.ts"
+    },
+    {
+      "path": "es/typography/typography.vue.js"
+    },
+    {
+      "path": "es/typography/typography.vue2.js"
+    },
+    {
+      "path": "es/upload/index.d.ts"
+    },
+    {
+      "path": "es/upload/index.js"
+    },
+    {
+      "path": "es/upload/style.css.js"
+    },
+    {
+      "path": "es/upload/types.d.ts"
+    },
+    {
+      "path": "es/upload/upload.vue.d.ts"
+    },
+    {
+      "path": "es/upload/upload.vue.js"
+    },
+    {
+      "path": "es/upload/upload.vue2.js"
+    },
+    {
+      "path": "es/utils/floating-core.d.ts"
+    },
+    {
+      "path": "es/utils/floating-core.js"
+    },
+    {
+      "path": "es/utils/floating.css.js"
+    },
+    {
+      "path": "es/utils/floating.d.ts"
+    },
+    {
+      "path": "es/utils/floating.js"
+    },
+    {
+      "path": "es/utils/install.d.ts"
+    },
+    {
+      "path": "es/utils/install.js"
+    },
+    {
+      "path": "es/utils/normalize-virtual-options.d.ts"
+    },
+    {
+      "path": "es/utils/normalize-virtual-options.js"
+    },
+    {
+      "path": "es/utils/overlay-controller.d.ts"
+    },
+    {
+      "path": "es/utils/overlay-controller.js"
+    },
+    {
+      "path": "es/utils/use-async-task.d.ts"
+    },
+    {
+      "path": "es/utils/use-async-task.js"
+    },
+    {
+      "path": "es/utils/use-collection.d.ts"
+    },
+    {
+      "path": "es/utils/use-collection.js"
+    },
+    {
+      "path": "es/utils/use-controllable-state.d.ts"
+    },
+    {
+      "path": "es/utils/use-controllable-state.js"
+    },
+    {
+      "path": "es/utils/use-floating-dismiss.d.ts"
+    },
+    {
+      "path": "es/utils/use-floating-dismiss.js"
+    },
+    {
+      "path": "es/utils/use-floating-position.d.ts"
+    },
+    {
+      "path": "es/utils/use-floating-position.js"
+    },
+    {
+      "path": "es/utils/use-motion-presence.d.ts"
+    },
+    {
+      "path": "es/utils/use-motion-presence.js"
+    },
+    {
+      "path": "es/utils/use-pointer-drag.d.ts"
+    },
+    {
+      "path": "es/utils/use-pointer-drag.js"
+    },
+    {
+      "path": "es/utils/use-popup-viewport-budget.d.ts"
+    },
+    {
+      "path": "es/utils/use-popup-viewport-budget.js"
+    },
+    {
+      "path": "es/utils/use-prop-presence.d.ts"
+    },
+    {
+      "path": "es/utils/use-prop-presence.js"
+    },
+    {
+      "path": "es/utils/use-roving-focus.d.ts"
+    },
+    {
+      "path": "es/utils/use-roving-focus.js"
+    },
+    {
+      "path": "es/utils/use-stable-id.d.ts"
+    },
+    {
+      "path": "es/utils/use-stable-id.js"
+    },
+    {
+      "path": "es/utils/use-teleport-ready.d.ts"
+    },
+    {
+      "path": "es/utils/use-teleport-ready.js"
+    },
+    {
+      "path": "es/utils/use-trigger-aria.d.ts"
+    },
+    {
+      "path": "es/utils/use-trigger-aria.js"
+    },
+    {
+      "path": "lib/alert/alert.vue.d.ts"
+    },
+    {
+      "path": "lib/alert/alert.vue.js"
+    },
+    {
+      "path": "lib/alert/alert.vue2.js"
+    },
+    {
+      "path": "lib/alert/index.d.ts"
+    },
+    {
+      "path": "lib/alert/index.js"
+    },
+    {
+      "path": "lib/alert/style.css.js"
+    },
+    {
+      "path": "lib/alert/types.d.ts"
+    },
+    {
+      "path": "lib/alert/types.js"
+    },
+    {
+      "path": "lib/badge/badge.vue.d.ts"
+    },
+    {
+      "path": "lib/badge/badge.vue.js"
+    },
+    {
+      "path": "lib/badge/badge.vue2.js"
+    },
+    {
+      "path": "lib/badge/index.d.ts"
+    },
+    {
+      "path": "lib/badge/index.js"
+    },
+    {
+      "path": "lib/badge/ribbon.vue.d.ts"
+    },
+    {
+      "path": "lib/badge/ribbon.vue.js"
+    },
+    {
+      "path": "lib/badge/ribbon.vue2.js"
+    },
+    {
+      "path": "lib/badge/style.css.js"
+    },
+    {
+      "path": "lib/badge/types.d.ts"
+    },
+    {
+      "path": "lib/badge/types.js"
+    },
+    {
+      "path": "lib/breadcrumb/breadcrumb.vue.d.ts"
+    },
+    {
+      "path": "lib/breadcrumb/breadcrumb.vue.js"
+    },
+    {
+      "path": "lib/breadcrumb/breadcrumb.vue2.js"
+    },
+    {
+      "path": "lib/breadcrumb/index.d.ts"
+    },
+    {
+      "path": "lib/breadcrumb/index.js"
+    },
+    {
+      "path": "lib/breadcrumb/style.css.js"
+    },
+    {
+      "path": "lib/breadcrumb/types.d.ts"
+    },
+    {
+      "path": "lib/breadcrumb/types.js"
+    },
+    {
+      "path": "lib/button/button.vue.d.ts"
+    },
+    {
+      "path": "lib/button/button.vue.js"
+    },
+    {
+      "path": "lib/button/button.vue2.js"
+    },
+    {
+      "path": "lib/button/index.d.ts"
+    },
+    {
+      "path": "lib/button/index.js"
+    },
+    {
+      "path": "lib/button/style.css.js"
+    },
+    {
+      "path": "lib/button/types.d.ts"
+    },
+    {
+      "path": "lib/button/types.js"
+    },
+    {
+      "path": "lib/card/card.vue.d.ts"
+    },
+    {
+      "path": "lib/card/card.vue.js"
+    },
+    {
+      "path": "lib/card/card.vue2.js"
+    },
+    {
+      "path": "lib/card/grid.vue.d.ts"
+    },
+    {
+      "path": "lib/card/grid.vue.js"
+    },
+    {
+      "path": "lib/card/grid.vue2.js"
+    },
+    {
+      "path": "lib/card/index.d.ts"
+    },
+    {
+      "path": "lib/card/index.js"
+    },
+    {
+      "path": "lib/card/meta.vue.d.ts"
+    },
+    {
+      "path": "lib/card/meta.vue.js"
+    },
+    {
+      "path": "lib/card/meta.vue2.js"
+    },
+    {
+      "path": "lib/card/style.css.js"
+    },
+    {
+      "path": "lib/card/types.d.ts"
+    },
+    {
+      "path": "lib/card/types.js"
+    },
+    {
+      "path": "lib/cascader/cascader-virtual-list.vue.d.ts"
+    },
+    {
+      "path": "lib/cascader/cascader-virtual-list.vue.js"
+    },
+    {
+      "path": "lib/cascader/cascader-virtual-list.vue2.js"
+    },
+    {
+      "path": "lib/cascader/cascader.vue.d.ts"
+    },
+    {
+      "path": "lib/cascader/cascader.vue.js"
+    },
+    {
+      "path": "lib/cascader/cascader.vue2.js"
+    },
+    {
+      "path": "lib/cascader/index.d.ts"
+    },
+    {
+      "path": "lib/cascader/index.js"
+    },
+    {
+      "path": "lib/cascader/style.css.js"
+    },
+    {
+      "path": "lib/cascader/types.d.ts"
+    },
+    {
+      "path": "lib/cascader/virtual-options.d.ts"
+    },
+    {
+      "path": "lib/cascader/virtual-options.js"
+    },
+    {
+      "path": "lib/checkbox/checkbox-group.vue.d.ts"
+    },
+    {
+      "path": "lib/checkbox/checkbox-group.vue.js"
+    },
+    {
+      "path": "lib/checkbox/checkbox-group.vue2.js"
+    },
+    {
+      "path": "lib/checkbox/checkbox.vue.d.ts"
+    },
+    {
+      "path": "lib/checkbox/checkbox.vue.js"
+    },
+    {
+      "path": "lib/checkbox/checkbox.vue2.js"
+    },
+    {
+      "path": "lib/checkbox/index.d.ts"
+    },
+    {
+      "path": "lib/checkbox/index.js"
+    },
+    {
+      "path": "lib/checkbox/style.css.js"
+    },
+    {
+      "path": "lib/checkbox/types.d.ts"
+    },
+    {
+      "path": "lib/checkbox/types.js"
+    },
+    {
+      "path": "lib/config-provider/config-provider.vue.d.ts"
+    },
+    {
+      "path": "lib/config-provider/config-provider.vue.js"
+    },
+    {
+      "path": "lib/config-provider/config-provider.vue2.js"
+    },
+    {
+      "path": "lib/config-provider/index.d.ts"
+    },
+    {
+      "path": "lib/config-provider/index.js"
+    },
+    {
+      "path": "lib/config-provider/style.css.js"
+    },
+    {
+      "path": "lib/config-provider/types.d.ts"
+    },
+    {
+      "path": "lib/config-provider/types.js"
+    },
+    {
+      "path": "lib/config/context.d.ts"
+    },
+    {
+      "path": "lib/config/context.js"
+    },
+    {
+      "path": "lib/config/index.d.ts"
+    },
+    {
+      "path": "lib/date-picker/date-picker.vue.d.ts"
+    },
+    {
+      "path": "lib/date-picker/date-picker.vue.js"
+    },
+    {
+      "path": "lib/date-picker/date-picker.vue2.js"
+    },
+    {
+      "path": "lib/date-picker/date-range-picker.vue.d.ts"
+    },
+    {
+      "path": "lib/date-picker/date-range-picker.vue.js"
+    },
+    {
+      "path": "lib/date-picker/date-range-picker.vue2.js"
+    },
+    {
+      "path": "lib/date-picker/date-utils.d.ts"
+    },
+    {
+      "path": "lib/date-picker/date-utils.js"
+    },
+    {
+      "path": "lib/date-picker/index.d.ts"
+    },
+    {
+      "path": "lib/date-picker/index.js"
+    },
+    {
+      "path": "lib/date-picker/style.css.js"
+    },
+    {
+      "path": "lib/date-picker/types.d.ts"
+    },
+    {
+      "path": "lib/date-picker/types.js"
+    },
+    {
+      "path": "lib/descriptions/descriptions.vue.d.ts"
+    },
+    {
+      "path": "lib/descriptions/descriptions.vue.js"
+    },
+    {
+      "path": "lib/descriptions/descriptions.vue2.js"
+    },
+    {
+      "path": "lib/descriptions/index.d.ts"
+    },
+    {
+      "path": "lib/descriptions/index.js"
+    },
+    {
+      "path": "lib/descriptions/style.css.js"
+    },
+    {
+      "path": "lib/descriptions/types.d.ts"
+    },
+    {
+      "path": "lib/descriptions/types.js"
+    },
+    {
+      "path": "lib/divider/divider.vue.d.ts"
+    },
+    {
+      "path": "lib/divider/divider.vue.js"
+    },
+    {
+      "path": "lib/divider/divider.vue2.js"
+    },
+    {
+      "path": "lib/divider/index.d.ts"
+    },
+    {
+      "path": "lib/divider/index.js"
+    },
+    {
+      "path": "lib/divider/style.css.js"
+    },
+    {
+      "path": "lib/divider/types.d.ts"
+    },
+    {
+      "path": "lib/divider/types.js"
+    },
+    {
+      "path": "lib/drawer/drawer.vue.d.ts"
+    },
+    {
+      "path": "lib/drawer/drawer.vue.js"
+    },
+    {
+      "path": "lib/drawer/drawer.vue2.js"
+    },
+    {
+      "path": "lib/drawer/index.d.ts"
+    },
+    {
+      "path": "lib/drawer/index.js"
+    },
+    {
+      "path": "lib/drawer/style.css.js"
+    },
+    {
+      "path": "lib/drawer/types.d.ts"
+    },
+    {
+      "path": "lib/drawer/types.js"
+    },
+    {
+      "path": "lib/dropdown/dropdown-button.vue.d.ts"
+    },
+    {
+      "path": "lib/dropdown/dropdown-button.vue.js"
+    },
+    {
+      "path": "lib/dropdown/dropdown-button.vue2.js"
+    },
+    {
+      "path": "lib/dropdown/dropdown.vue.d.ts"
+    },
+    {
+      "path": "lib/dropdown/dropdown.vue.js"
+    },
+    {
+      "path": "lib/dropdown/dropdown.vue2.js"
+    },
+    {
+      "path": "lib/dropdown/index.d.ts"
+    },
+    {
+      "path": "lib/dropdown/index.js"
+    },
+    {
+      "path": "lib/dropdown/style.css.js"
+    },
+    {
+      "path": "lib/dropdown/types.d.ts"
+    },
+    {
+      "path": "lib/dropdown/types.js"
+    },
+    {
+      "path": "lib/empty/empty.vue.d.ts"
+    },
+    {
+      "path": "lib/empty/empty.vue.js"
+    },
+    {
+      "path": "lib/empty/empty.vue2.js"
+    },
+    {
+      "path": "lib/empty/index.d.ts"
+    },
+    {
+      "path": "lib/empty/index.js"
+    },
+    {
+      "path": "lib/empty/style.css.js"
+    },
+    {
+      "path": "lib/empty/types.d.ts"
+    },
+    {
+      "path": "lib/empty/types.js"
+    },
+    {
+      "path": "lib/flex/flex.vue.d.ts"
+    },
+    {
+      "path": "lib/flex/flex.vue.js"
+    },
+    {
+      "path": "lib/flex/flex.vue2.js"
+    },
+    {
+      "path": "lib/flex/index.d.ts"
+    },
+    {
+      "path": "lib/flex/index.js"
+    },
+    {
+      "path": "lib/flex/style.css.js"
+    },
+    {
+      "path": "lib/flex/types.d.ts"
+    },
+    {
+      "path": "lib/flex/types.js"
+    },
+    {
+      "path": "lib/form/control-context.d.ts"
+    },
+    {
+      "path": "lib/form/control-context.js"
+    },
+    {
+      "path": "lib/form/form-item.vue.d.ts"
+    },
+    {
+      "path": "lib/form/form-item.vue.js"
+    },
+    {
+      "path": "lib/form/form-item.vue2.js"
+    },
+    {
+      "path": "lib/form/form-list.vue.d.ts"
+    },
+    {
+      "path": "lib/form/form-list.vue.js"
+    },
+    {
+      "path": "lib/form/form-list.vue2.js"
+    },
+    {
+      "path": "lib/form/form.vue.d.ts"
+    },
+    {
+      "path": "lib/form/form.vue.js"
+    },
+    {
+      "path": "lib/form/form.vue2.js"
+    },
+    {
+      "path": "lib/form/index.d.ts"
+    },
+    {
+      "path": "lib/form/index.js"
+    },
+    {
+      "path": "lib/form/internal-context.d.ts"
+    },
+    {
+      "path": "lib/form/internal-context.js"
+    },
+    {
+      "path": "lib/form/list-context.d.ts"
+    },
+    {
+      "path": "lib/form/list-context.js"
+    },
+    {
+      "path": "lib/form/name-path.d.ts"
+    },
+    {
+      "path": "lib/form/name-path.js"
+    },
+    {
+      "path": "lib/form/style.css.js"
+    },
+    {
+      "path": "lib/form/types.d.ts"
+    },
+    {
+      "path": "lib/form/types.js"
+    },
+    {
+      "path": "lib/grid/col.vue.d.ts"
+    },
+    {
+      "path": "lib/grid/col.vue.js"
+    },
+    {
+      "path": "lib/grid/col.vue2.js"
+    },
+    {
+      "path": "lib/grid/index.d.ts"
+    },
+    {
+      "path": "lib/grid/index.js"
+    },
+    {
+      "path": "lib/grid/row.vue.d.ts"
+    },
+    {
+      "path": "lib/grid/row.vue.js"
+    },
+    {
+      "path": "lib/grid/row.vue2.js"
+    },
+    {
+      "path": "lib/grid/style.css.js"
+    },
+    {
+      "path": "lib/grid/types.d.ts"
+    },
+    {
+      "path": "lib/grid/types.js"
+    },
+    {
+      "path": "lib/icon/icon.vue.d.ts"
+    },
+    {
+      "path": "lib/icon/icon.vue.js"
+    },
+    {
+      "path": "lib/icon/icon.vue2.js"
+    },
+    {
+      "path": "lib/icon/icons.d.ts"
+    },
+    {
+      "path": "lib/icon/icons.js"
+    },
+    {
+      "path": "lib/icon/index.d.ts"
+    },
+    {
+      "path": "lib/icon/index.js"
+    },
+    {
+      "path": "lib/icon/style.css.js"
+    },
+    {
+      "path": "lib/icon/types.d.ts"
+    },
+    {
+      "path": "lib/icon/types.js"
+    },
+    {
+      "path": "lib/index.d.ts"
+    },
+    {
+      "path": "lib/index.js"
+    },
+    {
+      "path": "lib/input-number/index.d.ts"
+    },
+    {
+      "path": "lib/input-number/index.js"
+    },
+    {
+      "path": "lib/input-number/input-number.vue.d.ts"
+    },
+    {
+      "path": "lib/input-number/input-number.vue.js"
+    },
+    {
+      "path": "lib/input-number/input-number.vue2.js"
+    },
+    {
+      "path": "lib/input-number/style.css.js"
+    },
+    {
+      "path": "lib/input-number/types.d.ts"
+    },
+    {
+      "path": "lib/input-number/types.js"
+    },
+    {
+      "path": "lib/input/index.d.ts"
+    },
+    {
+      "path": "lib/input/index.js"
+    },
+    {
+      "path": "lib/input/input.vue.d.ts"
+    },
+    {
+      "path": "lib/input/input.vue.js"
+    },
+    {
+      "path": "lib/input/input.vue2.js"
+    },
+    {
+      "path": "lib/input/style.css.js"
+    },
+    {
+      "path": "lib/input/types.d.ts"
+    },
+    {
+      "path": "lib/input/types.js"
+    },
+    {
+      "path": "lib/menu/index.d.ts"
+    },
+    {
+      "path": "lib/menu/index.js"
+    },
+    {
+      "path": "lib/menu/menu-node.vue.d.ts"
+    },
+    {
+      "path": "lib/menu/menu-node.vue.js"
+    },
+    {
+      "path": "lib/menu/menu-node.vue2.js"
+    },
+    {
+      "path": "lib/menu/menu.vue.d.ts"
+    },
+    {
+      "path": "lib/menu/menu.vue.js"
+    },
+    {
+      "path": "lib/menu/menu.vue2.js"
+    },
+    {
+      "path": "lib/menu/style.css.js"
+    },
+    {
+      "path": "lib/menu/types.d.ts"
+    },
+    {
+      "path": "lib/menu/types.js"
+    },
+    {
+      "path": "lib/message/index.d.ts"
+    },
+    {
+      "path": "lib/message/index.js"
+    },
+    {
+      "path": "lib/message/message.vue.d.ts"
+    },
+    {
+      "path": "lib/message/message.vue.js"
+    },
+    {
+      "path": "lib/message/message.vue2.js"
+    },
+    {
+      "path": "lib/message/public.d.ts"
+    },
+    {
+      "path": "lib/message/public.js"
+    },
+    {
+      "path": "lib/message/service.d.ts"
+    },
+    {
+      "path": "lib/message/service.js"
+    },
+    {
+      "path": "lib/message/style.css.js"
+    },
+    {
+      "path": "lib/message/types.d.ts"
+    },
+    {
+      "path": "lib/message/types.js"
+    },
+    {
+      "path": "lib/modal/index.d.ts"
+    },
+    {
+      "path": "lib/modal/index.js"
+    },
+    {
+      "path": "lib/modal/modal.vue.d.ts"
+    },
+    {
+      "path": "lib/modal/modal.vue.js"
+    },
+    {
+      "path": "lib/modal/modal.vue2.js"
+    },
+    {
+      "path": "lib/modal/style.css.js"
+    },
+    {
+      "path": "lib/modal/types.d.ts"
+    },
+    {
+      "path": "lib/modal/types.js"
+    },
+    {
+      "path": "lib/package.json"
+    },
+    {
+      "path": "lib/pagination/index.d.ts"
+    },
+    {
+      "path": "lib/pagination/index.js"
+    },
+    {
+      "path": "lib/pagination/pagination-state.d.ts"
+    },
+    {
+      "path": "lib/pagination/pagination-state.js"
+    },
+    {
+      "path": "lib/pagination/pagination.vue.d.ts"
+    },
+    {
+      "path": "lib/pagination/pagination.vue.js"
+    },
+    {
+      "path": "lib/pagination/pagination.vue2.js"
+    },
+    {
+      "path": "lib/pagination/style.css.js"
+    },
+    {
+      "path": "lib/pagination/types.d.ts"
+    },
+    {
+      "path": "lib/pagination/types.js"
+    },
+    {
+      "path": "lib/picker-core/calendar.d.ts"
+    },
+    {
+      "path": "lib/picker-core/calendar.js"
+    },
+    {
+      "path": "lib/picker-core/codec.d.ts"
+    },
+    {
+      "path": "lib/picker-core/codec.js"
+    },
+    {
+      "path": "lib/picker-core/dayjs.d.ts"
+    },
+    {
+      "path": "lib/picker-core/dayjs.js"
+    },
+    {
+      "path": "lib/picker-core/index.d.ts"
+    },
+    {
+      "path": "lib/picker-core/index.js"
+    },
+    {
+      "path": "lib/picker-core/selection.d.ts"
+    },
+    {
+      "path": "lib/picker-core/selection.js"
+    },
+    {
+      "path": "lib/picker-core/time-column-geometry.d.ts"
+    },
+    {
+      "path": "lib/picker-core/time-column-geometry.js"
+    },
+    {
+      "path": "lib/picker-core/time.d.ts"
+    },
+    {
+      "path": "lib/picker-core/time.js"
+    },
+    {
+      "path": "lib/picker-core/transaction.d.ts"
+    },
+    {
+      "path": "lib/picker-core/transaction.js"
+    },
+    {
+      "path": "lib/picker-core/types.d.ts"
+    },
+    {
+      "path": "lib/picker-core/viewport.d.ts"
+    },
+    {
+      "path": "lib/picker-core/viewport.js"
+    },
+    {
+      "path": "lib/plugin.d.ts"
+    },
+    {
+      "path": "lib/plugin.js"
+    },
+    {
+      "path": "lib/popconfirm/index.d.ts"
+    },
+    {
+      "path": "lib/popconfirm/index.js"
+    },
+    {
+      "path": "lib/popconfirm/popconfirm.vue.d.ts"
+    },
+    {
+      "path": "lib/popconfirm/popconfirm.vue.js"
+    },
+    {
+      "path": "lib/popconfirm/popconfirm.vue2.js"
+    },
+    {
+      "path": "lib/popconfirm/style.css.js"
+    },
+    {
+      "path": "lib/popconfirm/types.d.ts"
+    },
+    {
+      "path": "lib/popconfirm/types.js"
+    },
+    {
+      "path": "lib/popover/index.d.ts"
+    },
+    {
+      "path": "lib/popover/index.js"
+    },
+    {
+      "path": "lib/popover/popover.vue.d.ts"
+    },
+    {
+      "path": "lib/popover/popover.vue.js"
+    },
+    {
+      "path": "lib/popover/popover.vue2.js"
+    },
+    {
+      "path": "lib/popover/style.css.js"
+    },
+    {
+      "path": "lib/popover/types.d.ts"
+    },
+    {
+      "path": "lib/popover/types.js"
+    },
+    {
+      "path": "lib/radio/index.d.ts"
+    },
+    {
+      "path": "lib/radio/index.js"
+    },
+    {
+      "path": "lib/radio/radio-group.vue.d.ts"
+    },
+    {
+      "path": "lib/radio/radio-group.vue.js"
+    },
+    {
+      "path": "lib/radio/radio-group.vue2.js"
+    },
+    {
+      "path": "lib/radio/radio.vue.d.ts"
+    },
+    {
+      "path": "lib/radio/radio.vue.js"
+    },
+    {
+      "path": "lib/radio/radio.vue2.js"
+    },
+    {
+      "path": "lib/radio/style.css.js"
+    },
+    {
+      "path": "lib/radio/types.d.ts"
+    },
+    {
+      "path": "lib/radio/types.js"
+    },
+    {
+      "path": "lib/select/index.d.ts"
+    },
+    {
+      "path": "lib/select/index.js"
+    },
+    {
+      "path": "lib/select/select.vue.d.ts"
+    },
+    {
+      "path": "lib/select/select.vue.js"
+    },
+    {
+      "path": "lib/select/select.vue2.js"
+    },
+    {
+      "path": "lib/select/style.css.js"
+    },
+    {
+      "path": "lib/select/types.d.ts"
+    },
+    {
+      "path": "lib/select/types.js"
+    },
+    {
+      "path": "lib/select/use-select-virtual.d.ts"
+    },
+    {
+      "path": "lib/select/use-select-virtual.js"
+    },
+    {
+      "path": "lib/select/virtual-options.d.ts"
+    },
+    {
+      "path": "lib/select/virtual-options.js"
+    },
+    {
+      "path": "lib/skeleton/index.d.ts"
+    },
+    {
+      "path": "lib/skeleton/index.js"
+    },
+    {
+      "path": "lib/skeleton/skeleton.vue.d.ts"
+    },
+    {
+      "path": "lib/skeleton/skeleton.vue.js"
+    },
+    {
+      "path": "lib/skeleton/skeleton.vue2.js"
+    },
+    {
+      "path": "lib/skeleton/style.css.js"
+    },
+    {
+      "path": "lib/skeleton/types.d.ts"
+    },
+    {
+      "path": "lib/skeleton/types.js"
+    },
+    {
+      "path": "lib/space/index.d.ts"
+    },
+    {
+      "path": "lib/space/index.js"
+    },
+    {
+      "path": "lib/space/space.vue.d.ts"
+    },
+    {
+      "path": "lib/space/space.vue.js"
+    },
+    {
+      "path": "lib/space/space.vue2.js"
+    },
+    {
+      "path": "lib/space/style.css.js"
+    },
+    {
+      "path": "lib/space/types.d.ts"
+    },
+    {
+      "path": "lib/space/types.js"
+    },
+    {
+      "path": "lib/spin/index.d.ts"
+    },
+    {
+      "path": "lib/spin/index.js"
+    },
+    {
+      "path": "lib/spin/spin.vue.d.ts"
+    },
+    {
+      "path": "lib/spin/spin.vue.js"
+    },
+    {
+      "path": "lib/spin/spin.vue2.js"
+    },
+    {
+      "path": "lib/spin/style.css.js"
+    },
+    {
+      "path": "lib/spin/types.d.ts"
+    },
+    {
+      "path": "lib/spin/types.js"
+    },
+    {
+      "path": "lib/splitter/index.d.ts"
+    },
+    {
+      "path": "lib/splitter/index.js"
+    },
+    {
+      "path": "lib/splitter/solver.d.ts"
+    },
+    {
+      "path": "lib/splitter/solver.js"
+    },
+    {
+      "path": "lib/splitter/splitter-panel.vue.d.ts"
+    },
+    {
+      "path": "lib/splitter/splitter-panel.vue.js"
+    },
+    {
+      "path": "lib/splitter/splitter-panel.vue2.js"
+    },
+    {
+      "path": "lib/splitter/splitter.vue.d.ts"
+    },
+    {
+      "path": "lib/splitter/splitter.vue.js"
+    },
+    {
+      "path": "lib/splitter/splitter.vue2.js"
+    },
+    {
+      "path": "lib/splitter/style.css.js"
+    },
+    {
+      "path": "lib/splitter/types.d.ts"
+    },
+    {
+      "path": "lib/steps/index.d.ts"
+    },
+    {
+      "path": "lib/steps/index.js"
+    },
+    {
+      "path": "lib/steps/steps.vue.d.ts"
+    },
+    {
+      "path": "lib/steps/steps.vue.js"
+    },
+    {
+      "path": "lib/steps/steps.vue2.js"
+    },
+    {
+      "path": "lib/steps/style.css.js"
+    },
+    {
+      "path": "lib/steps/types.d.ts"
+    },
+    {
+      "path": "lib/steps/types.js"
+    },
+    {
+      "path": "lib/style.css"
+    },
+    {
+      "path": "lib/switch/index.d.ts"
+    },
+    {
+      "path": "lib/switch/index.js"
+    },
+    {
+      "path": "lib/switch/style.css.js"
+    },
+    {
+      "path": "lib/switch/switch.vue.d.ts"
+    },
+    {
+      "path": "lib/switch/switch.vue.js"
+    },
+    {
+      "path": "lib/switch/switch.vue2.js"
+    },
+    {
+      "path": "lib/switch/types.d.ts"
+    },
+    {
+      "path": "lib/switch/types.js"
+    },
+    {
+      "path": "lib/table/index.d.ts"
+    },
+    {
+      "path": "lib/table/index.js"
+    },
+    {
+      "path": "lib/table/style.css.js"
+    },
+    {
+      "path": "lib/table/table.vue.d.ts"
+    },
+    {
+      "path": "lib/table/table.vue.js"
+    },
+    {
+      "path": "lib/table/table.vue2.js"
+    },
+    {
+      "path": "lib/table/types.d.ts"
+    },
+    {
+      "path": "lib/table/types.js"
+    },
+    {
+      "path": "lib/table/use-table-virtual.d.ts"
+    },
+    {
+      "path": "lib/table/use-table-virtual.js"
+    },
+    {
+      "path": "lib/table/virtual-options.d.ts"
+    },
+    {
+      "path": "lib/table/virtual-options.js"
+    },
+    {
+      "path": "lib/tabs/index.d.ts"
+    },
+    {
+      "path": "lib/tabs/index.js"
+    },
+    {
+      "path": "lib/tabs/style.css.js"
+    },
+    {
+      "path": "lib/tabs/tabs.vue.d.ts"
+    },
+    {
+      "path": "lib/tabs/tabs.vue.js"
+    },
+    {
+      "path": "lib/tabs/tabs.vue2.js"
+    },
+    {
+      "path": "lib/tabs/types.d.ts"
+    },
+    {
+      "path": "lib/tabs/types.js"
+    },
+    {
+      "path": "lib/tag/checkable-tag.vue.d.ts"
+    },
+    {
+      "path": "lib/tag/checkable-tag.vue.js"
+    },
+    {
+      "path": "lib/tag/checkable-tag.vue2.js"
+    },
+    {
+      "path": "lib/tag/index.d.ts"
+    },
+    {
+      "path": "lib/tag/index.js"
+    },
+    {
+      "path": "lib/tag/style.css.js"
+    },
+    {
+      "path": "lib/tag/tag-group.vue.d.ts"
+    },
+    {
+      "path": "lib/tag/tag-group.vue.js"
+    },
+    {
+      "path": "lib/tag/tag-group.vue2.js"
+    },
+    {
+      "path": "lib/tag/tag.vue.d.ts"
+    },
+    {
+      "path": "lib/tag/tag.vue.js"
+    },
+    {
+      "path": "lib/tag/tag.vue2.js"
+    },
+    {
+      "path": "lib/tag/types.d.ts"
+    },
+    {
+      "path": "lib/tag/types.js"
+    },
+    {
+      "path": "lib/textarea/index.d.ts"
+    },
+    {
+      "path": "lib/textarea/index.js"
+    },
+    {
+      "path": "lib/textarea/style.css.js"
+    },
+    {
+      "path": "lib/textarea/textarea.vue.d.ts"
+    },
+    {
+      "path": "lib/textarea/textarea.vue.js"
+    },
+    {
+      "path": "lib/textarea/textarea.vue2.js"
+    },
+    {
+      "path": "lib/textarea/types.d.ts"
+    },
+    {
+      "path": "lib/textarea/types.js"
+    },
+    {
+      "path": "lib/theme/index.css.js"
+    },
+    {
+      "path": "lib/time-picker/index.d.ts"
+    },
+    {
+      "path": "lib/time-picker/index.js"
+    },
+    {
+      "path": "lib/time-picker/style.css.js"
+    },
+    {
+      "path": "lib/time-picker/time-picker.vue.d.ts"
+    },
+    {
+      "path": "lib/time-picker/time-picker.vue.js"
+    },
+    {
+      "path": "lib/time-picker/time-picker.vue2.js"
+    },
+    {
+      "path": "lib/time-picker/time-range-picker.vue.d.ts"
+    },
+    {
+      "path": "lib/time-picker/time-range-picker.vue.js"
+    },
+    {
+      "path": "lib/time-picker/time-range-picker.vue2.js"
+    },
+    {
+      "path": "lib/time-picker/types.d.ts"
+    },
+    {
+      "path": "lib/time-picker/types.js"
+    },
+    {
+      "path": "lib/tooltip/index.d.ts"
+    },
+    {
+      "path": "lib/tooltip/index.js"
+    },
+    {
+      "path": "lib/tooltip/style.css.js"
+    },
+    {
+      "path": "lib/tooltip/tooltip.vue.d.ts"
+    },
+    {
+      "path": "lib/tooltip/tooltip.vue.js"
+    },
+    {
+      "path": "lib/tooltip/tooltip.vue2.js"
+    },
+    {
+      "path": "lib/tooltip/types.d.ts"
+    },
+    {
+      "path": "lib/tooltip/types.js"
+    },
+    {
+      "path": "lib/tree-select/index.d.ts"
+    },
+    {
+      "path": "lib/tree-select/index.js"
+    },
+    {
+      "path": "lib/tree-select/style.css.js"
+    },
+    {
+      "path": "lib/tree-select/tree-select.vue.d.ts"
+    },
+    {
+      "path": "lib/tree-select/tree-select.vue.js"
+    },
+    {
+      "path": "lib/tree-select/tree-select.vue2.js"
+    },
+    {
+      "path": "lib/tree-select/virtual-options.d.ts"
+    },
+    {
+      "path": "lib/tree-select/virtual-options.js"
+    },
+    {
+      "path": "lib/tree/index.d.ts"
+    },
+    {
+      "path": "lib/tree/index.js"
+    },
+    {
+      "path": "lib/tree/style.css.js"
+    },
+    {
+      "path": "lib/tree/tree-check.d.ts"
+    },
+    {
+      "path": "lib/tree/tree-check.js"
+    },
+    {
+      "path": "lib/tree/tree-focus-bridge.d.ts"
+    },
+    {
+      "path": "lib/tree/tree-focus-bridge.js"
+    },
+    {
+      "path": "lib/tree/tree-index.d.ts"
+    },
+    {
+      "path": "lib/tree/tree-index.js"
+    },
+    {
+      "path": "lib/tree/tree-node.vue.d.ts"
+    },
+    {
+      "path": "lib/tree/tree-node.vue.js"
+    },
+    {
+      "path": "lib/tree/tree-node.vue2.js"
+    },
+    {
+      "path": "lib/tree/tree.vue.d.ts"
+    },
+    {
+      "path": "lib/tree/tree.vue.js"
+    },
+    {
+      "path": "lib/tree/tree.vue2.js"
+    },
+    {
+      "path": "lib/tree/types.d.ts"
+    },
+    {
+      "path": "lib/tree/types.js"
+    },
+    {
+      "path": "lib/tree/use-tree-loader.d.ts"
+    },
+    {
+      "path": "lib/tree/use-tree-loader.js"
+    },
+    {
+      "path": "lib/tree/use-tree-virtual.d.ts"
+    },
+    {
+      "path": "lib/tree/use-tree-virtual.js"
+    },
+    {
+      "path": "lib/tree/virtual-options.d.ts"
+    },
+    {
+      "path": "lib/tree/virtual-options.js"
+    },
+    {
+      "path": "lib/typography/copyable.d.ts"
+    },
+    {
+      "path": "lib/typography/copyable.js"
+    },
+    {
+      "path": "lib/typography/index.d.ts"
+    },
+    {
+      "path": "lib/typography/index.js"
+    },
+    {
+      "path": "lib/typography/link.vue.d.ts"
+    },
+    {
+      "path": "lib/typography/link.vue.js"
+    },
+    {
+      "path": "lib/typography/link.vue2.js"
+    },
+    {
+      "path": "lib/typography/paragraph.vue.d.ts"
+    },
+    {
+      "path": "lib/typography/paragraph.vue.js"
+    },
+    {
+      "path": "lib/typography/paragraph.vue2.js"
+    },
+    {
+      "path": "lib/typography/style.css.js"
+    },
+    {
+      "path": "lib/typography/text.vue.d.ts"
+    },
+    {
+      "path": "lib/typography/text.vue.js"
+    },
+    {
+      "path": "lib/typography/text.vue2.js"
+    },
+    {
+      "path": "lib/typography/title.vue.d.ts"
+    },
+    {
+      "path": "lib/typography/title.vue.js"
+    },
+    {
+      "path": "lib/typography/title.vue2.js"
+    },
+    {
+      "path": "lib/typography/types.d.ts"
+    },
+    {
+      "path": "lib/typography/types.js"
+    },
+    {
+      "path": "lib/typography/typography.vue.d.ts"
+    },
+    {
+      "path": "lib/typography/typography.vue.js"
+    },
+    {
+      "path": "lib/typography/typography.vue2.js"
+    },
+    {
+      "path": "lib/upload/index.d.ts"
+    },
+    {
+      "path": "lib/upload/index.js"
+    },
+    {
+      "path": "lib/upload/style.css.js"
+    },
+    {
+      "path": "lib/upload/types.d.ts"
+    },
+    {
+      "path": "lib/upload/upload.vue.d.ts"
+    },
+    {
+      "path": "lib/upload/upload.vue.js"
+    },
+    {
+      "path": "lib/upload/upload.vue2.js"
+    },
+    {
+      "path": "lib/utils/floating-core.d.ts"
+    },
+    {
+      "path": "lib/utils/floating-core.js"
+    },
+    {
+      "path": "lib/utils/floating.css.js"
+    },
+    {
+      "path": "lib/utils/floating.d.ts"
+    },
+    {
+      "path": "lib/utils/floating.js"
+    },
+    {
+      "path": "lib/utils/install.d.ts"
+    },
+    {
+      "path": "lib/utils/install.js"
+    },
+    {
+      "path": "lib/utils/normalize-virtual-options.d.ts"
+    },
+    {
+      "path": "lib/utils/normalize-virtual-options.js"
+    },
+    {
+      "path": "lib/utils/overlay-controller.d.ts"
+    },
+    {
+      "path": "lib/utils/overlay-controller.js"
+    },
+    {
+      "path": "lib/utils/use-async-task.d.ts"
+    },
+    {
+      "path": "lib/utils/use-async-task.js"
+    },
+    {
+      "path": "lib/utils/use-collection.d.ts"
+    },
+    {
+      "path": "lib/utils/use-collection.js"
+    },
+    {
+      "path": "lib/utils/use-controllable-state.d.ts"
+    },
+    {
+      "path": "lib/utils/use-controllable-state.js"
+    },
+    {
+      "path": "lib/utils/use-floating-dismiss.d.ts"
+    },
+    {
+      "path": "lib/utils/use-floating-dismiss.js"
+    },
+    {
+      "path": "lib/utils/use-floating-position.d.ts"
+    },
+    {
+      "path": "lib/utils/use-floating-position.js"
+    },
+    {
+      "path": "lib/utils/use-motion-presence.d.ts"
+    },
+    {
+      "path": "lib/utils/use-motion-presence.js"
+    },
+    {
+      "path": "lib/utils/use-pointer-drag.d.ts"
+    },
+    {
+      "path": "lib/utils/use-pointer-drag.js"
+    },
+    {
+      "path": "lib/utils/use-popup-viewport-budget.d.ts"
+    },
+    {
+      "path": "lib/utils/use-popup-viewport-budget.js"
+    },
+    {
+      "path": "lib/utils/use-prop-presence.d.ts"
+    },
+    {
+      "path": "lib/utils/use-prop-presence.js"
+    },
+    {
+      "path": "lib/utils/use-roving-focus.d.ts"
+    },
+    {
+      "path": "lib/utils/use-roving-focus.js"
+    },
+    {
+      "path": "lib/utils/use-stable-id.d.ts"
+    },
+    {
+      "path": "lib/utils/use-stable-id.js"
+    },
+    {
+      "path": "lib/utils/use-teleport-ready.d.ts"
+    },
+    {
+      "path": "lib/utils/use-teleport-ready.js"
+    },
+    {
+      "path": "lib/utils/use-trigger-aria.d.ts"
+    },
+    {
+      "path": "lib/utils/use-trigger-aria.js"
+    },
+    {
+      "path": "LICENSE"
+    },
+    {
+      "path": "package.json"
+    },
+    {
+      "path": "README.md"
+    }
+  ]
+}

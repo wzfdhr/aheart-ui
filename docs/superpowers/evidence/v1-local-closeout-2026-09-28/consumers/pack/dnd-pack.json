@@ -1,0 +1,244 @@
+{
+  "name": "@aheart-ui/dnd",
+  "version": "1.0.0",
+  "filename": "/tmp/aheart-ui-v1-consumers-09cf9b6/pack/aheart-ui-dnd-1.0.0.tgz",
+  "files": [
+    {
+      "path": "es/dnd-announcer.d.ts"
+    },
+    {
+      "path": "es/dnd-announcer.js"
+    },
+    {
+      "path": "es/drag-overlay.vue.d.ts"
+    },
+    {
+      "path": "es/drag-overlay.vue.js"
+    },
+    {
+      "path": "es/drag-overlay.vue2.js"
+    },
+    {
+      "path": "es/drag-state.d.ts"
+    },
+    {
+      "path": "es/drag-state.js"
+    },
+    {
+      "path": "es/draggable.vue.d.ts"
+    },
+    {
+      "path": "es/draggable.vue.js"
+    },
+    {
+      "path": "es/draggable.vue2.js"
+    },
+    {
+      "path": "es/drop-zone.vue.d.ts"
+    },
+    {
+      "path": "es/drop-zone.vue.js"
+    },
+    {
+      "path": "es/drop-zone.vue2.js"
+    },
+    {
+      "path": "es/index.d.ts"
+    },
+    {
+      "path": "es/index.js"
+    },
+    {
+      "path": "es/keyboard-service.d.ts"
+    },
+    {
+      "path": "es/keyboard-service.js"
+    },
+    {
+      "path": "es/package.json"
+    },
+    {
+      "path": "es/sortable-auto-scroll.d.ts"
+    },
+    {
+      "path": "es/sortable-auto-scroll.js"
+    },
+    {
+      "path": "es/sortable-context.d.ts"
+    },
+    {
+      "path": "es/sortable-context.js"
+    },
+    {
+      "path": "es/sortable-item.vue.d.ts"
+    },
+    {
+      "path": "es/sortable-item.vue.js"
+    },
+    {
+      "path": "es/sortable-item.vue2.js"
+    },
+    {
+      "path": "es/sortable-list.vue.d.ts"
+    },
+    {
+      "path": "es/sortable-list.vue.js"
+    },
+    {
+      "path": "es/sortable-list.vue2.js"
+    },
+    {
+      "path": "es/sortable-registry.d.ts"
+    },
+    {
+      "path": "es/sortable-registry.js"
+    },
+    {
+      "path": "es/style.css"
+    },
+    {
+      "path": "es/types.d.ts"
+    },
+    {
+      "path": "es/use-draggable.d.ts"
+    },
+    {
+      "path": "es/use-draggable.js"
+    },
+    {
+      "path": "es/use-droppable.d.ts"
+    },
+    {
+      "path": "es/use-droppable.js"
+    },
+    {
+      "path": "es/use-sortable.d.ts"
+    },
+    {
+      "path": "es/use-sortable.js"
+    },
+    {
+      "path": "lib/dnd-announcer.d.ts"
+    },
+    {
+      "path": "lib/dnd-announcer.js"
+    },
+    {
+      "path": "lib/drag-overlay.vue.d.ts"
+    },
+    {
+      "path": "lib/drag-overlay.vue.js"
+    },
+    {
+      "path": "lib/drag-overlay.vue2.js"
+    },
+    {
+      "path": "lib/drag-state.d.ts"
+    },
+    {
+      "path": "lib/drag-state.js"
+    },
+    {
+      "path": "lib/draggable.vue.d.ts"
+    },
+    {
+      "path": "lib/draggable.vue.js"
+    },
+    {
+      "path": "lib/draggable.vue2.js"
+    },
+    {
+      "path": "lib/drop-zone.vue.d.ts"
+    },
+    {
+      "path": "lib/drop-zone.vue.js"
+    },
+    {
+      "path": "lib/drop-zone.vue2.js"
+    },
+    {
+      "path": "lib/index.d.ts"
+    },
+    {
+      "path": "lib/index.js"
+    },
+    {
+      "path": "lib/keyboard-service.d.ts"
+    },
+    {
+      "path": "lib/keyboard-service.js"
+    },
+    {
+      "path": "lib/package.json"
+    },
+    {
+      "path": "lib/sortable-auto-scroll.d.ts"
+    },
+    {
+      "path": "lib/sortable-auto-scroll.js"
+    },
+    {
+      "path": "lib/sortable-context.d.ts"
+    },
+    {
+      "path": "lib/sortable-context.js"
+    },
+    {
+      "path": "lib/sortable-item.vue.d.ts"
+    },
+    {
+      "path": "lib/sortable-item.vue.js"
+    },
+    {
+      "path": "lib/sortable-item.vue2.js"
+    },
+    {
+      "path": "lib/sortable-list.vue.d.ts"
+    },
+    {
+      "path": "lib/sortable-list.vue.js"
+    },
+    {
+      "path": "lib/sortable-list.vue2.js"
+    },
+    {
+      "path": "lib/sortable-registry.d.ts"
+    },
+    {
+      "path": "lib/sortable-registry.js"
+    },
+    {
+      "path": "lib/style.css"
+    },
+    {
+      "path": "lib/types.d.ts"
+    },
+    {
+      "path": "lib/use-draggable.d.ts"
+    },
+    {
+      "path": "lib/use-draggable.js"
+    },
+    {
+      "path": "lib/use-droppable.d.ts"
+    },
+    {
+      "path": "lib/use-droppable.js"
+    },
+    {
+      "path": "lib/use-sortable.d.ts"
+    },
+    {
+      "path": "lib/use-sortable.js"
+    },
+    {
+      "path": "LICENSE"
+    },
+    {
+      "path": "package.json"
+    },
+    {
+      "path": "README.md"
+    }
+  ]
+}

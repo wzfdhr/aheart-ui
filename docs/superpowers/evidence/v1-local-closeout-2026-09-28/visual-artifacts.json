@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "v1-local-visual-evidence.v1",
+  "capturedAt": "2026-09-28",
+  "testedCommit": "09cf9b64cb9653763aab81d3b96925c62c793701",
+  "images": [
+    {
+      "file": "table-desktop.png",
+      "bytes": 2916681,
+      "sha256": "22fae28111d405e60119faa27f9e9b1dc24e56bcb8d97367c02e485c46f77140",
+      "description": "Full-page Table component documentation"
+    },
+    {
+      "file": "table-desktop-viewport.png",
+      "bytes": 161290,
+      "sha256": "a06855f835c3f3753304d01bff1980c91e37af86ad07918564e843b7a0477f8e",
+      "description": "Table desktop viewport 1440x1000"
+    },
+    {
+      "file": "table-mobile.png",
+      "bytes": 230548,
+      "sha256": "c535674dc9a266a25846059b6ee1397ed309ca904b2233a73e7a34e85779f848",
+      "description": "Table iPhone 13 viewport"
+    },
+    {
+      "file": "table-dark-desktop.png",
+      "bytes": 162688,
+      "sha256": "a42c1c83758aa42dfe6f27c37d8eda12de817f44a193b59f8b2b95e7f5e7d0f8",
+      "description": "Dark VitePress shell with default light component tokens"
+    },
+    {
+      "file": "table-dark-custom.png",
+      "bytes": 162684,
+      "sha256": "c45ce38856ec43e98f073f04a9d9f30b9f147416560209e6bf1bd01e8c22dfca",
+      "description": "Table after app-level dark token overrides"
+    },
+    {
+      "file": "date-picker-desktop.png",
+      "bytes": 174361,
+      "sha256": "8ece2760bd459804719d82a4860895b651da7b1867081af02f804b4d1f246986",
+      "description": "DatePicker desktop viewport"
+    },
+    {
+      "file": "upload-desktop.png",
+      "bytes": 153979,
+      "sha256": "7f83bdbebe888aba697569082d98d18945ba6b6892c2bc5b958bbacf6fa3b117",
+      "description": "Upload desktop viewport"
+    },
+    {
+      "file": "dnd-desktop.png",
+      "bytes": 139377,
+      "sha256": "97f65e7ce02619ca235f16a2c690fbd49591230363b5de2da05ecbd25a6a5bdf",
+      "description": "DnD desktop viewport"
+    },
+    {
+      "file": "splitter-desktop.png",
+      "bytes": 94587,
+      "sha256": "ee4dd3057476c1f61d515ea9e76c5655b579fd52dffb3482df8b1ab2dbbc8cfa",
+      "description": "Splitter desktop viewport"
+    },
+    {
+      "file": "workbench-desktop.png",
+      "bytes": 150215,
+      "sha256": "90497b4e22d880a2cc582e648879e61ac7555bbd99411dc7209accb9a130b1b6",
+      "description": "AI Workbench initial state desktop viewport"
+    },
+    {
+      "file": "workbench-approved.png",
+      "bytes": 116864,
+      "sha256": "386a0058fca31d4e079a1c7c2f8ad73b85c14807e8c9edb60d254760d93fdd80",
+      "description": "AI Workbench approved artifact preview desktop viewport"
+    }
+  ]
+}

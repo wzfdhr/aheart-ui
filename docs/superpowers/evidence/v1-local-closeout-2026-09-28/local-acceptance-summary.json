@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "v1-local-acceptance-summary.v1",
+  "acceptedLocallyAt": "2026-09-28",
+  "testedCommit": "09cf9b64cb9653763aab81d3b96925c62c793701",
+  "parentCommit": "17b3494e4f16972edde3d3d77d058102d6f4ee2c",
+  "branch": "codex/v1-local-closeout",
+  "environment": {
+    "node": "v24.17.0",
+    "pnpm": "9.15.4",
+    "npm": "11.13.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "frozenInstall": {
+    "command": "corepack pnpm install --frozen-lockfile",
+    "exitCode": 0,
+    "lockfileChanged": false
+  },
+  "releaseCheck": {
+    "command": "CI=true corepack pnpm release:check",
+    "exitCode": 0,
+    "log": "logs/release-check-ci.log.gz",
+    "logCompression": "gzip",
+    "uncompressedLogSha256": "a79f2bae8bdf85965abfa4531bc1f0a4261a65d73b048c338da905fd5831860c",
+    "compressedLogSha256": "9d21d2724a8b10c1633667a29da68c03fc285a9f0e796c8d001cd8a7e544d298",
+    "packageTests": {
+      "components": {
+        "filesPassed": 117,
+        "testsPassed": 1485
+      },
+      "dnd": {
+        "filesPassed": 5,
+        "testsPassed": 79
+      },
+      "ai": {
+        "filesPassed": 10,
+        "testsPassed": 200
+      }
+    },
+    "scriptTests": {
+      "passed": 247,
+      "failed": 0
+    },
+    "typecheck": "passed",
+    "buildDeterminism": "passed; three packages built twice with no generated drift",
+    "docsBuild": "passed",
+    "releasePack": {
+      "componentsFiles": 1047,
+      "dndFiles": 79,
+      "aiFiles": 115
+    },
+    "e2e": {
+      "total": 955,
+      "passed": 828,
+      "skipped": 127,
+      "failed": 0,
+      "workers": 1
+    },
+    "diffCheck": "passed"
+  },
+  "r1Coverage": {
+    "command": "corepack pnpm test:coverage:r1",
+    "exitCode": 0,
+    "log": "logs/r1-coverage.log.gz",
+    "logCompression": "gzip",
+    "uncompressedLogSha256": "aff93d9f76226886c7ae17fa111be7167382aea41e2b3b41cfee8ac56ed00d72",
+    "compressedLogSha256": "d254db9a6ad77803f7f8ae3bf8823aeeb375b56ed0fc427a2433fb71cb672c3e",
+    "files": 14,
+    "threshold": 80,
+    "minimumFilePercent": 80.33,
+    "aggregate": {
+      "covered": 3312,
+      "total": 3829,
+      "percent": 86.5
+    },
+    "priorSameSourceRun": {
+      "covered": 3311,
+      "total": 3828,
+      "percent": 86.49
+    }
+  },
+  "consumers": {
+    "results": "consumers/consumer-summary.json",
+    "rootEntry": "passed",
+    "formList": "passed",
+    "d8": "passed",
+    "workspaceSymlinks": false
+  },
+  "manualAndVisual": {
+    "desktopMouseKeyboardSmoke": "completed; see manual-smoke.md",
+    "mobileViewport": "iPhone 13 screenshot reviewed; mobile interaction covered by E2E, not physical-device input",
+    "darkTheme": "default light token behavior and custom html.dark override captured",
+    "reducedMotion": "prefers-reduced-motion produced --aheart-motion-duration: 0ms",
+    "screenshots": "visual-artifacts.json",
+    "demoLimitations": [
+      "Upload is local demo state only; no real upload service",
+      "AI Workbench approval is local demo state only; no business backend"
+    ]
+  },
+  "qg5Diagnosis": "qg5-cancelled-prefetch-diagnosis.json",
+  "notCompleted": [
+    "independent final D9 design/product signoff",
+    "physical iOS Safari",
+    "10 consecutive QG5 runs on one exact master SHA",
+    "npm publish and clean registry install",
+    "npm tag and GitHub Release"
+  ],
+  "npmPublishExecuted": false,
+  "v2Started": false
+}

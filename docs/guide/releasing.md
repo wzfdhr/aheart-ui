@@ -71,6 +71,18 @@ git push origin v1.1.0
 
 Git tag、GitHub Release 与 npm tarball 必须来自同一提交。
 
+## 回滚与部分发布故障
+
+npm 已发布版本不能用同一包名和版本号覆盖或重发。发现版本有问题时，优先弃用受影响版本并发布新的修复版本；npm 也建议对仍有使用者的版本弃用，而不是直接从 registry 删除。[弃用版本](https://docs.npmjs.com/deprecating-and-undeprecating-packages-or-package-versions/) · [取消发布策略](https://docs.npmjs.com/policies/unpublish/)
+
+按以下步骤处置：
+
+1. 任一包发布失败或 smoke test 失败，立即停止后续包发布，记录已发布版本、tag、提交 SHA 和失败日志；不要移动或重建已创建的 tag。
+2. 已发布的坏版本先加弃用说明，例如 `npm deprecate aheart-ui@1.1.0 "请升级到修复版本"`。不要把 `npm unpublish` 当作常规回滚；只有负责人批准且符合 npm 当前策略时才单独评估。
+3. 只有当此前存在经过验证且仍兼容的版本时，才可把 `latest` dist-tag 指回该版本，例如 `npm dist-tag add aheart-ui@1.0.0 latest`。dist-tag 只影响默认安装选择，不会删除或更改已发布 tarball。[npm dist-tag 文档](https://docs.npmjs.com/adding-dist-tags-to-packages/)
+4. DnD 和 AI 的 `1.0.0` 是首次计划发布时，没有可假定回退到的旧版本；发生问题就暂停这两个包的 rollout、弃用有问题的版本，并用新版本号发布修复包。
+5. 修复源码时用独立提交/PR，重新通过本指南中的完整门禁，再创建绑定到修复提交的新 tag 和 Release。完成后核对 `npm view <package> versions dist-tags` 与干净项目安装结果，并记录恢复结论。
+
 ## 生成产物策略
 
 源代码变化引起的 `es/lib` 输出必须随阶段提交。完整构建连续执行两次后，第二次不得产生任何差异。任何与当前源码无关的声明顺序漂移都必须先查明原因，不能通过暂存文件绕过检查。

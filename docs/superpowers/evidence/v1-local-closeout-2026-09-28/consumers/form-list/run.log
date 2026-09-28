@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "tarballSHA256": "2e263cad466fff8b23883af898d1656ad0f5c588308055889ae89ab13a8899b7",
+  "baselineGzipBytes": 24868,
+  "bundleGzipBytes": 56937,
+  "incrementalGzipBytes": 32069,
+  "output": "/tmp/aheart-ui-v1-consumers-09cf9b6/form",
+  "consumerRoot": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-form-list-consumer-v8zXjS"
+}

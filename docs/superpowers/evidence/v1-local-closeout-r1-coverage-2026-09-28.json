@@ -1,0 +1,107 @@
+{
+  "ok": true,
+  "reviewedAt": "2026-09-28",
+  "threshold": 80,
+  "files": [
+    {
+      "file": "packages/components/src/cascader/cascader.vue",
+      "total": 610,
+      "covered": 553,
+      "pct": 90.66
+    },
+    {
+      "file": "packages/components/src/date-picker/date-picker.vue",
+      "total": 461,
+      "covered": 407,
+      "pct": 88.29
+    },
+    {
+      "file": "packages/components/src/table/table.vue",
+      "total": 915,
+      "covered": 735,
+      "pct": 80.33
+    },
+    {
+      "file": "packages/components/src/tree/tree.vue",
+      "total": 266,
+      "covered": 241,
+      "pct": 90.6
+    },
+    {
+      "file": "packages/components/src/tree-select/tree-select.vue",
+      "total": 220,
+      "covered": 199,
+      "pct": 90.45
+    },
+    {
+      "file": "packages/components/src/upload/upload.vue",
+      "total": 155,
+      "covered": 133,
+      "pct": 85.81
+    },
+    {
+      "file": "packages/components/src/utils/use-async-task.ts",
+      "total": 14,
+      "covered": 12,
+      "pct": 85.71
+    },
+    {
+      "file": "packages/dnd/src/drag-state.ts",
+      "total": 16,
+      "covered": 13,
+      "pct": 81.25
+    },
+    {
+      "file": "packages/dnd/src/keyboard-service.ts",
+      "total": 91,
+      "covered": 78,
+      "pct": 85.71
+    },
+    {
+      "file": "packages/dnd/src/sortable-list.vue",
+      "total": 74,
+      "covered": 65,
+      "pct": 87.84
+    },
+    {
+      "file": "packages/ai/src/agent-workbench.vue",
+      "total": 301,
+      "covered": 266,
+      "pct": 88.37
+    },
+    {
+      "file": "packages/ai/src/chat-panel.vue",
+      "total": 237,
+      "covered": 205,
+      "pct": 86.5
+    },
+    {
+      "file": "packages/ai/src/form.vue",
+      "total": 306,
+      "covered": 266,
+      "pct": 86.93
+    },
+    {
+      "file": "packages/ai/src/stream-reducer.ts",
+      "total": 163,
+      "covered": 139,
+      "pct": 85.28
+    }
+  ],
+  "aggregate": {
+    "total": 3829,
+    "covered": 3312,
+    "pct": 86.5
+  },
+  "testedCommit": "09cf9b64cb9653763aab81d3b96925c62c793701",
+  "evidenceLog": "logs/r1-coverage.log.gz",
+  "evidenceLogCompression": "gzip",
+  "evidenceLogSha256": "aff93d9f76226886c7ae17fa111be7167382aea41e2b3b41cfee8ac56ed00d72",
+  "evidenceLogCompressedSha256": "d254db9a6ad77803f7f8ae3bf8823aeeb375b56ed0fc427a2433fb71cb672c3e",
+  "priorCandidateMeasurement": {
+    "total": 3828,
+    "covered": 3311,
+    "pct": 86.49,
+    "note": "Earlier same-source run; all 14 files also met the 80% threshold."
+  }
+}
