@@ -33,7 +33,7 @@ export const productAreaStatusText: Record<ProductAreaStatus, string> = {
   published: '已发布',
   verified: '当前可用 / 已验证',
   preview: '仓库预览',
-  planned: 'v2 规划中',
+  planned: 'v2 尚未启动（候选）',
   later: 'Later'
 }
 
@@ -115,8 +115,8 @@ export const productAreas: Record<ProductAreaKey, ProductArea> = {
       },
       {
         key: 'v2-planned',
-        title: 'v2 M3 / M4 规划中',
-        description: '仍需通过相应门禁；此处不代表当前可安装。',
+        title: 'v2 M3 / M4 候选方向',
+        description: 'v2 当前暂停，M0–M8 均未启动；此处仅记录候选方向，不代表当前可安装。',
         items: [
           { key: 'combobox', name: 'Combobox', description: '搜索、选择与创建的统一组合模式。', status: 'planned' },
           { key: 'compound', name: 'Compound', description: '可组合子部件与受控上下文模式。', status: 'planned' },
@@ -131,7 +131,7 @@ export const productAreas: Record<ProductAreaKey, ProductArea> = {
     name: 'AI 产品',
     eyebrow: 'AI PRODUCT / 仓库预览',
     description: '按 Chat、Agent、Workbench 三类产品场景浏览 AI 界面能力。',
-    packageNote: '当前仅提供仓库预览，@aheart-ui/ai 尚未公共 npm 发布；M6 完成后才进入公共发布评估。',
+    packageNote: '当前仅提供仓库预览，@aheart-ui/ai 尚未公共 npm 发布；v2 当前暂停，M6 尚未启动。',
     sections: [
       {
         key: 'chat',
@@ -163,14 +163,14 @@ export const productAreas: Record<ProductAreaKey, ProductArea> = {
   motion: {
     key: 'motion',
     name: 'Motion',
-    eyebrow: 'MOTION / v2 M5 规划',
+    eyebrow: 'MOTION / v2 M5 候选方向',
     description: '为状态切换、浮层和布局变化建立可访问、可控制的动效协议。',
-    packageNote: '以下能力均为 v2 M5 规划中；Effects later 不代表当前已完成或可安装。',
+    packageNote: 'v2 当前暂停，M5 尚未启动；以下仅为候选方向，Effects later 不代表当前已完成或可安装。',
     sections: [
       {
         key: 'm5',
-        title: 'v2 M5 规划中',
-        description: '需要动效门禁、Reduced Motion 和跨组件验证。',
+        title: 'v2 M5 候选方向',
+        description: 'v2 当前暂停；启动前仍需动效门禁、Reduced Motion 和跨组件验证。',
         items: ['Presence', 'Fade', 'Slide', 'Scale', 'Collapse', 'ReducedMotionProvider'].map((name) => ({
           key: name.toLowerCase(), name, description: `${name} 状态协议与 Vue 3 组合 API。`, status: 'planned' as const
         }))
@@ -188,7 +188,7 @@ export const productAreas: Record<ProductAreaKey, ProductArea> = {
     name: 'DND',
     eyebrow: 'DND / 仓库预览',
     description: '排序、跨容器移动和键盘路径的受控拖拽能力。',
-    packageNote: '当前仅提供仓库预览，@aheart-ui/dnd 尚未公共 npm 发布；v2 M6 才进行产品化评估。',
+    packageNote: '当前仅提供仓库预览，@aheart-ui/dnd 尚未公共 npm 发布；v2 当前暂停，M6 尚未启动。',
     sections: [
       {
         key: 'preview',
@@ -200,8 +200,8 @@ export const productAreas: Record<ProductAreaKey, ProductArea> = {
       },
       {
         key: 'm6',
-        title: 'v2 M6 产品化规划',
-        description: '公共包、发布门禁和跨平台证据均待完成。',
+        title: 'v2 M6 候选方向',
+        description: 'v2 当前暂停；公共包、发布门禁和跨平台证据均未开始。',
         items: [{ key: 'public-package', name: '@aheart-ui/dnd 公共供应链', description: '公共 npm 发布与安装验证。', status: 'planned' }]
       }
     ]
@@ -211,7 +211,7 @@ export const productAreas: Record<ProductAreaKey, ProductArea> = {
     name: 'Icons',
     eyebrow: 'ICONS / 当前可用与供应链规划',
     description: '使用 AIcon 与 Lucide 兼容层表达产品语义，再逐步建立独立图标供应链。',
-    packageNote: 'AIcon/Lucide 兼容层当前可用；@aheart-ui/icons 公共供应链仍是 v2 M2 规划。',
+    packageNote: 'AIcon/Lucide 兼容层当前可用；独立 @aheart-ui/icons 包是 v2 候选方向，M2 尚未启动。',
     sections: [
       {
         key: 'available',
@@ -221,8 +221,8 @@ export const productAreas: Record<ProductAreaKey, ProductArea> = {
       },
       {
         key: 'm2',
-        title: 'v2 M2 规划中',
-        description: '需要独立包、版本策略和发布证据。',
+        title: 'v2 M2 候选方向',
+        description: 'v2 当前暂停；启动前仍需确定独立包、版本策略和发布证据。',
         items: [{ key: 'icons-package', name: '@aheart-ui/icons', description: '独立图标公共供应链。', status: 'planned' }]
       }
     ]

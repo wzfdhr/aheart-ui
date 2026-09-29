@@ -49,7 +49,7 @@ export interface ComponentDocumentContext {
 export const statusText: Record<Locale, Record<ComponentStatus, string>> = {
   zh: {
     Ready: '当前可用 / 已验证',
-    Planned: 'v2 规划中'
+    Planned: 'v2 尚未启动'
   },
   en: {
     Ready: 'Ready',

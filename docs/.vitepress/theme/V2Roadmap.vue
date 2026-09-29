@@ -1,10 +1,10 @@
 <template>
   <main class="aheart-roadmap" aria-labelledby="aheart-roadmap-title">
     <header class="aheart-roadmap__hero">
-      <p class="aheart-roadmap__eyebrow">AHEART UI / VERSION 2</p>
+      <p class="aheart-roadmap__eyebrow">AHEART UI / VERSION 2 · NOT STARTED</p>
       <h1 id="aheart-roadmap-title">v2 路线图</h1>
-      <p>从基础能力、组合模式到 AI、Motion、DND 和供应链，按 M0-M8 逐阶段推进。</p>
-      <aside class="aheart-roadmap__guardrail">规划需通过对应门禁；所有阶段当前均为规划状态，未标已发布的能力不会承诺当前可安装。</aside>
+      <p>v2 当前保持暂停。下方仅记录候选方向；M0–M8 均未启动，也没有排期或发布日期。</p>
+      <aside class="aheart-roadmap__guardrail">启动条件：v1 外部验收完成，并经产品与技术负责人明确决定。所有阶段仍未启动；未标已发布的能力不会承诺当前可安装。</aside>
     </header>
 
     <ol class="aheart-roadmap__timeline">
@@ -16,7 +16,7 @@
               <h2>{{ phase.title }}</h2>
               <p>{{ phase.description }}</p>
             </div>
-            <span class="aheart-status aheart-status--planned">v2 规划中</span>
+            <span class="aheart-status aheart-status--planned">尚未启动</span>
           </div>
           <ul>
             <li v-for="item in phase.items" :key="item">{{ item }}</li>
