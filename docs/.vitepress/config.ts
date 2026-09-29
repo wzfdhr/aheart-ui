@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
-import { getComponentCatalogs, getCoreComponentSidebar } from './data/components'
+import { getComponentCatalogs, getComponentSidebar, getCoreComponentSidebar } from './data/components'
 import { getProductAreaSidebar } from './data/product-areas'
 
 const githubLink = 'https://github.com/wzfdhr/aheart-ui'
@@ -9,6 +9,7 @@ const githubLink = 'https://github.com/wzfdhr/aheart-ui'
 const githubSvg = fs.readFileSync(fileURLToPath(new URL('../public/github.svg', import.meta.url)), 'utf8')
 
 const zhComponentItems = getCoreComponentSidebar('zh')
+const legacyComponentSidebar = getComponentSidebar('zh')
 const composedSidebar = getProductAreaSidebar('composed')
 const aiSidebar = getProductAreaSidebar('ai')
 const dndSidebar = getProductAreaSidebar('dnd')
@@ -79,8 +80,9 @@ export default defineConfig({
             }
           ],
           '/components/ai': aiSidebar,
-          '/components/dnd': dndSidebar,
           ...composedDetailSidebars,
+          '/components/splitter': legacyComponentSidebar,
+          '/components/dnd': legacyComponentSidebar,
           '/components/': [{ text: '基础组件总览', link: '/components/overview' }, ...zhComponentItems],
           '/composed/': composedSidebar,
           '/ai/': aiSidebar,
