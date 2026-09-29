@@ -5,14 +5,14 @@
     <span class="aheart-component-context__package">{{ context.packageName }}</span>
     <span v-if="context.related.length" class="aheart-component-context__related">
       <span>相关组件</span>
-      <a v-for="component in context.related" :key="component.key" :href="component.link">{{ component.name }}</a>
+      <a v-for="component in context.related" :key="component.key" :href="withBase(component.link)">{{ component.name }}</a>
     </span>
   </nav>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useData } from 'vitepress'
+import { useData, withBase } from 'vitepress'
 import { getComponentDocumentContext } from '../data/components'
 
 const { page } = useData()

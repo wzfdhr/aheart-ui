@@ -1,7 +1,7 @@
 {
   "schemaVersion": "d9-skip-ledger.v1",
   "generatedFrom": "e2e/**/*.spec.ts",
-  "reviewedAt": "2026-09-15",
+  "reviewedAt": "2026-09-30",
   "trackingUrl": "https://github.com/wzfdhr/aheart-ui/pull/30",
   "ownerDirectory": {
     "docs-qa": "wzfdhr",
@@ -18,10 +18,10 @@
   "sites": [
     {"id":"D9-SKIP-001","file":"e2e/docs-component-smoke.spec.ts","line":127,"reason":"Desktop crawl is the canonical docs smoke; other projects use their own responsive contract.","owner":"docs-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-002","file":"e2e/time-picker-range.spec.ts","line":34,"reason":"Viewport assertion is mobile-only.","owner":"mobile-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
-    {"id":"D9-SKIP-003","file":"e2e/docs-information-architecture.spec.ts","line":4,"reason":"Desktop information-architecture crawl owns the desktop shell assertion.","owner":"docs-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
-    {"id":"D9-SKIP-004","file":"e2e/docs-information-architecture.spec.ts","line":19,"reason":"Desktop information-architecture crawl owns the desktop shell assertion.","owner":"docs-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
-    {"id":"D9-SKIP-005","file":"e2e/docs-information-architecture.spec.ts","line":30,"reason":"Mobile information-architecture crawl owns the mobile shell assertion.","owner":"mobile-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
-    {"id":"D9-SKIP-006","file":"e2e/docs-information-architecture.spec.ts","line":41,"reason":"Mobile shell copy is a mobile-only assertion.","owner":"mobile-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
+    {"id":"D9-SKIP-003","file":"e2e/docs-information-architecture.spec.ts","line":6,"reason":"Desktop top navigation and information-architecture coverage is owned by the desktop project.","owner":"docs-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
+    {"id":"D9-SKIP-004","file":"e2e/docs-information-architecture.spec.ts","line":31,"reason":"Product-area route crawl is owned by the desktop project.","owner":"docs-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
+    {"id":"D9-SKIP-005","file":"e2e/docs-information-architecture.spec.ts","line":61,"reason":"Legacy component-route compatibility crawl is owned by the desktop project.","owner":"docs-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
+    {"id":"D9-SKIP-006","file":"e2e/docs-information-architecture.spec.ts","line":85,"reason":"Product-card viewport containment assertion is mobile-only.","owner":"mobile-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-007","file":"e2e/agent-workbench.spec.ts","line":4,"reason":"Workbench desktop layout is owned by the desktop project.","owner":"workbench-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-008","file":"e2e/agent-workbench.spec.ts","line":13,"reason":"Workbench mobile layout is owned by the mobile project.","owner":"workbench-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-009","file":"e2e/agent-workbench.spec.ts","line":23,"reason":"Workbench mobile interaction is owned by the mobile project.","owner":"workbench-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
@@ -53,6 +53,9 @@
     {"id":"D9-SKIP-035","file":"e2e/dnd-splitter.spec.ts","line":931,"reason":"Measured mobile bounds apply only to mobile projects.","owner":"dnd-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-036","file":"e2e/a11y-visual.spec.ts","line":266,"reason":"Touch-target assertions apply only to mobile projects.","owner":"a11y-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
     {"id":"D9-SKIP-037","file":"e2e/a11y-visual.spec.ts","line":324,"reason":"Execution drawer visual evidence is owned by the mobile project.","owner":"a11y-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
-    {"id":"D9-SKIP-038","file":"e2e/a11y-visual.spec.ts","line":354,"reason":"Pending approval shortcut evidence is owned by the mobile project.","owner":"a11y-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"}
+    {"id":"D9-SKIP-038","file":"e2e/a11y-visual.spec.ts","line":354,"reason":"Pending approval shortcut evidence is owned by the mobile project.","owner":"a11y-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
+    {"id":"D9-SKIP-039","file":"e2e/docs-information-architecture.spec.ts","line":97,"reason":"Compact desktop navigation containment assertion is owned by the desktop project.","owner":"docs-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
+    {"id":"D9-SKIP-040","file":"e2e/docs-information-architecture.spec.ts","line":109,"reason":"Chinese shell copy and mobile controls are owned by the mobile project.","owner":"mobile-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"},
+    {"id":"D9-SKIP-041","file":"e2e/docs-information-architecture.spec.ts","line":119,"reason":"Product landing accessibility audit is owned by the desktop project.","owner":"a11y-qa","issue":"D9-SKIP-LEDGER","expiresOn":"2026-12-31"}
   ]
 }
