@@ -2,7 +2,7 @@
 
 Aheart UI 的重要变更统一记录在本文件中。
 
-## [1.1.0] - 未发布
+## [1.1.0] - 2026-09-29
 
 ### 新增与改进
 
@@ -11,10 +11,11 @@ Aheart UI 的重要变更统一记录在本文件中。
 - 核心包根入口支持更有效的按需导入；CI 增加分支覆盖率、独立 tarball 消费和五浏览器质量门禁。
 - 更新 PostCSS 与 nanoid 依赖以修复已知安全问题，并验证 ESM、CommonJS、类型、CSS、SSR 与 hydration 消费路径。
 
-### 发布状态
+### 发布范围
 
-- 核心包 `aheart-ui@1.1.0` 尚未发布；`@aheart-ui/dnd@1.0.0` 与 `@aheart-ui/ai@1.0.0` 也仍待首次 npm 发布。
-- 发布候选需要重新运行完整本地门禁；npm 发布、tag 和 GitHub Release 尚未完成。
+- 核心组件包：`aheart-ui@1.1.0`。
+- 首次发布的领域包：`@aheart-ui/dnd@1.0.0`、`@aheart-ui/ai@1.0.0`。
+- 三个 tarball 必须从同一主线提交生成；公开 registry 安装验证和 tag/Release 状态以该提交的发布证据为准。
 
 ## [1.0.0] - 2026-09-01
 

@@ -1,0 +1,100 @@
+{
+  "ok": true,
+  "reviewedAt": "2026-09-29",
+  "threshold": 80,
+  "files": [
+    {
+      "file": "packages/components/src/cascader/cascader.vue",
+      "total": 611,
+      "covered": 554,
+      "pct": 90.67
+    },
+    {
+      "file": "packages/components/src/date-picker/date-picker.vue",
+      "total": 461,
+      "covered": 407,
+      "pct": 88.29
+    },
+    {
+      "file": "packages/components/src/table/table.vue",
+      "total": 915,
+      "covered": 735,
+      "pct": 80.33
+    },
+    {
+      "file": "packages/components/src/tree/tree.vue",
+      "total": 266,
+      "covered": 241,
+      "pct": 90.6
+    },
+    {
+      "file": "packages/components/src/tree-select/tree-select.vue",
+      "total": 220,
+      "covered": 199,
+      "pct": 90.45
+    },
+    {
+      "file": "packages/components/src/upload/upload.vue",
+      "total": 155,
+      "covered": 133,
+      "pct": 85.81
+    },
+    {
+      "file": "packages/components/src/utils/use-async-task.ts",
+      "total": 14,
+      "covered": 12,
+      "pct": 85.71
+    },
+    {
+      "file": "packages/dnd/src/drag-state.ts",
+      "total": 16,
+      "covered": 13,
+      "pct": 81.25
+    },
+    {
+      "file": "packages/dnd/src/keyboard-service.ts",
+      "total": 90,
+      "covered": 77,
+      "pct": 85.56
+    },
+    {
+      "file": "packages/dnd/src/sortable-list.vue",
+      "total": 74,
+      "covered": 65,
+      "pct": 87.84
+    },
+    {
+      "file": "packages/ai/src/agent-workbench.vue",
+      "total": 301,
+      "covered": 266,
+      "pct": 88.37
+    },
+    {
+      "file": "packages/ai/src/chat-panel.vue",
+      "total": 237,
+      "covered": 205,
+      "pct": 86.5
+    },
+    {
+      "file": "packages/ai/src/form.vue",
+      "total": 306,
+      "covered": 266,
+      "pct": 86.93
+    },
+    {
+      "file": "packages/ai/src/stream-reducer.ts",
+      "total": 163,
+      "covered": 139,
+      "pct": 85.28
+    }
+  ],
+  "aggregate": {
+    "total": 3829,
+    "covered": 3312,
+    "pct": 86.5
+  },
+  "testedCommit": "8c7fe030214a1de0cf36e7aa7586a4888f0d370e",
+  "log": "logs/r1-coverage.log.gz",
+  "uncompressedLogSha256": "c0406a448cd76fadd36fd939fe9fa61e999a5cc9d5df35826dc006e725394ad3",
+  "compressedLogSha256": "dd54b9916f342b4b63f0af631023d74bb1c967cc209e2fc2184ed05e4f564362"
+}
