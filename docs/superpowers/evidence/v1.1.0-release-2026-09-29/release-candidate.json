@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "aheart-ui-v1.1.0-release-candidate.v1",
+  "preparedAt": "2026-09-29",
+  "candidateCommit": "8c7fe030214a1de0cf36e7aa7586a4888f0d370e",
+  "baseMaster": "d5fcb8214994d3f2fe44a85d324e355fd2f6dc3c",
+  "releaseDate": "2026-09-29",
+  "packages": [
+    {
+      "name": "aheart-ui@1.1.0",
+      "fileCount": 1047,
+      "bytes": 537473,
+      "sha256": "2e263cad466fff8b23883af898d1656ad0f5c588308055889ae89ab13a8899b7",
+      "localTarball": "/tmp/aheart-ui-v1.1.0-release-8c7fe03/pack/aheart-ui-1.1.0.tgz",
+      "packFileList": "pack/components-pack.json.gz"
+    },
+    {
+      "name": "@aheart-ui/dnd@1.0.0",
+      "fileCount": 79,
+      "bytes": 26814,
+      "sha256": "f2ffba7d81fbf34ca6f41ff59faa12187a31c2361d6d74b61239ebc3c096ae0f",
+      "localTarball": "/tmp/aheart-ui-v1.1.0-release-8c7fe03/pack/aheart-ui-dnd-1.0.0.tgz",
+      "packFileList": "pack/dnd-pack.json.gz"
+    },
+    {
+      "name": "@aheart-ui/ai@1.0.0",
+      "fileCount": 115,
+      "bytes": 74401,
+      "sha256": "f09be0bb5b31d089c7b5d34492cb3361e46c9ab978e31f74f3383044287f102b",
+      "localTarball": "/tmp/aheart-ui-v1.1.0-release-8c7fe03/pack/aheart-ui-ai-1.0.0.tgz",
+      "packFileList": "pack/ai-pack.json.gz"
+    }
+  ],
+  "localGates": {
+    "frozenInstall": {
+      "command": "corepack pnpm install --frozen-lockfile",
+      "exitCode": 0
+    },
+    "releaseCheck": {
+      "command": "CI=true corepack pnpm release:check",
+      "exitCode": 0,
+      "log": "logs/release-check-ci.log.gz",
+      "uncompressedLogSha256": "3abf9b39f18fd56a7c7950cf5e28307a9f385c19dc874db9c783cd86d80b8441",
+      "compressedLogSha256": "72571bb62c831b7ae592254370bce8f4a599a6a7e9fe8de6c0b7fc294e15aa69",
+      "componentsUnit": 1485,
+      "dndUnit": 79,
+      "aiUnit": 200,
+      "scriptTests": 247,
+      "typecheck": "passed",
+      "buildDeterminism": "passed",
+      "docsBuild": "passed",
+      "releasePack": "passed",
+      "e2e": {
+        "total": 955,
+        "passed": 828,
+        "skipped": 127,
+        "failed": 0,
+        "workers": 1
+      }
+    },
+    "r1Coverage": {
+      "command": "corepack pnpm test:coverage:r1",
+      "exitCode": 0,
+      "files": 14,
+      "threshold": 80,
+      "minimumFilePercent": 80.33,
+      "aggregate": {
+        "total": 3829,
+        "covered": 3312,
+        "pct": 86.5
+      },
+      "evidence": "r1-coverage.json",
+      "uncompressedLogSha256": "c0406a448cd76fadd36fd939fe9fa61e999a5cc9d5df35826dc006e725394ad3",
+      "compressedLogSha256": "dd54b9916f342b4b63f0af631023d74bb1c967cc209e2fc2184ed05e4f564362"
+    }
+  },
+  "consumers": {
+    "rootEntry": "passed",
+    "formList": "passed",
+    "d8ThreePackage": "passed",
+    "workspaceSymlinks": false,
+    "results": [
+      "consumers/root-entry-results.json",
+      "consumers/form-list-results.json",
+      "consumers/d8-results.json"
+    ]
+  },
+  "registryPreflight": {
+    "registry": "https://registry.npmjs.org/",
+    "npmVersion": "11.13.0",
+    "whoami": {
+      "status": "ENEEDAUTH",
+      "publishNotAttempted": true
+    },
+    "current": {
+      "aheart-ui": "1.0.0 latest",
+      "aheart-ui@1.1.0": "404 not published",
+      "@aheart-ui/dnd@1.0.0": "404 not published",
+      "@aheart-ui/ai@1.0.0": "404 not published"
+    },
+    "existingGitTag": "v1.1.0 absent",
+    "githubRelease": "v1.1.0 absent",
+    "stagedPublishCli": "npm stage command unavailable in installed npm 11.13.0"
+  },
+  "publishPlan": {
+    "order": [
+      "aheart-ui@1.1.0",
+      "@aheart-ui/dnd@1.0.0",
+      "@aheart-ui/ai@1.0.0"
+    ],
+    "stopOnFirstFailure": true,
+    "scopedPackagesUseAccessPublic": true,
+    "tag": "v1.1.0",
+    "npmPublishAttempted": false,
+    "gitTagCreated": false,
+    "githubReleaseCreated": false
+  },
+  "authenticationRequiredFromUser": true,
+  "sensitiveCredentialCaptured": false,
+  "npmLoginRequired": true,
+  "npmPublishExecuted": false
+}
