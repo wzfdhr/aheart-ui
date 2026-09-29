@@ -67,7 +67,8 @@ test.describe('GitHub Pages v2 product information architecture', () => {
 
     await page.goto('/components/dnd')
     await expect(page.getByRole('heading', { level: 1, name: /DnD 拖拽/ })).toBeVisible()
-    await expect(page.locator('.VPSidebar')).toContainText('DND')
+    await expect(page.locator('.VPSidebar')).toContainText('高级交互与工作区')
+    await expect(page.locator('.VPSidebar')).toContainText('DnD 拖拽')
 
     await page.goto('/components/table')
     await expect(page.getByRole('heading', { level: 1, name: /Table/ })).toBeVisible()
