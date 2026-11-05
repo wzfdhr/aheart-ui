@@ -1,0 +1,139 @@
+{
+  "node": "v24.17.0",
+  "pnpm": "9.15.4",
+  "pnpmLockSha256": "727e14611383425ea54db5c6d132c630935f0906bd4c5ab5fdf0cd3885c97ff5",
+  "mainWorktreeDirtyEntries": 4402,
+  "currentTrackedChanges": [
+    ".github/workflows/ci.yml",
+    ".gitignore",
+    "docs/guide/theme.md",
+    "docs/superpowers/specs/2026-09-08-aheart-ui-v2-task-flow-checklist.md",
+    "evidence/M0/contract-review.md",
+    "evidence/M0/decision-log.md",
+    "evidence/M0/pilot-ai-review-gate.md",
+    "package.json",
+    "packages/components/es/card/index.d.ts",
+    "packages/components/es/style.css",
+    "packages/components/lib/card/index.d.ts",
+    "packages/components/lib/style.css",
+    "packages/components/src/button/style.css",
+    "packages/components/src/card/index.ts",
+    "packages/components/src/theme/index.css",
+    "pilots/README.md",
+    "pilots/run-baselines.mjs",
+    "scripts/ci-config.test.mjs",
+    "scripts/package-entrypoints.test.mjs",
+    "scripts/release-contract.mjs"
+  ],
+  "packages": [
+    {
+      "name": "aheart-ui",
+      "version": "1.1.0",
+      "exports": {
+        ".": {
+          "types": "./es/index.d.ts",
+          "import": "./es/index.js",
+          "require": "./lib/index.js"
+        },
+        "./style.css": "./es/style.css",
+        "./es/picker-core/*": null,
+        "./lib/picker-core/*": null,
+        "./es/*": "./es/*",
+        "./lib/*": "./lib/*",
+        "./package.json": "./package.json"
+      },
+      "license": "MIT",
+      "peerDependencies": {
+        "vue": ">=3.4.0 <4"
+      },
+      "dependencies": {
+        "@floating-ui/dom": "^1.8.0",
+        "@lucide/vue": "^1.24.0",
+        "@tanstack/vue-virtual": "3.13.36",
+        "dayjs": "^1.11.13"
+      },
+      "css": {
+        "es/style.css": {
+          "bytes": 199595,
+          "gzipBytes": 24628,
+          "sha256": "ad185935f77964fae633c76c3ebded352c6c04913d19e10f8c42baca122f406a"
+        },
+        "lib/style.css": {
+          "bytes": 199595,
+          "gzipBytes": 24628,
+          "sha256": "ad185935f77964fae633c76c3ebded352c6c04913d19e10f8c42baca122f406a"
+        }
+      }
+    },
+    {
+      "name": "@aheart-ui/ai",
+      "version": "1.0.0",
+      "exports": {
+        ".": {
+          "types": "./es/index.d.ts",
+          "import": "./es/index.js",
+          "require": "./lib/index.js"
+        },
+        "./style.css": "./es/style.css",
+        "./es/*": "./es/*",
+        "./lib/*": "./lib/*",
+        "./package.json": "./package.json"
+      },
+      "license": "MIT",
+      "peerDependencies": {
+        "aheart-ui": "^1.1.0",
+        "vue": ">=3.5.0 <4"
+      },
+      "dependencies": {
+        "@aheart-ui/dnd": "^1.0.0"
+      },
+      "css": {
+        "es/style.css": {
+          "bytes": 34177,
+          "gzipBytes": 5412,
+          "sha256": "2d7624533fcb12a14cbb49d3a83eab85e7e6bf53591f8db41f57286b6120a4ba"
+        },
+        "lib/style.css": {
+          "bytes": 34177,
+          "gzipBytes": 5412,
+          "sha256": "2d7624533fcb12a14cbb49d3a83eab85e7e6bf53591f8db41f57286b6120a4ba"
+        }
+      }
+    },
+    {
+      "name": "@aheart-ui/dnd",
+      "version": "1.0.0",
+      "exports": {
+        ".": {
+          "types": "./es/index.d.ts",
+          "import": "./es/index.js",
+          "require": "./lib/index.js"
+        },
+        "./style.css": "./es/style.css",
+        "./es/*": "./es/*",
+        "./lib/*": "./lib/*",
+        "./package.json": "./package.json"
+      },
+      "license": "MIT",
+      "peerDependencies": {
+        "vue": ">=3.4.0 <4"
+      },
+      "dependencies": {
+        "@atlaskit/pragmatic-drag-and-drop": "2.0.1",
+        "@atlaskit/pragmatic-drag-and-drop-auto-scroll": "3.0.0"
+      },
+      "css": {
+        "es/style.css": {
+          "bytes": 1108,
+          "gzipBytes": 470,
+          "sha256": "eaeb7b1075d475071272eb3727fdcbdec7970209a5d69f4b5b9522c10ab92f5a"
+        },
+        "lib/style.css": {
+          "bytes": 1108,
+          "gzipBytes": 470,
+          "sha256": "eaeb7b1075d475071272eb3727fdcbdec7970209a5d69f4b5b9522c10ab92f5a"
+        }
+      }
+    }
+  ]
+}

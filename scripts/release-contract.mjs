@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -110,8 +110,9 @@ const packPackage = (contract, destination) => {
   return { manifest, files, tarball }
 }
 
-export const verifyReleasePackages = () => {
-  const destination = mkdtempSync(resolve(tmpdir(), 'aheart-ui-release-'))
+export const verifyReleasePackages = ({ packDestination } = {}) => {
+  const destination = packDestination ? resolve(packDestination) : mkdtempSync(resolve(tmpdir(), 'aheart-ui-release-'))
+  mkdirSync(destination, { recursive: true })
   const summaries = []
   const errors = []
 
@@ -127,7 +128,7 @@ export const verifyReleasePackages = () => {
       }
     }
   } finally {
-    rmSync(destination, { recursive: true, force: true })
+    if (!packDestination) rmSync(destination, { recursive: true, force: true })
   }
 
   if (errors.length) throw new Error(`Release contract failed:\n- ${errors.join('\n- ')}`)
@@ -138,7 +139,12 @@ const isCli = process.argv[1] && import.meta.url === pathToFileURL(resolve(proce
 
 if (isCli) {
   try {
-    for (const summary of verifyReleasePackages()) console.log(`✓ ${summary}`)
+    const destinationIndex = process.argv.indexOf('--pack-destination')
+    const packDestination = destinationIndex < 0 ? undefined : process.argv[destinationIndex + 1]
+    if (destinationIndex >= 0 && (!packDestination || packDestination.startsWith('--'))) {
+      throw new Error('--pack-destination requires a directory')
+    }
+    for (const summary of verifyReleasePackages({ packDestination })) console.log(`✓ ${summary}`)
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error))
     process.exitCode = 1

@@ -10,6 +10,12 @@ import { promisify } from 'node:util'
 const run = promisify(execFile)
 const root = fileURLToPath(new URL('..', import.meta.url))
 const arg = name => { const i = process.argv.indexOf(name); return i < 0 ? undefined : process.argv[i + 1] }
+const strictTypesPolicy = arg('--strict-types') || 'pass'
+assert.ok(['pass', 'known-card-error'].includes(strictTypesPolicy), '--strict-types must be pass or known-card-error')
+const coreTarball = arg('--core-tarball') ? await realpath(arg('--core-tarball')) : undefined
+const candidateManifest = coreTarball ? JSON.parse((await run('tar', ['-xOf', coreTarball, 'package/package.json'])).stdout) : undefined
+if (candidateManifest) assert.equal(candidateManifest.name, 'aheart-ui', '--core-tarball must contain aheart-ui')
+const candidate = coreTarball ? { path: coreTarball, version: candidateManifest.version, sha256: createHash('sha256').update(await readFile(coreTarball)).digest('hex') } : undefined
 const runRoot = path.resolve(arg('--work-dir') || path.join(root, '.pilot-runs'))
 await mkdir(runRoot, { recursive: true })
 const out = path.resolve(arg('--out') || path.join(runRoot, `aheart-pilot-evidence-${Date.now()}`))
@@ -22,6 +28,8 @@ const available = ['clean-consumer', 'ai-review-gate', 'muxu-todo']
 const names = arg('--only') ? arg('--only').split(',') : available
 assert.ok(names.length > 0 && names.every(name => available.includes(name)), 'Unknown pilot')
 const summary = { status: 'failed', generatedAt: new Date().toISOString(), sourceSha: (await run('git', ['rev-parse', 'HEAD'], { cwd: root })).stdout.trim(), node: process.version, workspace, evidence: out, origin: 'Newly created validation applications; not pre-existing business adoption', pilots: [], userAcceptance: 'not-run', electron: 'not-run (desktop browser baseline only)' }
+summary.packageSource = candidate ? { kind: 'local-core-tarball', ...candidate } : { kind: 'public-registry' }
+summary.strictTypesPolicy = strictTypesPolicy
 const capture = async (record, label, command, args, cwd, directory, expected = 0) => {
   const started = performance.now()
   try {
@@ -50,8 +58,13 @@ try {
       for (const file of await readdir(source)) {
         if ((await lstat(path.join(source, file))).isFile()) record.sourceFiles[file] = createHash('sha256').update(await readFile(path.join(source, file))).digest('hex')
       }
-      await capture(record, 'install', 'npm', ['ci', '--include=dev', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org/'], project, directory)
       const manifest = JSON.parse(await readFile(path.join(project, 'package.json'), 'utf8'))
+      if (candidate) {
+        manifest.dependencies['aheart-ui'] = candidate.version
+        await writeFile(path.join(project, 'package.json'), JSON.stringify({ ...manifest, dependencies: { ...manifest.dependencies, 'aheart-ui': `file:${coreTarball}` } }, null, 2) + '\n')
+        await capture(record, 'candidate-lock', 'npm', ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org/'], project, directory)
+      }
+      await capture(record, 'install', 'npm', ['ci', '--include=dev', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org/'], project, directory)
       for (const [pkg, expected] of Object.entries(manifest.dependencies)) {
         const installed = path.join(project, 'node_modules', pkg)
         assert.equal((await lstat(installed)).isSymbolicLink(), false)
@@ -59,15 +72,22 @@ try {
         const actual = JSON.parse(await readFile(path.join(installed, 'package.json'), 'utf8')).version
         assert.equal(actual, expected)
         record.packages[pkg] = { version: actual, symlink: false }
+        if (pkg === 'aheart-ui' && candidate) record.packages[pkg].tarball = candidate
       }
       const lock = await readFile(path.join(project, 'package-lock.json'))
       record.lockSha256 = createHash('sha256').update(lock).digest('hex')
       await writeFile(path.join(directory, 'package-lock.json'), lock)
       await capture(record, 'typecheck', 'npm', ['run', 'typecheck'], project, directory)
-      await capture(record, 'strict-types', 'npm', ['run', 'typecheck:strict'], project, directory, 2)
-      const strict = await readFile(path.join(directory, 'strict-types.log'), 'utf8')
-      assert.match(strict, /card\/index\.d\.ts.*TS2344/)
-      record.knownIssues.push('Public aheart-ui@1.1.0 Card declarations fail skipLibCheck:false (PR #39); no silent suppression of strict result')
+      if (strictTypesPolicy === 'known-card-error') assert.equal(record.packages['aheart-ui'].version, '1.1.0', 'Known-error mode is restricted to the original 1.1.0 baseline')
+      await capture(record, 'strict-types', 'npm', ['run', 'typecheck:strict'], project, directory, strictTypesPolicy === 'pass' ? 0 : 2)
+      if (strictTypesPolicy === 'known-card-error') {
+        const strict = await readFile(path.join(directory, 'strict-types.log'), 'utf8')
+        const strictErrors = strict.split('\n').filter(line => /error TS\d+:/.test(line))
+        assert.ok(strictErrors.length > 0)
+        assert.ok(strictErrors.every(line => /node_modules\/aheart-ui\/(es|lib)\/card\/index\.d\.ts.*error TS2344:/.test(line)), 'Unexpected strict type error; inspect strict-types.log')
+        record.knownIssues.push('Installed core Card declarations fail skipLibCheck:false (PR #39); no silent suppression of strict result')
+      }
+      record.strictTypes = strictTypesPolicy === 'pass' ? 'passed' : 'known-card-error'
       await capture(record, 'build-ssr', 'npm', ['run', 'build'], project, directory)
       const graph = JSON.parse(await readFile(path.join(project, 'dist/module-graph.json'), 'utf8'))
       await writeFile(path.join(directory, 'module-graph.json'), JSON.stringify(graph, null, 2) + '\n')
@@ -148,6 +168,30 @@ try {
               await expect(approve).toBeDisabled()
               result.checks.push('checklist gate', 'Modal preview', 'local chat lifecycle', 'approval', 'repeat prevention')
             }
+            // Keep the failing hover state explicit: pointer position after a reorder
+            // or a closing Modal must not decide whether contrast is checked.
+            if (name === 'clean-consumer' || name === 'ai-review-gate') {
+              if (name === 'ai-review-gate' && viewport.width < 600) {
+                await page.getByRole('tab', { name: '执行', exact: true }).click()
+                await page.getByRole('button', { name: '查看执行与产物', exact: true }).click()
+              }
+              const hoverTarget = name === 'clean-consumer'
+                ? page.getByRole('button', { name: '打开检查弹窗' })
+                : page.locator('[data-task-id]:visible [data-action="move-up"]:not(:disabled)').first()
+              await hoverTarget.hover()
+              await hoverTarget.evaluate(async element => {
+                const transitions = element.getAnimations().filter(animation => Number.isFinite(animation.effect?.getComputedTiming().endTime))
+                await Promise.all(transitions.map(animation => animation.finished.catch(() => {})))
+              })
+              result.hover = await hoverTarget.evaluate(element => ({
+                text: element.textContent,
+                active: element.matches(':hover'),
+                foreground: getComputedStyle(element).color,
+                background: getComputedStyle(element).backgroundColor
+              }))
+              assert.equal(result.hover.active, true)
+              result.checks.push('explicit Button hover')
+            }
             const audit = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
             await writeFile(path.join(directory, `axe-${viewport.width}.json`), JSON.stringify(audit, null, 2) + '\n')
             assert.deepEqual(audit.violations.map(x => ({ id: x.id, impact: x.impact, targets: x.nodes.map(n => n.target) })), [])
@@ -176,13 +220,13 @@ try {
           } finally { await page.close() }
         }
       } finally { await new Promise(resolve => server.httpServer.close(resolve)) }
-      record.status = record.browser.every(result => result.status === 'passed') ? 'passed-with-known-strict-type-issue' : 'failed'
+      record.status = record.browser.every(result => result.status === 'passed') ? (record.knownIssues.length ? 'passed-with-known-strict-type-issue' : 'passed') : 'failed'
       if (record.status === 'failed') record.error = 'Browser baseline has failures; inspect per-viewport reports'
     } catch (error) { record.error = error.stack; console.error(`${name}: ${error.message}`) }
     await writeFile(path.join(directory, 'results.json'), JSON.stringify(record, null, 2) + '\n')
     console.log(JSON.stringify({ name, status: record.status, project: record.project }))
   }
-  summary.status = summary.pilots.every(x => x.status === 'passed-with-known-strict-type-issue') ? 'baseline-collected-with-known-issue' : 'failed'
+  summary.status = summary.pilots.every(x => x.status === 'passed') ? 'passed' : summary.pilots.every(x => x.status === 'passed' || x.status === 'passed-with-known-strict-type-issue') ? 'baseline-collected-with-known-issue' : 'failed'
 } finally {
   if (browser) await browser.close()
   await writeFile(path.join(out, 'results.json'), JSON.stringify(summary, null, 2) + '\n')

@@ -1,4 +1,6 @@
 .DS_Store
+# macOS metadata sidecars on external volumes.
+._*
 node_modules/
 .pnpm-store/
 dist/

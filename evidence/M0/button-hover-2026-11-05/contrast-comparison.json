@@ -1,0 +1,158 @@
+[
+  {
+    "run": "before",
+    "pilot": "clean-consumer",
+    "width": 1440,
+    "violations": 1,
+    "samples": [
+      {
+        "target": [
+          ".row > .aheart-button--default.aheart-button--color-default.aheart-button--variant-outlined > .aheart-button__content"
+        ],
+        "fgColor": "#4096ff",
+        "bgColor": "#ffffff",
+        "contrastRatio": 2.98,
+        "fontSize": "10.5pt (14px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "run": "before",
+    "pilot": "clean-consumer",
+    "width": 390,
+    "violations": 1,
+    "samples": [
+      {
+        "target": [
+          ".row > .aheart-button--default.aheart-button--color-default.aheart-button--variant-outlined > .aheart-button__content"
+        ],
+        "fgColor": "#4096ff",
+        "bgColor": "#ffffff",
+        "contrastRatio": 2.98,
+        "fontSize": "10.5pt (14px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "run": "before",
+    "pilot": "ai-review-gate",
+    "width": 1440,
+    "violations": 1,
+    "samples": [
+      {
+        "target": [
+          "article[data-task-id=\"inspect\"] > .aheart-ai-workbench__task-body > .aheart-ai-workbench__task-actions > .aheart-button--text.aheart-button--variant-text[data-action=\"move-up\"] > .aheart-button__content"
+        ],
+        "fgColor": "#4096ff",
+        "bgColor": "#e9ebec",
+        "contrastRatio": 2.49,
+        "fontSize": "9.0pt (12px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "run": "before",
+    "pilot": "ai-review-gate",
+    "width": 390,
+    "violations": 1,
+    "samples": [
+      {
+        "target": [
+          "article[data-task-id=\"inspect\"] > .aheart-ai-workbench__task-body > .aheart-ai-workbench__task-actions > .aheart-button--text.aheart-button--variant-text[data-action=\"move-up\"] > .aheart-button__content"
+        ],
+        "fgColor": "#4096ff",
+        "bgColor": "#ededee",
+        "contrastRatio": 2.55,
+        "fontSize": "9.0pt (12px)",
+        "fontWeight": "normal",
+        "messageKey": null,
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "run": "candidate",
+    "pilot": "clean-consumer",
+    "width": 1440,
+    "violations": 0,
+    "samples": [
+      {
+        "target": [
+          ".row > .aheart-button--default.aheart-button--color-default.aheart-button--variant-outlined > .aheart-button__content"
+        ],
+        "fgColor": "#003eb3",
+        "bgColor": "#ffffff",
+        "contrastRatio": 8.97,
+        "fontSize": "10.5pt (14px)",
+        "fontWeight": "normal",
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "run": "candidate",
+    "pilot": "clean-consumer",
+    "width": 390,
+    "violations": 0,
+    "samples": [
+      {
+        "target": [
+          ".row > .aheart-button--default.aheart-button--color-default.aheart-button--variant-outlined > .aheart-button__content"
+        ],
+        "fgColor": "#003eb3",
+        "bgColor": "#ffffff",
+        "contrastRatio": 8.97,
+        "fontSize": "10.5pt (14px)",
+        "fontWeight": "normal",
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "run": "candidate",
+    "pilot": "ai-review-gate",
+    "width": 1440,
+    "violations": 0,
+    "samples": [
+      {
+        "target": [
+          "article[data-task-id=\"inspect\"] > .aheart-ai-workbench__task-body > .aheart-ai-workbench__task-actions > .aheart-button--text.aheart-button--variant-text[data-action=\"move-up\"] > .aheart-button__content"
+        ],
+        "fgColor": "#003eb3",
+        "bgColor": "#e9ebec",
+        "contrastRatio": 7.5,
+        "fontSize": "9.0pt (12px)",
+        "fontWeight": "normal",
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  },
+  {
+    "run": "candidate",
+    "pilot": "ai-review-gate",
+    "width": 390,
+    "violations": 0,
+    "samples": [
+      {
+        "target": [
+          "article[data-task-id=\"inspect\"] > .aheart-ai-workbench__task-body > .aheart-ai-workbench__task-actions > .aheart-button--text.aheart-button--variant-text[data-action=\"move-up\"] > .aheart-button__content"
+        ],
+        "fgColor": "#003eb3",
+        "bgColor": "#ededee",
+        "contrastRatio": 7.67,
+        "fontSize": "9.0pt (12px)",
+        "fontWeight": "normal",
+        "expectedContrastRatio": "4.5:1"
+      }
+    ]
+  }
+]

@@ -136,6 +136,9 @@ test('splits CI into observable unit, typecheck, build, docs, consumer and brows
   }
   assert.match(workflowSource, /pnpm test:e2e:non-qg5/)
   assert.match(workflowSource, /scripts\/root-entry-consumer\.mjs/)
+  assert.match(workflowSource, /pnpm release:pack --pack-destination test-results\/release-tarballs/)
+  assert.match(workflowSource, /pnpm check:consumer-types/)
+  assert.match(workspacePackage.scripts['release:check'], /release:pack --pack-destination test-results\/release-tarballs && corepack pnpm check:consumer-types/)
   assert.match(workflowSource, /scripts\/form-list-consumer\.mjs/)
   assert.match(workflowSource, /docs\/superpowers\/experiments\/d8-consumer\/run\.mjs/)
   assert.match(workflowSource, /pnpm test:coverage:r1/)
