@@ -38,3 +38,9 @@ node pilots/run-baselines.mjs --out /tmp/aheart-pilot-evidence-new
 ## 升级与回退
 
 记录当前 package-lock 和 registry/tarball hash。后续组件版本在新的隔离副本里验证；回退时在另一新副本恢复原 package.json/package-lock，执行 `npm ci` 并重跑关键任务。禁止为让新入口通过而改写旧基线结果。
+
+## 同时预览已建好的三工程
+
+基线运行完成后执行 `node pilots/serve-baselines.mjs <证据目录>`。默认分别在本机 4181、4182、4183 端口预览 SSR 页面；Ctrl+C 关闭。本命令只启动已有独立副本，不安装或更新包，也不部署线上。
+
+退出码：基线 runner 返回 0 表示无已知失败，1 表示本轮检查失败，2 表示基线已采集但仍有公开包的已知严格类型失败。始终以逐项结果判断，不把预期失败写成通过。

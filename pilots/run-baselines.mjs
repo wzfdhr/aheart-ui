@@ -133,9 +133,14 @@ try {
               await page.getByLabel('消息内容', { exact: true }).fill('如何检查这次修订？')
               await page.getByRole('button', { name: '发送消息', exact: true }).click()
               await expect(page.getByText('本地复核建议：检查输入、样式和焦点，再批准修订。', { exact: true })).toBeVisible()
+              if (viewport.width < 600) {
+                await page.getByRole('tab', { name: '执行', exact: true }).click()
+                await page.getByRole('button', { name: '查看执行与产物', exact: true }).click()
+              }
               await page.locator('[data-task-id="verify"]:visible [data-action="move-up"]').click()
               await expect(page.locator('[data-task-id]:visible').first()).toHaveAttribute('data-task-id', 'verify')
               result.checks.push('Workbench task reorder')
+              if (viewport.width < 600) await page.keyboard.press('Escape')
               await approve.click()
               await expect(page.getByLabel('修订状态')).toHaveText('已批准')
               await expect(page.getByLabel('批准记录')).toContainText('R1：人工批准已记录')
