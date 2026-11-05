@@ -6,6 +6,7 @@ Aheart UI 当前使用 CSS 变量作为主题层。你可以在应用中覆盖�
 :root {
   --aheart-color-primary: #1677ff;
   --aheart-color-primary-hover: #4096ff;
+  --aheart-color-primary-text-hover: #003eb3;
   --aheart-color-success: #52c41a;
   --aheart-color-warning: #faad14;
   --aheart-color-danger: #ff4d4f;
@@ -19,6 +20,8 @@ Aheart UI 当前使用 CSS 变量作为主题层。你可以在应用中覆盖�
   --aheart-motion-duration: 0.2s;
 }
 ```
+
+默认颜色按钮的悬停文字使用 `--aheart-color-primary-text-hover`，与边框使用的 `--aheart-color-primary-hover` 分开。覆盖文字颜色时，应在应用的实际背景（包括填充态）上保持至少 4.5:1 的对比度。
 
 在引入 Aheart UI 样式之后覆盖变量：
 
@@ -35,6 +38,7 @@ Aheart UI 当前使用 CSS 变量作为主题层。你可以在应用中覆盖�
 
 ```css
 html.dark {
+  --aheart-color-primary-text-hover: #91caff;
   --aheart-color-text: #f0f2f5;
   --aheart-color-text-secondary: #aeb4bf;
   --aheart-color-text-disabled: #6f7682;

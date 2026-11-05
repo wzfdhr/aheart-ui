@@ -214,6 +214,10 @@
   color: var(--aheart-color-text);
 }
 
+.aheart-button--color-default:not(.aheart-button--variant-solid):hover:not(:disabled):not([aria-disabled='true']) {
+  color: var(--aheart-color-primary-text-hover, #003eb3);
+}
+
 .aheart-button.is-ghost {
   background: transparent;
 }

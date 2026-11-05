@@ -1,0 +1,181 @@
+{
+  "name": "muxu-todo",
+  "status": "passed-with-known-strict-type-issue",
+  "project": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-TGxbJo/muxu-todo",
+  "commands": [
+    {
+      "label": "candidate-lock",
+      "command": [
+        "npm",
+        "install",
+        "--package-lock-only",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0,
+      "seconds": 0.47833312499999736,
+      "expectedExit": 0
+    },
+    {
+      "label": "install",
+      "command": [
+        "npm",
+        "ci",
+        "--include=dev",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0,
+      "seconds": 3.9199534590000003,
+      "expectedExit": 0
+    },
+    {
+      "label": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 1.107233124999999,
+      "expectedExit": 0
+    },
+    {
+      "label": "strict-types",
+      "command": [
+        "npm",
+        "run",
+        "typecheck:strict"
+      ],
+      "exitCode": 2,
+      "seconds": 1.578036791000006,
+      "expectedExit": 2
+    },
+    {
+      "label": "build-ssr",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 5.114171499999997,
+      "expectedExit": 0
+    }
+  ],
+  "browser": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browserVersion": "149.0.7827.55",
+      "url": "http://127.0.0.1:60305/ssr.html",
+      "checks": [
+        "SSR hydration",
+        "create",
+        "complete",
+        "filter",
+        "localStorage reload",
+        "Modal delete",
+        "axe WCAG A/AA"
+      ],
+      "errors": [],
+      "firstRenderMilliseconds": 35.119916000003286,
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "browserVersion": "149.0.7827.55",
+      "url": "http://127.0.0.1:60305/ssr.html",
+      "checks": [
+        "SSR hydration",
+        "create",
+        "complete",
+        "filter",
+        "localStorage reload",
+        "Modal delete",
+        "axe WCAG A/AA"
+      ],
+      "errors": [],
+      "firstRenderMilliseconds": 30.660625000004075,
+      "status": "passed"
+    }
+  ],
+  "sourceFiles": {
+    "README.md": "4b7bd5d94d9cc24a66a7da1018cf967b08856410fd4916e47d861f19b0f25163",
+    "app.js": "a3e4c764c24f95409c69949969d5b2d64faa885bbed0ac240b247c713aeec34e",
+    "iframe.html": "9823e0c1b758eda2aa7a5807975dbe682f60f5879a33d46fd7c7886b6e8988bf",
+    "index.html": "49723fd60c0f31874cb06b66afa3433379a8f19ea566ff738281b4b42be0a833",
+    "main.js": "0f091d6f4a767a7cf8d07c97e95cf55348ee09a8408eb75f3c29eb2b0fa2ae60",
+    "package-lock.json": "23b7856dc6cc5a1c0c74b46f6fd339ca532515d11ac6e1805abb075cab9ca12a",
+    "package.json": "38987b1e1654a7e53531b18570f6436e90c987d0a70dbf1575485bdafdeb6051",
+    "ssr.mjs": "86d69046205bdfa484c43ada30e10fc2bb6144ad808190aca68c5983785951a9",
+    "style.css": "a47e9e8dbec279ad42809b2ecc57357ff2e8ef37eab9b13fe151f785757ab98a",
+    "tsconfig.json": "c59094b325081757c582e3f683f0401f7feb59d3649427fa3f94e4568f76244a",
+    "tsconfig.strict.json": "b33f818a882c93c36add9ac4d8bb1510df539030ba3cba4a51cae417c2908928",
+    "types.ts": "627d5854fa47508efecd3e25fb3148f509e3d49f40adc431b854423561c0230b",
+    "vite.config.js": "e75f2f3c572aa3312b1ec0af91c08b13d4e7e6b1f2fcb8ed684d5ace38514571"
+  },
+  "packages": {
+    "aheart-ui": {
+      "version": "1.1.0",
+      "symlink": false,
+      "tarball": {
+        "path": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui-v2-m1/.pilot-runs/button-hover-tarball/aheart-ui-1.1.0.tgz",
+        "version": "1.1.0",
+        "sha256": "8e3d251a29c457b98adf4a53707cb3dfae0eb064980f3d4e61485bc775e0f25d"
+      }
+    },
+    "vue": {
+      "version": "3.5.44",
+      "symlink": false
+    }
+  },
+  "knownIssues": [
+    "Installed core Card declarations fail skipLibCheck:false (PR #39); no silent suppression of strict result"
+  ],
+  "lockSha256": "512f2401493bc80fcf2418141cd03b81b2b0dab47a2bb0812c0f8151b23384f5",
+  "moduleGraph": {
+    "renderedModules": 82,
+    "ai": false,
+    "dnd": false,
+    "css": [
+      {
+        "file": "assets/main-FYLtTUoU.css",
+        "bytes": 177243,
+        "gzipBytes": 23497
+      }
+    ],
+    "js": [
+      {
+        "file": "assets/iframe-l0sNRNKZ.js",
+        "bytes": 1,
+        "gzipBytes": 21
+      },
+      {
+        "file": "assets/index-CrukLx--.js",
+        "bytes": 28,
+        "gzipBytes": 48
+      },
+      {
+        "file": "assets/ssr-CrukLx--.js",
+        "bytes": 28,
+        "gzipBytes": 48
+      },
+      {
+        "file": "assets/main-Cl-hzjIf.js",
+        "bytes": 210619,
+        "gzipBytes": 73405
+      }
+    ]
+  },
+  "url": "http://127.0.0.1:60305"
+}

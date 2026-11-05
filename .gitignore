@@ -1,4 +1,6 @@
 .DS_Store
+# macOS metadata sidecars on external volumes.
+._*
 node_modules/
 .pnpm-store/
 dist/
@@ -26,3 +28,6 @@ selenium-debug.log
 
 package-lock.json
 yarn.lock
+
+# Isolated consumer installs and evidence stay on the repository volume.
+.pilot-runs/

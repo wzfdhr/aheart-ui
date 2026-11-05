@@ -16,6 +16,10 @@ the repository's TypeScript 5.3 build compiler does not have it.
 Results include tarball hashes, installed versions, declaration counts and each
 compiler exit code. Consumer directories and logs are retained for diagnosis.
 
+On macOS external volumes, the declaration scanner records and excludes only
+AppleDouble files with a matching source file and a verified magic/version
+header. A `._` filename alone never suppresses a declaration or syntax error.
+
 For offline validation, `--vue-pack-dir <directory>` optionally accepts upstream
 Vue tarballs at `<directory>/<version>/*.tgz`. Pack `vue` and its `@vue/*`
 dependencies from the installed version with `npm pack --ignore-scripts`; only

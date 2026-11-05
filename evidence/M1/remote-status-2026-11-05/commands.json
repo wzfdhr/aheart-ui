@@ -1,0 +1,103 @@
+[
+  {
+    "name": "refs",
+    "command": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/master",
+      "refs/tags/v1.1.0",
+      "refs/tags/v1.1.0^{}"
+    ],
+    "exitCode": 0,
+    "capturedAt": "2026-11-05T07:39:08.542127+00:00",
+    "log": "refs.log"
+  },
+  {
+    "name": "pr38-checks",
+    "command": [
+      "gh",
+      "pr",
+      "checks",
+      "38",
+      "--repo",
+      "wzfdhr/aheart-ui"
+    ],
+    "exitCode": 8,
+    "capturedAt": "2026-11-05T07:39:10.200288+00:00",
+    "log": "pr38-checks.log.gz"
+  },
+  {
+    "name": "pr39-checks",
+    "command": [
+      "gh",
+      "pr",
+      "checks",
+      "39",
+      "--repo",
+      "wzfdhr/aheart-ui"
+    ],
+    "exitCode": 8,
+    "capturedAt": "2026-11-05T07:39:11.677606+00:00",
+    "log": "pr39-checks.log.gz"
+  },
+  {
+    "name": "pages-runs",
+    "command": [
+      "gh",
+      "run",
+      "list",
+      "--repo",
+      "wzfdhr/aheart-ui",
+      "--workflow",
+      "pages.yml",
+      "--limit",
+      "3",
+      "--json",
+      "databaseId,headSha,status,conclusion,url,createdAt"
+    ],
+    "exitCode": 0,
+    "capturedAt": "2026-11-05T07:39:12.968295+00:00",
+    "log": "pages-runs.log"
+  },
+  {
+    "name": "deployments",
+    "command": [
+      "gh",
+      "api",
+      "repos/wzfdhr/aheart-ui/deployments?environment=github-pages&per_page=3",
+      "--jq",
+      "map({id,sha,created_at,ref})"
+    ],
+    "exitCode": 0,
+    "capturedAt": "2026-11-05T07:39:13.678434+00:00",
+    "log": "deployments.log"
+  },
+  {
+    "name": "release",
+    "command": [
+      "gh",
+      "release",
+      "view",
+      "v1.1.0",
+      "--repo",
+      "wzfdhr/aheart-ui",
+      "--json",
+      "url,tagName,targetCommitish,publishedAt"
+    ],
+    "exitCode": 0,
+    "capturedAt": "2026-11-05T07:39:14.396222+00:00",
+    "log": "release.log"
+  },
+  {
+    "name": "release-contract",
+    "command": [
+      "node",
+      "--test",
+      "scripts/release-contract.test.mjs"
+    ],
+    "exitCode": 0,
+    "capturedAt": "2026-11-05T07:39:14.496794+00:00",
+    "log": "release-contract.log"
+  }
+]

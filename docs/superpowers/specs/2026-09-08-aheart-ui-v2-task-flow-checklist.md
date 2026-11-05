@@ -6,6 +6,8 @@
 > 技术 RFC：[Aheart UI v2 架构与产品体系优化设计](./2026-09-08-aheart-ui-v2-architecture-optimization-design.md)  
 > 阶段验收标准：[Aheart UI v2 阶段验收标准](./2026-09-08-aheart-ui-v2-phase-acceptance-criteria.md)
 
+> 2026-11-05：[A1 修订](./2026-11-05-aheart-ui-v2-solo-scope-amendment.md) 已合入并生效，其版本、试点和阶段条款优先。原规范正文保留；当前 M0 用户验收 Pending，M1 Blocked，见 [决策日志](../../../evidence/M0/decision-log.md)。
+
 ## 使用规则
 
 - 每个任务是一个可独立创建的 issue；任务完成后必须填写输出物与证据路径。
@@ -49,8 +51,8 @@ M8 v2 决策：等待 M1–M7 的决策数据，不以代码完成数替代
 - [ ] **M0-PM-03** 冻结产品指标：10 分钟首次成功、三项目试点、升级回归、包安装成功、P0/P1 数量等目标值。
 - [ ] **M0-TM-01** 冻结包边界、subpath、根入口、`/full`、CSS、Icons、AI/DND、Motion 和兼容周期契约。
 - [ ] **M0-TM-02** 建立版本/兼容矩阵，列出 v1.x、preview、v2 beta/RC/stable 的 breaking change 和回滚方式。
-- [ ] **M0-DEV-01** 采集仓库基线：构建、测试、包体、CSS、导出、Node/pnpm 版本和 dirty worktree 记录。
-- [ ] **M0-QA-01** 建立三试点基线脚本，至少能安装、启动、截图、运行关键交互和记录失败原因。
+- [x] **M0-DEV-01** 采集仓库基线：构建、测试、包体、CSS、导出、Node/pnpm 版本和 dirty worktree 记录。2026-11-05：[三包构建、全量单测、严格消费及包体基线](../../../evidence/M0/card-integration-2026-11-05/report.md)。组合候选验证，不替代公开发布或用户验收。
+- [x] **M0-QA-01** 建立三试点基线脚本，至少能安装、启动、截图、运行关键交互和记录失败原因。2026-11-05：[三试点初始基线](../../../evidence/M0/pilots-2026-11-05/report.md)、[对比度修复与候选消费回归](../../../evidence/M0/button-hover-2026-11-05/report.md)。新验证应用，非历史业务采用；公开旧包 Card 严格类型失败保留为历史基线；[组合候选](../../../evidence/M0/card-integration-2026-11-05/report.md) 已通过，用户验收待完成。
 - [ ] **M0-DOC-01** 建立产品 PRD、技术 RFC、阶段验收标准、决策日志的索引与模板。
 - [ ] **M0-REL-01** 核对 npm scope、许可证、发布权限、公共/私有包状态和回滚账号；不得把未授权发布标记为可用。
 

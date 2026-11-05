@@ -1,0 +1,12 @@
+{
+  "removed": [
+    "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-cD8keq",
+    "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-WiGYc5",
+    "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/card-strict-consumers/vue-3.5.38-BvVuFh",
+    "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/card-strict-consumers/vue-3.5.44-OlqCsl",
+    "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/card-strict-consumers-fixed/vue-3.5.38-7fcGmC",
+    "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/card-strict-consumers-fixed/vue-3.5.44-PEWEmI"
+  ],
+  "allocatedBytesFreed": 15981346816,
+  "retained": "Durable reports, logs, locks, screenshots, candidate tarballs and a small static preview; source and active toolchain retained."
+}

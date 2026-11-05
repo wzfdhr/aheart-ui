@@ -1,6 +1,8 @@
 :root {
   --aheart-color-primary: #1677ff;
   --aheart-color-primary-hover: #4096ff;
+  /* Foreground on light surfaces, including filled/text button hover states. */
+  --aheart-color-primary-text-hover: #003eb3;
   --aheart-color-success: #52c41a;
   --aheart-color-warning: #faad14;
   /* Keep the default danger token readable when it is used as text. */

@@ -7,6 +7,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { packageContracts } from './release-contract.mjs'
+import { collectDeclarations } from './collect-declarations.mjs'
 
 const run = promisify(execFile)
 const root = fileURLToPath(new URL('..', import.meta.url))
@@ -21,16 +22,6 @@ const output = path.resolve(arg('--out') ?? 'test-results/d9-consumers/strict')
 // Optional offline Vue fixtures: <directory>/<version>/*.tgz, packed from the
 // installed Vue packages. The library packages always come from --pack-dir.
 const vuePackDir = arg('--vue-pack-dir')
-const declarations = async directory => {
-  const files = []
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    const target = path.join(directory, entry.name)
-    if (entry.isDirectory()) files.push(...await declarations(target))
-    else if (entry.isFile() && target.endsWith('.d.ts')) files.push(target)
-  }
-  return files.sort()
-}
-
 await mkdir(output, { recursive: true })
 const results = { status: 'failed', typescriptVersion, tarballs: {}, consumers: [] }
 try {
@@ -79,11 +70,12 @@ try {
         const installed = path.join(consumerRoot, 'node_modules', contract.name)
         assert.equal((await lstat(installed)).isSymbolicLink(), false, `${contract.name} must be installed from its tarball`)
         assert.equal(await realpath(installed), installed, `${contract.name} must not resolve into the workspace`)
-        const files = [...await declarations(path.join(installed, 'es')), ...await declarations(path.join(installed, 'lib'))]
+        const ignoredMetadata = []
+        const files = [...await collectDeclarations(path.join(installed, 'es'), ignoredMetadata), ...await collectDeclarations(path.join(installed, 'lib'), ignoredMetadata)]
         assert.ok(files.length > 0, `${contract.name} must contain declarations`)
         const manifest = JSON.parse(await readFile(path.join(installed, 'package.json'), 'utf8'))
         assert.equal(manifest.version, contract.version)
-        result.packages[contract.name] = { version: manifest.version, symlink: false, declarations: files.length }
+        result.packages[contract.name] = { version: manifest.version, symlink: false, declarations: files.length, ignoredMetadata: ignoredMetadata.map(file => path.relative(installed, file)) }
         allDeclarations.push(...files)
       }
       assert.equal(JSON.parse(await readFile(path.join(consumerRoot, 'node_modules/vue/package.json'), 'utf8')).version, vueVersion)

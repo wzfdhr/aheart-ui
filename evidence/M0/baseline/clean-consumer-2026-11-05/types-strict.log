@@ -1,0 +1,8 @@
+node_modules/aheart-ui/es/card/index.d.ts(13,164): error TS2344: Type 'GlobalComponents' does not satisfy the constraint 'Record<string, Component<any, any, any, ComputedOptions, MethodOptions, {}, any>>'.
+  Index signature for type 'string' is missing in type 'GlobalComponents'.
+node_modules/aheart-ui/es/card/index.d.ts(42,143): error TS2344: Type 'GlobalComponents' does not satisfy the constraint 'Record<string, Component<any, any, any, ComputedOptions, MethodOptions, {}, any>>'.
+  Index signature for type 'string' is missing in type 'GlobalComponents'.
+node_modules/aheart-ui/es/card/index.d.ts(63,22): error TS2344: Type 'GlobalComponents' does not satisfy the constraint 'Record<string, Component<any, any, any, ComputedOptions, MethodOptions, {}, any>>'.
+  Index signature for type 'string' is missing in type 'GlobalComponents'.
+node_modules/aheart-ui/es/card/index.d.ts(98,20): error TS2344: Type 'GlobalComponents' does not satisfy the constraint 'Record<string, Component<any, any, any, ComputedOptions, MethodOptions, {}, any>>'.
+  Index signature for type 'string' is missing in type 'GlobalComponents'.

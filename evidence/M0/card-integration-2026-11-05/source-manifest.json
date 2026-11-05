@@ -1,0 +1,33 @@
+{
+  "baseSha": "4915127aca0888a85015c5020a3f80ba3906931c",
+  "importedCardSha": "8b460a62cc89d388ead69968f3848791cec074fa",
+  "branch": "codex/v2-m1",
+  "uncommittedChanges": true,
+  "files": {
+    ".github/workflows/ci.yml": "0a54a41dd71f88613671aa967748f67b42cc952af707b7dee9de77a1fb9e3fa6",
+    ".gitignore": "71b24998110d9ed967c895b06fd9a325b31a51f84a8626fe49b35c435d187f84",
+    "docs/guide/theme.md": "fe301938829faa69b890c71b6b2806b002a0b0adf1ea43295f62b2bfbfba0f97",
+    "docs/superpowers/specs/2026-09-08-aheart-ui-v2-task-flow-checklist.md": "14968da3c7899584a6d7d477e7bb8f19fef708b15f2bcea1163c438bf6737e0f",
+    "e2e/button-hover-contrast.spec.ts": "1ec4643272855abd4b8c0544987fb0cd78d848fc04d5543ec50aeb2e2ff7637c",
+    "package.json": "62870142e8b25d5b3f59fd0ca4e3732ee6ee8f5e1f767b2b23688143aebb9cc2",
+    "packages/components/es/card/index.d.ts": "1088d393f40ae6e59e7d0797460b08dc4f58d6d6894c67d129b1d0cf8799b532",
+    "packages/components/es/style.css": "ad185935f77964fae633c76c3ebded352c6c04913d19e10f8c42baca122f406a",
+    "packages/components/lib/card/index.d.ts": "1088d393f40ae6e59e7d0797460b08dc4f58d6d6894c67d129b1d0cf8799b532",
+    "packages/components/lib/style.css": "ad185935f77964fae633c76c3ebded352c6c04913d19e10f8c42baca122f406a",
+    "packages/components/src/button/style.css": "38bd477c597485dcb424cced9639a326c6cdb4f836ca01141809ff131377bdff",
+    "packages/components/src/card/index.ts": "62eeef8e48a6288810baa2d00ba489bd4630db3392c953b511b8f4103e285444",
+    "packages/components/src/theme/index.css": "401250d0c659cc3aa3eef6f5c2ce988b34343abf478a8b87b44d50b9b92c5b6f",
+    "pilots/README.md": "f1a7b3d65650c0df3b0bcec6229595c1f5930531ed778dcbe31fb352f635ef32",
+    "pilots/check-rollback.mjs": "0fa580f59f5c88744d3425f637abcd76fe6b82aa463edc778db07843a901aff8",
+    "pilots/run-baselines.mjs": "2a5d2d0c8c423d1052dbdd2f7f320270f93f2a2a02fca66f7ff84f99c7773758",
+    "scripts/ci-config.test.mjs": "306fe398a3ecea2063f9c22f11748e90ff9a5488146525c3005ce0c8fb79aa3d",
+    "scripts/collect-declarations.mjs": "554be92bf9afcacc84696467e3c80ec87f28ade629c10dce4f4baa552b2758eb",
+    "scripts/collect-declarations.test.mjs": "a67ba5072bb461a2261cbef80e4bfe00a4d6f452c924ac2e4863ea516b1641df",
+    "scripts/fixtures/strict-consumer/README.md": "cbe79c6dceed05a913aaf10ec61888dabc4b219e9e8b9126bfece3eca97bf495",
+    "scripts/fixtures/strict-consumer/tsconfig.json": "f07e6f4b2841409a710a36e0808085ee18a9ed489f3abf895fcf6f538c027f65",
+    "scripts/fixtures/strict-consumer/types.ts": "534dff1cf6c27b01572195bdef845351b4f2aa205b5c37edde658063042ac2cd",
+    "scripts/package-entrypoints.test.mjs": "ffe4f046f4a6a6f5a3b0df3ef3fd8f7b4000f4d3120fa75caddeb1505db96fc3",
+    "scripts/release-contract.mjs": "2f1a226a76ce27435c5bf8b3b1275664a2a55c7097e19e596e4d1c13ff870a3d",
+    "scripts/strict-consumer.mjs": "af63a581bbe66e14bcb1b9108a2fb6af6cae204b7598437cfe80e5379f8f2714"
+  }
+}

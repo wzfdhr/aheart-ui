@@ -1,0 +1,39 @@
+{
+  "build": 0,
+  "typecheck": 0,
+  "fullTest": {
+    "exit": 0,
+    "core": 1485,
+    "dnd": 79,
+    "ai": 200,
+    "scripts": 248
+  },
+  "scannerTests": {
+    "exit": 0,
+    "passed": 2
+  },
+  "pack": 0,
+  "strictConsumers": {
+    "exit": 0,
+    "vueVersions": [
+      "3.5.38",
+      "3.5.44"
+    ],
+    "declarationsEach": 486
+  },
+  "pilotNegative": 1,
+  "combinedPilots": {
+    "exit": 0,
+    "strictPassed": 3,
+    "browserPassed": 6,
+    "iframe": "passed"
+  },
+  "rollback": {
+    "exit": 0,
+    "restoration": "passed"
+  },
+  "preview": "http://127.0.0.1:4182/ssr.html",
+  "remoteMerge": "not-run",
+  "publish": "not-run",
+  "userAcceptance": "pending"
+}
