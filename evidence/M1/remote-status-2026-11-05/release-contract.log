@@ -1,0 +1,15 @@
+✔ accepts a complete packed package contract (1.05ms)
+✔ accepts and enforces a package-specific Vue peer floor (0.111042ms)
+✔ reports missing public metadata and required files (0.076833ms)
+✔ rejects unresolved workspace dependency protocols (0.071ms)
+✔ rejects unexpected packed dependency ranges (0.067834ms)
+✔ rejects Pragmatic DnD auto-scroll dependency drift (0.065042ms)
+✔ rejects source and test files from the tarball (0.050083ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.140708

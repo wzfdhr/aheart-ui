@@ -1,0 +1,153 @@
+{
+  "capturedAt": "2026-11-05T07:36:03.096703+00:00",
+  "baselineSha": "c63edbf8c9098043d2d967d70d61d11db40e1a59",
+  "scratch": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-clean-consumer-2026-11-05-0gtg__7b",
+  "commands": [
+    {
+      "label": "install",
+      "args": [
+        "npm",
+        "install",
+        "--registry=https://registry.npmjs.org/",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 15.078,
+      "log": "install.log"
+    },
+    {
+      "label": "esm-ssr-css",
+      "args": [
+        "node",
+        "esm.mjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.147,
+      "log": "esm-ssr-css.log"
+    },
+    {
+      "label": "cjs",
+      "args": [
+        "node",
+        "cjs.cjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.101,
+      "log": "cjs.log"
+    },
+    {
+      "label": "types-compatible",
+      "args": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json",
+        "--pretty",
+        "false"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 0.334,
+      "log": "types-compatible.log"
+    },
+    {
+      "label": "types-strict",
+      "args": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.strict.json",
+        "--pretty",
+        "false"
+      ],
+      "exitCode": 2,
+      "durationSeconds": 1.198,
+      "log": "types-strict.log"
+    }
+  ],
+  "packages": [
+    {
+      "name": "aheart-ui",
+      "version": "1.1.0",
+      "registryUrl": "https://registry.npmjs.org/aheart-ui/1.1.0",
+      "dist": {
+        "shasum": "f59a5e379259f9e575d61ede006ddad70c213da0",
+        "tarball": "https://registry.npmjs.org/aheart-ui/-/aheart-ui-1.1.0.tgz",
+        "fileCount": 1047,
+        "integrity": "sha512-eXdmUlrduNlzCxT835YvpmkJjWy1+mWVHDASSVjIlB1Taw3aOK18PPFVI8lK4yUCH8jYhetO4t5wXQBPEbVShA==",
+        "signatures": [
+          {
+            "sig": "MEYCIQDys6RiKUZXcJ2ap4NnhfgA+PsVWG0pVkfoyBY1czJ8pQIhAPsEWIVHX+jx8+CwH6KnjSW0MjUKYgKZzcaGivF+aZvL",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIBgHZDl2h4j7E9w0k+c+u501JSO0xpzSlEyprkuBHnFYAiEAgEYhet94hH6Y4kGn6X2qiw81UAeOlgodgwsnz4tH0k4=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 4450488
+      }
+    },
+    {
+      "name": "@aheart-ui/dnd",
+      "version": "1.0.0",
+      "registryUrl": "https://registry.npmjs.org/%40aheart-ui%2Fdnd/1.0.0",
+      "dist": {
+        "shasum": "14a1d4f3899ecb34f7c0c58a47ffad14e01ccf38",
+        "tarball": "https://registry.npmjs.org/@aheart-ui/dnd/-/dnd-1.0.0.tgz",
+        "fileCount": 79,
+        "integrity": "sha512-XxJD72PahUBzS6bR1aqH+jvECcg4QDNqYyiPwRU25d6YzltZDYQiJ7RmuZMEq4RKtfq8POU/l8OWJvDT/Baz5g==",
+        "signatures": [
+          {
+            "sig": "MEUCIACvFnamt/otSKEh228m4K7oS6ZWqbB1NpOcUl6bXzYYAiEAi3ZAA5MUDXG0pTOTL8cPQsmrt6tXfA7xsjscpalywZA=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIQCxgfuUfTVcGQK0Y9tMvjeE9XgZUwMmXTDTtVNoV0cDLQIgf8TqXTFswYFn9mXE2f2nr9F87uomt7QQId1VuBnil1Q=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 208724
+      }
+    },
+    {
+      "name": "@aheart-ui/ai",
+      "version": "1.0.0",
+      "registryUrl": "https://registry.npmjs.org/%40aheart-ui%2Fai/1.0.0",
+      "dist": {
+        "shasum": "84daf908c62f77e341afe8a54fcb62b923d71172",
+        "tarball": "https://registry.npmjs.org/@aheart-ui/ai/-/ai-1.0.0.tgz",
+        "fileCount": 115,
+        "integrity": "sha512-lHBiwsayqovYBTObjRbrif6NSqx6Wl/JxgI8JulPRbsk99d/KGjwKjLaNXVWRxUdojq3T96EbLAK5OJ7xWmkKQ==",
+        "signatures": [
+          {
+            "sig": "MEUCIFm8Vv8GtotM2Mn5xk6LcTPhj7XKgayHlcHHUT7GSsQzAiEAoQVUyh+DcnVDvt/vORFUpWnZiH8OB831URXs1nf+2Ko=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIQDyO39oFUaLfefe0lrvpV3EJluVp1o134GmRXlJYV28ugIgDFDFCeb5Sa6EhSPhQQGfA4ZZnL1qINuP+as9vNPl2K4=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 389691
+      }
+    }
+  ],
+  "limitations": [
+    "No browser hydration, iframe, visual or owner acceptance in this Node-only smoke."
+  ],
+  "workspaceSymlinks": {
+    "aheart-ui": false,
+    "@aheart-ui/dnd": false,
+    "@aheart-ui/ai": false,
+    "vue": false,
+    "typescript": false
+  },
+  "lockfileSha256": "888df645791d04ca0a4b77c0b6db2d80a6b4f599d5c76c3ade070b8502f6408f",
+  "toolchain": {
+    "node": "v24.17.0",
+    "npm": "11.13.0",
+    "pnpm": "9.15.4"
+  }
+}

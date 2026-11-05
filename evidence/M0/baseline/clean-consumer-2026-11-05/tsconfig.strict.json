@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2020",
+    "noEmit": true,
+    "skipLibCheck": false,
+    "lib": [
+      "ES2020",
+      "DOM"
+    ]
+  },
+  "files": [
+    "types.ts"
+  ]
+}
