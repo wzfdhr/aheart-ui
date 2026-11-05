@@ -26,3 +26,6 @@ selenium-debug.log
 
 package-lock.json
 yarn.lock
+
+# Isolated consumer installs and evidence stay on the repository volume.
+.pilot-runs/

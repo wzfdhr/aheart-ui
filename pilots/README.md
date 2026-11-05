@@ -28,7 +28,7 @@ npm run dev
 ```sh
 npm --prefix pilots/tooling ci --ignore-scripts --no-audit --no-fund
 npm --prefix pilots/tooling exec -- playwright install chromium
-node pilots/run-baselines.mjs --out /tmp/aheart-pilot-evidence-new
+node pilots/run-baselines.mjs --out .pilot-runs/evidence-new
 ```
 
 证据目录必须不存在。runner 会为三个工程创建仓库外安装副本，记录源码 SHA、输入文件 hash、公开包版本/无 symlink、lockfile、命令/退出码/耗时、SSR 构建、真实浏览器 hydration、桌面/移动关键交互、axe、截图和模块图。普通两个应用不能解析出 AI/DND 的已渲染 JS。
@@ -44,3 +44,5 @@ node pilots/run-baselines.mjs --out /tmp/aheart-pilot-evidence-new
 基线运行完成后执行 `node pilots/serve-baselines.mjs <证据目录>`。默认分别在本机 4181、4182、4183 端口预览 SSR 页面；Ctrl+C 关闭。本命令只启动已有独立副本，不安装或更新包，也不部署线上。
 
 退出码：基线 runner 返回 0 表示无已知失败，1 表示本轮检查失败，2 表示基线已采集但仍有公开包的已知严格类型失败。始终以逐项结果判断，不把预期失败写成通过。
+
+磁盘位置：默认将独立安装副本和证据存入 worktree 下的 `.pilot-runs/`（Git 忽略），跟随仓库所在磁盘，不再使用系统 `/tmp`。可用 `--work-dir <目录>` 指定其他盘上的安装副本目录。

@@ -3,7 +3,6 @@ import { execFile } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { promisify } from 'node:util'
@@ -11,9 +10,11 @@ import { promisify } from 'node:util'
 const run = promisify(execFile)
 const root = fileURLToPath(new URL('..', import.meta.url))
 const arg = name => { const i = process.argv.indexOf(name); return i < 0 ? undefined : process.argv[i + 1] }
-const out = path.resolve(arg('--out') || path.join(tmpdir(), `aheart-pilot-evidence-${Date.now()}`))
+const runRoot = path.resolve(arg('--work-dir') || path.join(root, '.pilot-runs'))
+await mkdir(runRoot, { recursive: true })
+const out = path.resolve(arg('--out') || path.join(runRoot, `aheart-pilot-evidence-${Date.now()}`))
 await mkdir(out, { recursive: false }) // Refuse to overwrite a prior run.
-const workspace = await realpath(await mkdtemp(path.join(tmpdir(), 'aheart-m0-pilots-')))
+const workspace = await realpath(await mkdtemp(path.join(runRoot, 'aheart-m0-pilots-')))
 const tooling = createRequire(path.join(root, 'pilots/tooling/package.json'))
 const { chromium, expect } = tooling('@playwright/test')
 const { default: AxeBuilder } = tooling('@axe-core/playwright')
