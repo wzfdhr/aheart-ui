@@ -3,8 +3,9 @@ import cardGrid from './grid.vue'
 import cardMeta from './meta.vue'
 import { withInstall, type SFCWithInstall } from '../utils/install'
 
-export const CardMeta = withInstall(cardMeta, 'ACardMeta')
-export const CardGrid = withInstall(cardGrid, 'ACardGrid')
+// Preserve the SFC aliases so declaration emit does not expand Vue's internal generics.
+export const CardMeta: SFCWithInstall<typeof cardMeta> = withInstall(cardMeta, 'ACardMeta')
+export const CardGrid: SFCWithInstall<typeof cardGrid> = withInstall(cardGrid, 'ACardGrid')
 
 type CardComponent = SFCWithInstall<typeof card> & {
   Meta: typeof CardMeta

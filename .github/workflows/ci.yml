@@ -168,7 +168,9 @@ jobs:
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps chromium
       - name: Verify Release Tarballs
-        run: pnpm release:pack
+        run: pnpm release:pack --pack-destination test-results/release-tarballs
+      - name: Strict packed consumer types (workspace Vue and Vue 3.5.44)
+        run: pnpm check:consumer-types
       - name: Pack and run isolated consumers
         run: |
           pack_dir=$(mktemp -d)
@@ -193,7 +195,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: consumer-evidence-${{ github.run_id }}-${{ github.run_attempt }}
-          path: test-results/d9-consumers/
+          path: |
+            test-results/d9-consumers/*-results.json
+            test-results/d9-consumers/strict/results.json
+            test-results/d9-consumers/strict/vue-*/*.log
           if-no-files-found: error
 
   browser:
