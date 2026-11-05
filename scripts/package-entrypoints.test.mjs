@@ -7,11 +7,37 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import test from 'node:test'
+import ts from 'typescript'
 
 const require = createRequire(import.meta.url)
 const packages = ['components', 'dnd', 'ai']
 const workspaceRoot = fileURLToPath(new URL('..', import.meta.url))
 const run = promisify(execFile)
+
+test('Card exports preserve consumer prop, slot, alias and install types', async () => {
+  const fixtureDir = path.join(workspaceRoot, 'scripts/fixtures/strict-consumer')
+  const config = JSON.parse(await readFile(path.join(fixtureDir, 'tsconfig.json'), 'utf8'))
+  const parsed = ts.parseJsonConfigFileContent(config, ts.sys, fixtureDir)
+  const program = ts.createProgram(parsed.fileNames, {
+    ...parsed.options,
+    // The build compiler is TS 5.3; strict-consumer.mjs audits library declarations
+    // with TS 5.9, including Vue's NoInfer intrinsic (added in TS 5.4).
+    skipLibCheck: true,
+    paths: {
+      'aheart-ui': [path.join(workspaceRoot, 'packages/components/es/index.d.ts')],
+      'aheart-ui/es/*': [path.join(workspaceRoot, 'packages/components/es/*')],
+      '@aheart-ui/dnd': [path.join(workspaceRoot, 'packages/dnd/es/index.d.ts')],
+      '@aheart-ui/ai': [path.join(workspaceRoot, 'packages/ai/es/index.d.ts')],
+      vue: [path.join(workspaceRoot, 'packages/components/node_modules/vue/dist/vue.d.ts')]
+    }
+  })
+  const diagnostics = [...parsed.errors, ...ts.getPreEmitDiagnostics(program)]
+  assert.equal(diagnostics.length, 0, ts.formatDiagnosticsWithColorAndContext(diagnostics, {
+    getCanonicalFileName: file => file,
+    getCurrentDirectory: () => workspaceRoot,
+    getNewLine: () => '\n'
+  }))
+})
 
 for (const packageDir of packages) {
   test(`${packageDir} loads through ESM and CommonJS entrypoints`, async () => {
