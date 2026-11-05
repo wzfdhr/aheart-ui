@@ -1,0 +1,9 @@
+{
+  "name": "aheart-pilot-tooling",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@playwright/test": "1.61.1",
+    "@axe-core/playwright": "4.11.1"
+  }
+}
