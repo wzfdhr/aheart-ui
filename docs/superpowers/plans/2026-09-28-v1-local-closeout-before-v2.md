@@ -63,7 +63,7 @@
 
 - [ ] 在物理 iOS Safari 上用手指验收 DnD 排序/正文滚动、Splitter 拖动与取消清理，以及 D9 涉及的 Picker、浮层和 Workbench；证据绑定准确 SHA，经过人工复核。
 - [ ] 按 QG5 规则收集同一主分提交的连续 10 次有效运行，验证 flaky rate 低于 1%。
-- [ ] 发布负责人从干净主分复跑发布门禁，完成 npm 登录/二次验证，按核心包、DnD、AI 顺序发布；从公开 registry 在空项目重新安装三包，核对版本、类型、样式和运行时，再创建同 SHA 的 tag/Release。
+- [x] 发布负责人从干净主分复跑发布门禁，完成 npm 登录/二次验证，按核心包、DnD、AI 顺序发布；从公开 registry 在空项目重新安装三包，核对版本、类型、样式和运行时，再创建同 SHA 的 tag/Release。（2026-11-05：在 `v1.1.0` 干净工作树复跑构建确定性并重新打包，三个 tarball SHA-256 与候选报告一致，完整 `release:check` 沿用候选 SHA 的结果未重跑；三包已发布、registry shasum 与本地一致、空项目验证通过，GitHub Release 已创建。偏差：tag 早于 npm 发布推送；`skipLibCheck: false` 下 Card 类型声明报错待补丁修复。见 [`registry-publish-report.md`](../evidence/v1.1.0-release-2026-09-29/registry-publish-report.md)。）
 
 **发布退出条件**：真机、稳定性、registry 消费、tag/Release 均有独立证据；任一项缺失时只报告“本地与代码上传完成”，不报告“D9/发布全部完成”。
 
