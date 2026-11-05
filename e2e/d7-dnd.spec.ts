@@ -161,6 +161,10 @@ test.describe('D7 DnD browser contract', () => {
 
   test('iframe owner realm performs nested auto-scroll and releases on frame detach', async ({ page }) => {
     const iframe = page.getByTestId('d7-owner-iframe')
+    // Synthetic pointer events do not scroll their target into view. Keep the
+    // owner frame onscreen before testing its animation-frame-driven scrolling.
+    await iframe.scrollIntoViewIfNeeded()
+    await expect(iframe).toBeInViewport()
     const iframeHandle = await iframe.elementHandle()
     const frame = await iframeHandle?.contentFrame()
     expect(frame).not.toBeNull()

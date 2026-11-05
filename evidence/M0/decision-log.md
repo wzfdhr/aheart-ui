@@ -15,6 +15,10 @@
 - M0 继续 **Needs decision / 用户验收 Pending**，M1 **Blocked**。物理 iOS、QG5 连续 10 次和 Card 补丁发布按 A1 转为 v1.1.x 独立待办，不再作为 M0 的阻塞条件。
 - 整合改动提交后以 #40 的精确 head CI 为合并依据；最终部署结果以合并后的 master SHA 和 Pages run 为准。本记录不预报尚未完成的 CI 或部署结果。
 
+## 整合 CI 后续
+
+#40 的首个整合提交 PR CI 通过，但 push CI 存在一次 mobile-webkit DnD iframe 滚动失败；已补充目标进入视口的测试前置条件，保持原断言。见 [CI 整合记录](ci-integration-2026-11-05/report.md)。合并仍以最新提交 CI 全绿为准，M0 用户验收状态不变。
+
 ## 较早决策快照（以下合并状态以最新记录为准）
 
 - 工作分支 `codex/v2-m1` 已从 `512e243` 快进到 `c63edbf8c9098043d2d967d70d61d11db40e1a59`（11 月 5 日实时远端 master）。仅快进独立 worktree，未写入原主工作树。
