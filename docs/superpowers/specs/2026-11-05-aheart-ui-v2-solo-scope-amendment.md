@@ -1,6 +1,6 @@
 # Aheart UI v2 规范修订 A1：单人项目范围与版本对齐
 
-> 状态：草案（Draft），待 wzfdhr 批准。批准后，本修订的条款优先于下列四份已批准规范中的对应条款；四份原文不修改，未提及的条款继续有效。
+> 状态：已批准（Approved），2026-11-05 由 wzfdhr（单人项目唯一负责人）批准。本修订的条款优先于下列四份已批准规范中的对应条款；四份原文不修改，未提及的条款继续有效。
 >
 > 修订对象：[产品与技术总体方案](./2026-09-08-aheart-ui-product-and-technical-master-plan.md)、[技术 RFC](./2026-09-08-aheart-ui-v2-architecture-optimization-design.md)、[阶段验收标准](./2026-09-08-aheart-ui-v2-phase-acceptance-criteria.md)、[整体任务流程清单](./2026-09-08-aheart-ui-v2-task-flow-checklist.md)。
 >
@@ -70,4 +70,5 @@ v2.0.0  仅在 M8 Go 后发布
 
 ## 批准
 
-- [ ] wzfdhr 批准本修订（日期、决策日志链接）。
+- [x] wzfdhr 于 2026-11-05 批准本修订；批准经 [PR #38](https://github.com/wzfdhr/aheart-ui/pull/38) 合入 `master` 后生效，并记入 M0 决策日志。
+- [ ] A1-2 自用项目试点：名称与路径待登记（登记前该试点为 `Needs decision`）。
