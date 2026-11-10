@@ -1,0 +1,194 @@
+{
+  "name": "clean-consumer",
+  "status": "passed",
+  "project": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-L1rvqp/clean-consumer",
+  "commands": [
+    {
+      "label": "candidate-lock",
+      "command": [
+        "npm",
+        "install",
+        "--package-lock-only",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0,
+      "seconds": 1.218801125,
+      "expectedExit": 0
+    },
+    {
+      "label": "install",
+      "command": [
+        "npm",
+        "ci",
+        "--include=dev",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0,
+      "seconds": 17.952225875,
+      "expectedExit": 0
+    },
+    {
+      "label": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 2.1306781249999984,
+      "expectedExit": 0
+    },
+    {
+      "label": "strict-types",
+      "command": [
+        "npm",
+        "run",
+        "typecheck:strict"
+      ],
+      "exitCode": 0,
+      "seconds": 5.239751124999999,
+      "expectedExit": 0
+    },
+    {
+      "label": "build-ssr",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 10.419517457999998,
+      "expectedExit": 0
+    }
+  ],
+  "browser": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browserEngine": "firefox",
+      "browserVersion": "151.0",
+      "url": "http://127.0.0.1:52682/ssr.html",
+      "checks": [
+        "SSR hydration",
+        "counter",
+        "Select",
+        "Modal Tab trap/Escape/focus restore",
+        "explicit Button hover",
+        "axe WCAG A/AA"
+      ],
+      "errors": [],
+      "firstRenderMilliseconds": 170.2266660000023,
+      "hover": {
+        "text": "打开检查弹窗",
+        "active": true,
+        "foreground": "rgb(0, 62, 179)",
+        "background": "rgb(255, 255, 255)"
+      },
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "browserEngine": "firefox",
+      "browserVersion": "151.0",
+      "url": "http://127.0.0.1:52682/ssr.html",
+      "checks": [
+        "SSR hydration",
+        "counter",
+        "Select",
+        "Modal Tab trap/Escape/focus restore",
+        "explicit Button hover",
+        "axe WCAG A/AA"
+      ],
+      "errors": [],
+      "firstRenderMilliseconds": 109.25429100000474,
+      "hover": {
+        "text": "打开检查弹窗",
+        "active": true,
+        "foreground": "rgb(0, 62, 179)",
+        "background": "rgb(255, 255, 255)"
+      },
+      "status": "passed"
+    }
+  ],
+  "sourceFiles": {
+    "README.md": "b7f313f8de251333ead210d8bdd7f91f6b80cdcc56921d83788a765f0c7987bd",
+    "app.js": "9bac9aa1a2fb4facea8a2905bd6e4952d7d5db250ff752e8a83c1e4f81aea316",
+    "iframe.html": "9823e0c1b758eda2aa7a5807975dbe682f60f5879a33d46fd7c7886b6e8988bf",
+    "index.html": "00f16e66916a3080664748baa1c7604b3e74451584c4c00fbaf430ea67ba0611",
+    "main.js": "0f091d6f4a767a7cf8d07c97e95cf55348ee09a8408eb75f3c29eb2b0fa2ae60",
+    "package-lock.json": "52981d00bcb721c6cd13e6b79d7e209a20a7f841bcec59c54e6f6213902a8ff6",
+    "package.json": "f2c18cefa49c598829b01321fe7de2330673618f25160ab7db5343c48189bbc7",
+    "ssr.mjs": "86d69046205bdfa484c43ada30e10fc2bb6144ad808190aca68c5983785951a9",
+    "style.css": "a47e9e8dbec279ad42809b2ecc57357ff2e8ef37eab9b13fe151f785757ab98a",
+    "tsconfig.json": "c59094b325081757c582e3f683f0401f7feb59d3649427fa3f94e4568f76244a",
+    "tsconfig.strict.json": "b33f818a882c93c36add9ac4d8bb1510df539030ba3cba4a51cae417c2908928",
+    "types.ts": "627d5854fa47508efecd3e25fb3148f509e3d49f40adc431b854423561c0230b",
+    "vite.config.js": "e75f2f3c572aa3312b1ec0af91c08b13d4e7e6b1f2fcb8ed684d5ace38514571"
+  },
+  "packages": {
+    "aheart-ui": {
+      "version": "1.2.0",
+      "symlink": false,
+      "tarball": {
+        "path": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui-v2-m1/.pilot-runs/m1-verified-tarballs/aheart-ui-1.2.0.tgz",
+        "version": "1.2.0",
+        "sha256": "2e42ed55f5a98a23364cf3dea90b8bf8a4e3c471cda9a89723b9a635694df377"
+      }
+    },
+    "vue": {
+      "version": "3.5.44",
+      "symlink": false
+    }
+  },
+  "knownIssues": [],
+  "entryStrategy": "public-component-subpaths",
+  "lockSha256": "143f0dca016e7cd00e9bba1ccebb1b1a84f4a2f34fa6be965f394c363edcd5b2",
+  "strictTypes": "passed",
+  "moduleGraph": {
+    "renderedModules": 75,
+    "ai": false,
+    "dnd": false,
+    "css": [
+      {
+        "file": "assets/main-DaI0I7ph.css",
+        "bytes": 25770,
+        "gzipBytes": 4638
+      }
+    ],
+    "js": [
+      {
+        "file": "assets/iframe-l0sNRNKZ.js",
+        "bytes": 1,
+        "gzipBytes": 21
+      },
+      {
+        "file": "assets/index-nkDrfgHY.js",
+        "bytes": 28,
+        "gzipBytes": 48
+      },
+      {
+        "file": "assets/ssr-nkDrfgHY.js",
+        "bytes": 28,
+        "gzipBytes": 48
+      },
+      {
+        "file": "assets/main-DEpAbZkR.js",
+        "bytes": 197904,
+        "gzipBytes": 70398
+      }
+    ]
+  },
+  "url": "http://127.0.0.1:52682",
+  "iframe": "passed"
+}

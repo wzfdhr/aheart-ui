@@ -1,0 +1,207 @@
+{
+  "status": "passed",
+  "project": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-XhsDiH/muxu-todo",
+  "candidate": {
+    "version": "1.2.0",
+    "sha256": "2e42ed55f5a98a23364cf3dea90b8bf8a4e3c471cda9a89723b9a635694df377"
+  },
+  "baseline": "aheart-ui@1.1.0",
+  "originalLockSha256": "93892d331347e52f1a65fe6e9f6311aed0a2bda3f6bf0174b25113fb57e361d3",
+  "commands": [
+    {
+      "label": "baseline-install",
+      "args": [
+        "ci",
+        "--include=dev",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "baseline-build",
+      "args": [
+        "run",
+        "build"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "upgrade-lock",
+      "args": [
+        "install",
+        "--package-lock-only",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "upgrade-install",
+      "args": [
+        "ci",
+        "--include=dev",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "upgrade-build",
+      "args": [
+        "run",
+        "build"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "rollback-install",
+      "args": [
+        "ci",
+        "--include=dev",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "rollback-build",
+      "args": [
+        "run",
+        "build"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "restore-install",
+      "args": [
+        "ci",
+        "--include=dev",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0
+    },
+    {
+      "label": "restore-build",
+      "args": [
+        "run",
+        "build"
+      ],
+      "exitCode": 0
+    }
+  ],
+  "stages": [
+    {
+      "name": "baseline",
+      "tasks": [
+        {
+          "id": 1,
+          "title": "核对组件样式",
+          "done": false
+        },
+        {
+          "id": 2,
+          "title": "迁移前保留任务",
+          "done": true
+        }
+      ],
+      "core": {
+        "version": "1.1.0",
+        "resolved": "https://registry.npmjs.org/aheart-ui/-/aheart-ui-1.1.0.tgz",
+        "integrity": "sha512-eXdmUlrduNlzCxT835YvpmkJjWy1+mWVHDASSVjIlB1Taw3aOK18PPFVI8lK4yUCH8jYhetO4t5wXQBPEbVShA==",
+        "license": "MIT",
+        "dependencies": {
+          "@floating-ui/dom": "^1.8.0",
+          "@lucide/vue": "^1.24.0",
+          "@tanstack/vue-virtual": "3.13.36",
+          "dayjs": "^1.11.13"
+        },
+        "peerDependencies": {
+          "vue": ">=3.4.0 <4"
+        }
+      },
+      "foreground": "rgb(64, 150, 255)"
+    },
+    {
+      "name": "upgrade",
+      "tasks": [
+        {
+          "id": 1,
+          "title": "核对组件样式",
+          "done": false
+        },
+        {
+          "id": 2,
+          "title": "迁移前保留任务",
+          "done": false
+        },
+        {
+          "id": 3,
+          "title": "候选期间新增任务",
+          "done": true
+        }
+      ],
+      "core": {
+        "version": "1.2.0",
+        "resolved": "file:../../m1-verified-tarballs/aheart-ui-1.2.0.tgz",
+        "integrity": "sha512-k2WjZpWZLOT1DLfUA8UDV+S/24I803fM9vjVIgI7CBfQwwNN3nFJukchxljIhTBbzM6P5uA1+NVONrKF6T8Smg==",
+        "license": "MIT",
+        "dependencies": {
+          "@floating-ui/dom": "^1.8.0",
+          "@lucide/vue": "^1.24.0",
+          "@tanstack/vue-virtual": "3.13.36",
+          "dayjs": "^1.11.13"
+        },
+        "peerDependencies": {
+          "vue": ">=3.4.0 <4"
+        }
+      },
+      "foreground": "rgb(0, 62, 179)"
+    },
+    {
+      "name": "rollback",
+      "tasks": [
+        {
+          "id": 1,
+          "title": "核对组件样式",
+          "done": false
+        },
+        {
+          "id": 3,
+          "title": "候选期间新增任务",
+          "done": true
+        }
+      ],
+      "core": {
+        "version": "1.1.0",
+        "resolved": "https://registry.npmjs.org/aheart-ui/-/aheart-ui-1.1.0.tgz",
+        "integrity": "sha512-eXdmUlrduNlzCxT835YvpmkJjWy1+mWVHDASSVjIlB1Taw3aOK18PPFVI8lK4yUCH8jYhetO4t5wXQBPEbVShA==",
+        "license": "MIT",
+        "dependencies": {
+          "@floating-ui/dom": "^1.8.0",
+          "@lucide/vue": "^1.24.0",
+          "@tanstack/vue-virtual": "3.13.36",
+          "dayjs": "^1.11.13"
+        },
+        "peerDependencies": {
+          "vue": ">=3.4.0 <4"
+        }
+      },
+      "foreground": "rgb(64, 150, 255)"
+    }
+  ],
+  "errors": [],
+  "restoration": "passed",
+  "url": "http://127.0.0.1:53721/ssr.html"
+}

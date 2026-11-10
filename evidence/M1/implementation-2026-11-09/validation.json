@@ -1,0 +1,25 @@
+{
+  "runtimeSourceSha": "5445886d2437e2fae6a2365e05438397c35bab2a",
+  "componentTests": [
+    1488,
+    79,
+    200
+  ],
+  "scriptTests": 251,
+  "coreTarballSha256": "2e42ed55f5a98a23364cf3dea90b8bf8a4e3c471cda9a89723b9a635694df377",
+  "matrix": [
+    "desktop-chromium",
+    "mobile-chromium",
+    "desktop-firefox",
+    "desktop-webkit",
+    "mobile-webkit"
+  ],
+  "extraViewport": "mobile-firefox",
+  "strictVue": [
+    "3.5.38",
+    "3.5.44"
+  ],
+  "declarations": 488,
+  "M1": "In progress; not accepted",
+  "npmPublish": false
+}

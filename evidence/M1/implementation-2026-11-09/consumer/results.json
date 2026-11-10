@@ -1,0 +1,78 @@
+{
+  "status": "passed",
+  "consumer": "/private/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-m1-consumer-xMtbQG",
+  "tarball": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui-v2-m1/.pilot-runs/m1-verified-tarballs/aheart-ui-1.2.0.tgz",
+  "tarballSHA256": "2e42ed55f5a98a23364cf3dea90b8bf8a4e3c471cda9a89723b9a635694df377",
+  "builds": {
+    "button": {
+      "jsGzip": 32939,
+      "cssBytes": 8520,
+      "parsedModules": 2058
+    },
+    "root-button": {
+      "jsGzip": 32939,
+      "cssBytes": 0,
+      "parsedModules": 2269
+    },
+    "modal": {
+      "jsGzip": 41090,
+      "cssBytes": 15694,
+      "parsedModules": 2067
+    },
+    "root-modal": {
+      "jsGzip": 41060,
+      "cssBytes": 0,
+      "parsedModules": 2269
+    },
+    "select": {
+      "jsGzip": 56974,
+      "cssBytes": 10576,
+      "parsedModules": 2078
+    },
+    "root-select": {
+      "jsGzip": 57067,
+      "cssBytes": 0,
+      "parsedModules": 2269
+    },
+    "bare-button": {
+      "jsGzip": 32939,
+      "cssBytes": 0,
+      "parsedModules": 2056
+    },
+    "legacy-button": {
+      "jsGzip": 32939,
+      "cssBytes": 175790,
+      "parsedModules": 2057
+    },
+    "full": {
+      "jsGzip": 189940,
+      "cssBytes": 175790,
+      "parsedModules": 2268
+    },
+    "legacy-full": {
+      "jsGzip": 186402,
+      "cssBytes": 175790,
+      "parsedModules": 2270
+    }
+  },
+  "styles": {
+    "fullBytes": 199595,
+    "themeBytes": 1767,
+    "components": {
+      "button": {
+        "bytes": 7945,
+        "fractionOfFull": 0.03980560635286455
+      },
+      "modal": {
+        "bytes": 16305,
+        "fractionOfFull": 0.08169042310679125
+      },
+      "select": {
+        "bytes": 10472,
+        "fractionOfFull": 0.052466244144392396
+      }
+    }
+  },
+  "node": "v24.17.0",
+  "installedVersion": "1.2.0"
+}
