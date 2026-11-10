@@ -1,6 +1,6 @@
 {
   "name": "aheart-ui",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Professional Vue 3 components for product interfaces.",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -14,6 +14,31 @@
       "import": "./es/index.js",
       "require": "./lib/index.js"
     },
+    "./button": {
+      "types": "./es/button/index.d.ts",
+      "import": "./es/button/index.js",
+      "require": "./lib/button/index.js"
+    },
+    "./modal": {
+      "types": "./es/modal/index.d.ts",
+      "import": "./es/modal/index.js",
+      "require": "./lib/modal/index.js"
+    },
+    "./select": {
+      "types": "./es/select/index.d.ts",
+      "import": "./es/select/index.js",
+      "require": "./lib/select/index.js"
+    },
+    "./full": {
+      "types": "./es/full.d.ts",
+      "import": "./es/full.js",
+      "require": "./lib/full.js"
+    },
+    "./theme.css": "./es/theme.css",
+    "./full.css": "./es/full.css",
+    "./button/style.css": "./es/button/style.css",
+    "./modal/style.css": "./es/modal/style.css",
+    "./select/style.css": "./es/select/style.css",
     "./style.css": "./es/style.css",
     "./es/picker-core/*": null,
     "./lib/picker-core/*": null,

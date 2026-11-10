@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const index$1 = require("../button/index.js");
+const button_index = require("../button/index.js");
 const index = require("../skeleton/index.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
@@ -31,10 +31,13 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       "input:not([disabled])",
       "select:not([disabled])",
       "textarea:not([disabled])",
+      "audio[controls]",
+      "video[controls]",
       "iframe",
       "object",
       "embed",
-      '[contenteditable="true"]',
+      '[contenteditable]:not([contenteditable="false"])',
+      "details > summary:first-of-type",
       '[tabindex]:not([tabindex="-1"])'
     ].join(",");
     const modalWidthBreakpoints = ["xs", "sm", "md", "lg", "xl", "xxl"];
@@ -268,7 +271,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const createFooterButton = (className, buttonProps, onClick, content) => {
       const { class: customClass, ...restButtonProps } = buttonProps;
       return vue.h(
-        index$1.default,
+        button_index.default,
         {
           ...restButtonProps,
           class: [className, customClass],
@@ -393,21 +396,82 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       target.focus();
     };
-    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element.tagName === "INPUT" && element.type === "hidden");
-    const getFocusableElements = () => {
-      const dialog = dialogRef.value;
-      if (!dialog) {
-        return [];
+    const isEditableHost = (element) => {
+      var _a;
+      const isEditable = (node) => node && (node.isContentEditable || ["", "true", "plaintext-only"].includes(node.getAttribute("contenteditable") ?? "false"));
+      const parentHost = ((_a = element.parentElement) == null ? void 0 : _a.closest("[contenteditable]")) ?? null;
+      return !element.hasAttribute("tabindex") && isEditable(element) && !isEditable(parentHost);
+    };
+    const isFocusableElementAvailable = (element) => {
+      if (element.tabIndex < 0 && !isEditableHost(element) || element.matches(":disabled") || element.tagName === "INPUT" && element.type === "hidden")
+        return false;
+      const view = element.ownerDocument.defaultView;
+      const visibility = view == null ? void 0 : view.getComputedStyle(element).visibility;
+      if (visibility === "hidden" || visibility === "collapse")
+        return false;
+      for (let node = element; node; node = node.parentElement) {
+        if (node.hidden || node.hasAttribute("inert") || node.getAttribute("aria-hidden") === "true")
+          return false;
+        if ((view == null ? void 0 : view.getComputedStyle(node).display) === "none")
+          return false;
+        if (node !== element && node.tagName === "DETAILS" && !node.hasAttribute("open")) {
+          const summary = Array.from(node.children).find((child) => child.tagName === "SUMMARY");
+          if (!(summary == null ? void 0 : summary.contains(element)))
+            return false;
+        }
+        if (node === dialogRef.value)
+          break;
       }
-      return Array.from(dialog.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
+      return true;
+    };
+    const getFocusableElements = (tabOrder = false) => {
+      const dialog = dialogRef.value;
+      if (!dialog)
+        return [];
+      const candidates = Array.from(dialog.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
+      if (tabOrder)
+        candidates.sort((a, b) => (a.tabIndex > 0 ? a.tabIndex : Number.MAX_SAFE_INTEGER) - (b.tabIndex > 0 ? b.tabIndex : Number.MAX_SAFE_INTEGER));
+      const groups = /* @__PURE__ */ new Map();
+      for (const element of candidates) {
+        if (element.tagName !== "INPUT")
+          continue;
+        const input = element;
+        if (input.type !== "radio" || !input.name)
+          continue;
+        const owner = input.form ?? input.getRootNode();
+        if (!groups.has(owner))
+          groups.set(owner, /* @__PURE__ */ new Map());
+        const names = groups.get(owner);
+        if (!names.has(input.name))
+          names.set(input.name, []);
+        names.get(input.name).push(input);
+      }
+      const excluded = /* @__PURE__ */ new Set();
+      for (const names of groups.values()) {
+        for (const group of names.values()) {
+          const target = group.find((input) => input === dialog.ownerDocument.activeElement) ?? group.find((input) => input.checked) ?? group[0];
+          for (const input of group)
+            if (input !== target)
+              excluded.add(input);
+        }
+      }
+      return candidates.filter((element) => !excluded.has(element));
+    };
+    const focusElement = (element) => {
+      element.focus();
+      const active = element.ownerDocument.activeElement;
+      return active === element || element.contains(active);
     };
     const focusDialog = () => {
       if (!props.open) {
         return;
       }
       const dialog = dialogRef.value;
-      const target = getFocusableElements()[0] ?? dialog;
-      target == null ? void 0 : target.focus();
+      for (const target of getFocusableElements()) {
+        if (focusElement(target))
+          return;
+      }
+      dialog == null ? void 0 : dialog.focus();
     };
     vue.onBeforeMount(() => {
       if (props.open)
@@ -424,29 +488,60 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     vue.onBeforeUnmount(() => {
       unregisterModalOverlay();
     });
+    let pendingTabCheck;
+    let pendingTabWindow = null;
+    const clearPendingTabCheck = () => {
+      if (pendingTabCheck !== void 0)
+        pendingTabWindow == null ? void 0 : pendingTabWindow.clearTimeout(pendingTabCheck);
+      pendingTabCheck = void 0;
+      pendingTabWindow = null;
+    };
+    vue.watch(() => props.open, (open) => {
+      if (!open)
+        clearPendingTabCheck();
+    }, { flush: "sync" });
+    vue.onBeforeUnmount(clearPendingTabCheck);
     const handleTrapTab = (event) => {
-      if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== "Tab") {
+      if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== "Tab")
         return;
-      }
+      clearPendingTabCheck();
+      if (event.defaultPrevented)
+        return;
       const dialog = dialogRef.value;
-      if (!dialog) {
+      if (!dialog)
         return;
-      }
-      const focusableElements = getFocusableElements();
-      const firstElement = focusableElements[0] ?? dialog;
-      const lastElement = focusableElements[focusableElements.length - 1] ?? dialog;
-      const activeElement = dialog.ownerDocument.activeElement;
-      if (event.shiftKey) {
-        if (activeElement === firstElement || !dialog.contains(activeElement)) {
-          event.preventDefault();
-          lastElement.focus();
+      const elements = getFocusableElements(true);
+      const active = dialog.ownerDocument.activeElement;
+      const current = active ? elements.indexOf(active) : -1;
+      const direction = event.shiftKey ? -1 : 1;
+      const next = current < 0 ? event.shiftKey ? elements.length - 1 : 0 : (current + direction + elements.length) % elements.length;
+      const recover = () => {
+        for (let offset = 0; offset < elements.length; offset += 1) {
+          const index2 = (next + offset * direction + elements.length) % elements.length;
+          const target = elements[index2];
+          if (target.isConnected && dialog.contains(target) && isFocusableElementAvailable(target) && focusElement(target))
+            return;
         }
+        focusDialog();
+      };
+      const boundary = event.shiftKey ? active === elements[0] : active === elements[elements.length - 1];
+      if (!elements.length || boundary || !dialog.contains(active)) {
+        event.preventDefault();
+        recover();
         return;
       }
-      if (activeElement === lastElement || !dialog.contains(activeElement)) {
-        event.preventDefault();
-        firstElement.focus();
-      }
+      const view = dialog.ownerDocument.defaultView;
+      if (!view)
+        return;
+      pendingTabWindow = view;
+      pendingTabCheck = view.setTimeout(() => {
+        pendingTabCheck = void 0;
+        pendingTabWindow = null;
+        if (!props.open || !shouldTrapFocus.value || !isModalTopmost() || dialogRef.value !== dialog || !dialog.isConnected || view.closed)
+          return;
+        if (!dialog.contains(dialog.ownerDocument.activeElement))
+          recover();
+      }, 0);
     };
     const notifyClosableClose = () => {
       var _a, _b;

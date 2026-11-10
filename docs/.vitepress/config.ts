@@ -72,6 +72,7 @@ export default defineConfig({
                 { text: '介绍', link: '/guide/introduction' },
                 { text: '安装', link: '/guide/installation' },
                 { text: '使用', link: '/guide/usage' },
+                { text: '1.2 按需候选', link: '/guide/on-demand' },
                 { text: '主题 Token', link: '/guide/theme' },
                 { text: '质量矩阵', link: '/guide/quality-matrix' },
                 { text: 'QG5 证据', link: '/guide/qg5-evidence' },

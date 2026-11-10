@@ -71,4 +71,4 @@ v2.0.0  仅在 M8 Go 后发布
 ## 批准
 
 - [x] wzfdhr 于 2026-11-05 批准本修订；批准经 [PR #38](https://github.com/wzfdhr/aheart-ui/pull/38) 合入 `master` 后生效，并记入 M0 决策日志。
-- [ ] A1-2 自用项目试点：名称与路径待登记（登记前该试点为 `Needs decision`）。
+- [x] A1-2 自用项目试点：`ai-review-gate`，`pilots/ai-review-gate`；2026-11-09 负责人确认 M0 Go，见 [决策日志](../../../evidence/M0/decision-log.md)。

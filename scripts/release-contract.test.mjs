@@ -126,3 +126,15 @@ test('rejects source and test files from the tarball', () => {
   assert.ok(errors.includes('@aheart-ui/example: tarball must not include src/index.ts'))
   assert.ok(errors.includes('@aheart-ui/example: tarball must not include __tests__/contract.test.ts'))
 })
+
+test('M1 rejects missing component styles, export condition drift and CSS pruning', async () => {
+  const { readFile } = await import('node:fs/promises')
+  const core = packageContracts.find(({ name }) => name === 'aheart-ui')
+  const source = JSON.parse(await readFile(new URL('../packages/components/package.json', import.meta.url), 'utf8'))
+  assert.deepEqual(validatePackageContract(core, source, core.requiredFiles), [])
+  const wrongExport = structuredClone(source)
+  wrongExport.exports['./button'].require = './es/button/index.js'
+  assert.ok(validatePackageContract(core, wrongExport, core.requiredFiles).some(error => error.includes('export ./button')))
+  assert.ok(validatePackageContract(core, { ...source, sideEffects: false }, core.requiredFiles).some(error => error.includes('sideEffects')))
+  assert.ok(validatePackageContract(core, source, core.requiredFiles.filter(file => file !== 'es/modal/style.css')).some(error => error.includes('es/modal/style.css')))
+})

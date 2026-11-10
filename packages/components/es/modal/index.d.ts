@@ -43,8 +43,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
             readonly default: "primary";
         };
-        readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
-        readonly cancelButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
+        readonly okButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
+        readonly cancelButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
         readonly zIndex: {
             readonly type: NumberConstructor;
             readonly default: 1000;
@@ -161,8 +161,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
             readonly default: "primary";
         };
-        readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
-        readonly cancelButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
+        readonly okButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
+        readonly cancelButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
         readonly zIndex: {
             readonly type: NumberConstructor;
             readonly default: 1000;
@@ -269,8 +269,8 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
-    readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
-    readonly cancelButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly okButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
+    readonly cancelButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
     readonly zIndex: {
         readonly type: NumberConstructor;
         readonly default: 1000;
@@ -345,3 +345,4 @@ declare const Modal: import("../utils/install").SFCWithInstall<{
 })>;
 export default Modal;
 export type { ModalProps } from './types';
+export { Modal };

@@ -120,10 +120,13 @@ const FOCUSABLE_SELECTOR = [
   'input:not([disabled])',
   'select:not([disabled])',
   'textarea:not([disabled])',
+  'audio[controls]',
+  'video[controls]',
   'iframe',
   'object',
   'embed',
-  '[contenteditable="true"]',
+  '[contenteditable]:not([contenteditable="false"])',
+  'details > summary:first-of-type',
   '[tabindex]:not([tabindex="-1"])'
 ].join(',')
 const modalWidthBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const
@@ -502,20 +505,61 @@ const restoreTriggerFocus = () => {
   target.focus()
 }
 
-const isFocusableElementAvailable = (element: HTMLElement) =>
-  !element.hasAttribute('hidden') &&
-  element.getAttribute('aria-hidden') !== 'true' &&
-  element.tabIndex >= 0 &&
-  !(element.tagName === 'INPUT' && (element as HTMLInputElement).type === 'hidden')
+const isEditableHost = (element: HTMLElement) => {
+  const isEditable = (node: HTMLElement | null) => node && (node.isContentEditable || ['', 'true', 'plaintext-only'].includes(node.getAttribute('contenteditable') ?? 'false'))
+  const parentHost = element.parentElement?.closest<HTMLElement>('[contenteditable]') ?? null
+  return !element.hasAttribute('tabindex') && isEditable(element) && !isEditable(parentHost)
+}
 
-const getFocusableElements = () => {
-  const dialog = dialogRef.value
-
-  if (!dialog) {
-    return []
+const isFocusableElementAvailable = (element: HTMLElement) => {
+  if ((element.tabIndex < 0 && !isEditableHost(element)) || element.matches(':disabled') || (element.tagName === 'INPUT' && (element as HTMLInputElement).type === 'hidden')) return false
+  const view = element.ownerDocument.defaultView
+  const visibility = view?.getComputedStyle(element).visibility
+  if (visibility === 'hidden' || visibility === 'collapse') return false
+  for (let node: HTMLElement | null = element; node; node = node.parentElement) {
+    if (node.hidden || node.hasAttribute('inert') || node.getAttribute('aria-hidden') === 'true') return false
+    if (view?.getComputedStyle(node).display === 'none') return false
+    if (node !== element && node.tagName === 'DETAILS' && !node.hasAttribute('open')) {
+      const summary = Array.from(node.children).find(child => child.tagName === 'SUMMARY')
+      if (!summary?.contains(element)) return false
+    }
+    if (node === dialogRef.value) break
   }
+  return true
+}
 
-  return Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable)
+const getFocusableElements = (tabOrder = false) => {
+  const dialog = dialogRef.value
+  if (!dialog) return []
+
+  const candidates = Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+    .filter(isFocusableElementAvailable)
+  if (tabOrder) candidates.sort((a, b) => (a.tabIndex > 0 ? a.tabIndex : Number.MAX_SAFE_INTEGER) - (b.tabIndex > 0 ? b.tabIndex : Number.MAX_SAFE_INTEGER))
+  const groups = new Map<Node, Map<string, HTMLInputElement[]>>()
+  for (const element of candidates) {
+    if (element.tagName !== 'INPUT') continue
+    const input = element as HTMLInputElement
+    if (input.type !== 'radio' || !input.name) continue
+    const owner = input.form ?? input.getRootNode()
+    if (!groups.has(owner)) groups.set(owner, new Map())
+    const names = groups.get(owner)!
+    if (!names.has(input.name)) names.set(input.name, [])
+    names.get(input.name)!.push(input)
+  }
+  const excluded = new Set<HTMLElement>()
+  for (const names of groups.values()) {
+    for (const group of names.values()) {
+      const target = group.find(input => input === dialog.ownerDocument.activeElement) ?? group.find(input => input.checked) ?? group[0]
+      for (const input of group) if (input !== target) excluded.add(input)
+    }
+  }
+  return candidates.filter(element => !excluded.has(element))
+}
+
+const focusElement = (element: HTMLElement) => {
+  element.focus()
+  const active = element.ownerDocument.activeElement
+  return active === element || element.contains(active)
 }
 
 const focusDialog = () => {
@@ -524,9 +568,10 @@ const focusDialog = () => {
   }
 
   const dialog = dialogRef.value
-  const target = getFocusableElements()[0] ?? dialog
-
-  target?.focus()
+  for (const target of getFocusableElements()) {
+    if (focusElement(target)) return
+  }
+  dialog?.focus()
 }
 
 onBeforeMount(() => {
@@ -547,35 +592,56 @@ onBeforeUnmount(() => {
   unregisterModalOverlay()
 })
 
+let pendingTabCheck: number | undefined
+let pendingTabWindow: Window | null = null
+const clearPendingTabCheck = () => {
+  if (pendingTabCheck !== undefined) pendingTabWindow?.clearTimeout(pendingTabCheck)
+  pendingTabCheck = undefined
+  pendingTabWindow = null
+}
+watch(() => props.open, open => { if (!open) clearPendingTabCheck() }, { flush: 'sync' })
+onBeforeUnmount(clearPendingTabCheck)
+
 const handleTrapTab = (event: KeyboardEvent) => {
-  if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== 'Tab') {
-    return
-  }
-
+  if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== 'Tab') return
+  clearPendingTabCheck()
+  if (event.defaultPrevented) return
   const dialog = dialogRef.value
+  if (!dialog) return
 
-  if (!dialog) {
-    return
-  }
-
-  const focusableElements = getFocusableElements()
-  const firstElement = focusableElements[0] ?? dialog
-  const lastElement = focusableElements[focusableElements.length - 1] ?? dialog
-  const activeElement = dialog.ownerDocument.activeElement
-
-  if (event.shiftKey) {
-    if (activeElement === firstElement || !dialog.contains(activeElement)) {
-      event.preventDefault()
-      lastElement.focus()
+  const elements = getFocusableElements(true)
+  const active = dialog.ownerDocument.activeElement as HTMLElement | null
+  const current = active ? elements.indexOf(active) : -1
+  const direction = event.shiftKey ? -1 : 1
+  const next = current < 0
+    ? (event.shiftKey ? elements.length - 1 : 0)
+    : (current + direction + elements.length) % elements.length
+  const recover = () => {
+    for (let offset = 0; offset < elements.length; offset += 1) {
+      const index = (next + offset * direction + elements.length) % elements.length
+      const target = elements[index]
+      if (target.isConnected && dialog.contains(target) && isFocusableElementAvailable(target) && focusElement(target)) return
     }
-
+    focusDialog()
+  }
+  const boundary = event.shiftKey ? active === elements[0] : active === elements[elements.length - 1]
+  if (!elements.length || boundary || !dialog.contains(active)) {
+    event.preventDefault()
+    recover()
     return
   }
 
-  if (activeElement === lastElement || !dialog.contains(activeElement)) {
-    event.preventDefault()
-    firstElement.focus()
-  }
+  // Keep native radio/editor/composite navigation. Some engines skip ordinary
+  // controls and leave the document; recover only after that actually happens.
+  const view = dialog.ownerDocument.defaultView
+  if (!view) return
+  pendingTabWindow = view
+  pendingTabCheck = view.setTimeout(() => {
+    pendingTabCheck = undefined
+    pendingTabWindow = null
+    if (!props.open || !shouldTrapFocus.value || !isModalTopmost() || dialogRef.value !== dialog || !dialog.isConnected || view.closed) return
+    if (!dialog.contains(dialog.ownerDocument.activeElement)) recover()
+  }, 0)
 }
 
 const notifyClosableClose = () => {

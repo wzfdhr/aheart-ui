@@ -1,0 +1,175 @@
+{
+  "name": "clean-consumer",
+  "status": "failed",
+  "project": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-jC3sNc/clean-consumer",
+  "commands": [
+    {
+      "label": "candidate-lock",
+      "command": [
+        "npm",
+        "install",
+        "--package-lock-only",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0,
+      "seconds": 0.5537104999999999,
+      "expectedExit": 0
+    },
+    {
+      "label": "install",
+      "command": [
+        "npm",
+        "ci",
+        "--include=dev",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0,
+      "seconds": 3.532095709,
+      "expectedExit": 0
+    },
+    {
+      "label": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 1.0043866250000002,
+      "expectedExit": 0
+    },
+    {
+      "label": "strict-types",
+      "command": [
+        "npm",
+        "run",
+        "typecheck:strict"
+      ],
+      "exitCode": 0,
+      "seconds": 1.296234375,
+      "expectedExit": 0
+    },
+    {
+      "label": "build-ssr",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 3.9927354159999995,
+      "expectedExit": 0
+    }
+  ],
+  "browser": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browserEngine": "webkit",
+      "browserVersion": "26.5",
+      "url": "http://127.0.0.1:51967/ssr.html",
+      "checks": [
+        "SSR hydration"
+      ],
+      "errors": [],
+      "firstRenderMilliseconds": 126.84162500000093,
+      "status": "failed",
+      "error": "AssertionError [ERR_ASSERTION]: Modal focus escaped\n    at file:///Volumes/%E6%96%B0%E5%8A%A0%E5%8D%B7/Codex/%E6%A1%8C%E9%9D%A2%E5%BD%92%E6%A1%A3/%E9%A1%B9%E7%9B%AE%E8%B5%84%E6%96%99/aheart-ui-v2-m1/pilots/run-baselines.mjs:147:86\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:472:9)"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "browserEngine": "webkit",
+      "browserVersion": "26.5",
+      "url": "http://127.0.0.1:51967/ssr.html",
+      "checks": [
+        "SSR hydration"
+      ],
+      "errors": [],
+      "firstRenderMilliseconds": 41.51400000000103,
+      "status": "failed",
+      "error": "AssertionError [ERR_ASSERTION]: Modal focus escaped\n    at file:///Volumes/%E6%96%B0%E5%8A%A0%E5%8D%B7/Codex/%E6%A1%8C%E9%9D%A2%E5%BD%92%E6%A1%A3/%E9%A1%B9%E7%9B%AE%E8%B5%84%E6%96%99/aheart-ui-v2-m1/pilots/run-baselines.mjs:147:86\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:472:9)"
+    }
+  ],
+  "sourceFiles": {
+    "README.md": "b7f313f8de251333ead210d8bdd7f91f6b80cdcc56921d83788a765f0c7987bd",
+    "app.js": "9bac9aa1a2fb4facea8a2905bd6e4952d7d5db250ff752e8a83c1e4f81aea316",
+    "iframe.html": "9823e0c1b758eda2aa7a5807975dbe682f60f5879a33d46fd7c7886b6e8988bf",
+    "index.html": "00f16e66916a3080664748baa1c7604b3e74451584c4c00fbaf430ea67ba0611",
+    "main.js": "0f091d6f4a767a7cf8d07c97e95cf55348ee09a8408eb75f3c29eb2b0fa2ae60",
+    "package-lock.json": "52981d00bcb721c6cd13e6b79d7e209a20a7f841bcec59c54e6f6213902a8ff6",
+    "package.json": "f2c18cefa49c598829b01321fe7de2330673618f25160ab7db5343c48189bbc7",
+    "ssr.mjs": "86d69046205bdfa484c43ada30e10fc2bb6144ad808190aca68c5983785951a9",
+    "style.css": "a47e9e8dbec279ad42809b2ecc57357ff2e8ef37eab9b13fe151f785757ab98a",
+    "tsconfig.json": "c59094b325081757c582e3f683f0401f7feb59d3649427fa3f94e4568f76244a",
+    "tsconfig.strict.json": "b33f818a882c93c36add9ac4d8bb1510df539030ba3cba4a51cae417c2908928",
+    "types.ts": "627d5854fa47508efecd3e25fb3148f509e3d49f40adc431b854423561c0230b",
+    "vite.config.js": "e75f2f3c572aa3312b1ec0af91c08b13d4e7e6b1f2fcb8ed684d5ace38514571"
+  },
+  "packages": {
+    "aheart-ui": {
+      "version": "1.2.0",
+      "symlink": false,
+      "tarball": {
+        "path": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui-v2-m1/.pilot-runs/m1-tarballs/aheart-ui-1.2.0.tgz",
+        "version": "1.2.0",
+        "sha256": "ddfd0b2aae013b0ccac1b2317df4125b7546693ec0c1e3d5cc6c3b34d29db2e1"
+      }
+    },
+    "vue": {
+      "version": "3.5.44",
+      "symlink": false
+    }
+  },
+  "knownIssues": [],
+  "entryStrategy": "public-component-subpaths",
+  "lockSha256": "0a376ff3d411773ac7359eb19d7022e125fe188b43aefc76d7bc477e82c6031d",
+  "strictTypes": "passed",
+  "moduleGraph": {
+    "renderedModules": 75,
+    "ai": false,
+    "dnd": false,
+    "css": [
+      {
+        "file": "assets/main-DaI0I7ph.css",
+        "bytes": 25770,
+        "gzipBytes": 4638
+      }
+    ],
+    "js": [
+      {
+        "file": "assets/iframe-l0sNRNKZ.js",
+        "bytes": 1,
+        "gzipBytes": 21
+      },
+      {
+        "file": "assets/index-CaxYCorU.js",
+        "bytes": 28,
+        "gzipBytes": 48
+      },
+      {
+        "file": "assets/ssr-CaxYCorU.js",
+        "bytes": 28,
+        "gzipBytes": 48
+      },
+      {
+        "file": "assets/main-CZQ_eOEI.js",
+        "bytes": 197428,
+        "gzipBytes": 70239
+      }
+    ]
+  },
+  "url": "http://127.0.0.1:51967",
+  "iframe": "passed",
+  "error": "Browser baseline has failures; inspect per-viewport reports"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "aheart-strict-consumer",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "vue": "3.5.38",
+    "typescript": "5.9.3",
+    "aheart-ui": "file:./aheart-ui-1.2.0.tgz",
+    "@aheart-ui/dnd": "file:./aheart-ui-dnd-1.0.0.tgz",
+    "@aheart-ui/ai": "file:./aheart-ui-ai-1.0.0.tgz"
+  },
+  "overrides": {}
+}

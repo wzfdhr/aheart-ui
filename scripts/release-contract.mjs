@@ -3,15 +3,18 @@ import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { publicRuntimeExports, publicStyleExports } from '../packages/components/build/entries.mjs'
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 
 export const packageContracts = [
   {
     name: 'aheart-ui',
-    version: '1.1.0',
+    version: '1.2.0',
     packageDir: 'packages/components',
-    requiredFiles: ['README.md', 'LICENSE', 'package.json', 'es/package.json', 'es/index.js', 'es/index.d.ts', 'es/style.css', 'lib/package.json', 'lib/index.js', 'lib/index.d.ts', 'lib/style.css']
+    expectedExports: { ...publicRuntimeExports, ...publicStyleExports },
+    cssSideEffects: true,
+    requiredFiles: ['README.md', 'LICENSE', 'package.json', 'es/package.json', 'es/index.js', 'es/index.d.ts', 'es/style.css', 'lib/package.json', 'lib/index.js', 'lib/index.d.ts', 'lib/style.css', ...new Set(Object.values({ ...publicRuntimeExports, ...publicStyleExports }).flatMap(value => typeof value === 'string' ? [value.slice(2)] : Object.values(value).map(target => target.slice(2))))]
   },
   {
     name: '@aheart-ui/dnd',
@@ -66,6 +69,12 @@ export const validatePackageContract = (contract, manifest, packedFiles) => {
   if (rootExport?.require !== './lib/index.js') errors.push(`${prefix} exports["."].require must be ./lib/index.js`)
   if (manifest.exports?.['./style.css'] !== './es/style.css') errors.push(`${prefix} style export must be ./es/style.css`)
   if (manifest.exports?.['./package.json'] !== './package.json') errors.push(`${prefix} package.json export is required`)
+  for (const [subpath, expected] of Object.entries(contract.expectedExports ?? {})) {
+    if (JSON.stringify(manifest.exports?.[subpath]) !== JSON.stringify(expected)) errors.push(`${prefix} export ${subpath} must match its public entry contract`)
+  }
+  if (contract.cssSideEffects && JSON.stringify(manifest.sideEffects) !== JSON.stringify(['**/*.css'])) {
+    errors.push(`${prefix} sideEffects must retain CSS and allow JavaScript tree shaking`)
+  }
   const expectedVuePeer = contract.expectedVuePeer ?? '>=3.4.0 <4'
   if (manifest.peerDependencies?.vue !== expectedVuePeer) errors.push(`${prefix} Vue peer range must be ${expectedVuePeer}`)
 

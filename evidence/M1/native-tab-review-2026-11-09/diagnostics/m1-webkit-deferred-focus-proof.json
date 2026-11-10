@@ -1,0 +1,10 @@
+{
+  "before": {
+    "active": "",
+    "focused": false
+  },
+  "after": {
+    "active": "two",
+    "focused": true
+  }
+}

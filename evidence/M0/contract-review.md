@@ -1,6 +1,6 @@
-# M0 契约评审准备
+# M0 冻结契约
 
-状态：Needs decision；2026-11-05。来源是四份已批准规范，不代表 M0 验收通过。A1 已经 #38 合入并生效；适用范围见最新决策日志，用户尚未实际试用，继续待验收。
+状态：Frozen；2026-11-09 随负责人 M0 Go 确认生效。适用已批准规范与 A1；以下为 M1 additive 兼容边界。
 
 ## 用户、JTBD 与非目标
 
@@ -33,7 +33,7 @@
 | v2 beta / RC | 允许经迁移审查的 breaking change；根默认 Plugin 分离是 v2 契约 | 迁移清单与固定 v1 lockfile；须先完成适用 Beta/RC 门禁 |
 | v2 stable | 仅在最终 Decision Gate Go 后 | 未进入，不预先称 Stable |
 
-## M1 待冻结入口与样式
+## M1 入口与样式边界
 
 - 根 named import 保留名称、类型和现有 v1 根默认 Plugin 行为。RFC 的“根不再导出默认 Plugin”属于 v2 breaking change，不能静默移入 additive v1。
 - `aheart-ui/button`、`/modal`、`/select` 对应精确组件 ESM/CJS/types；以 tarball 的 public exports 验证，不用 monorepo 源码 alias。
@@ -53,6 +53,6 @@ M0 记录测量基线，M1 冻结数值预算。不在本报告填写未测量�
 - Vite、Nuxt SSR、CommonJS、iframe/custom teleport、五浏览器、键盘/axe 与 reduced-motion 按阶段验证；未测试的平台/构建器不能列为已支持。
 - 失败阈值：P0=0、M1 P1=0；公共安装失败、SSR/hydration、焦点陷阱、许可证或无法回滚的变更立即 Blocked。
 
-## 尚待决策与签字
+## 阶段决策
 
-试点名称已确定为 ai-review-gate，已按用户指示在 pilots/ai-review-gate 新建，见三试点报告；A1 阶段范围已生效；各组件数值预算与完整支持矩阵尚待冻结。用户明确表示尚未实际试用，保持待验收。M0 不得 Accepted。Owner：wzfdhr；证据采集：Codex。用户反馈由实际使用者提供，不以执行代理代签。
+自用试点 ai-review-gate 位于 pilots/ai-review-gate。负责人 2026-11-09 书面“确认”M0 Go，详见决策日志。M1 的具体包体/CSS 数值预算在实现前独立冻结，支持矩阵以已实际验证的平台为准。npm 发布仍需单独授权。

@@ -1,0 +1,6 @@
+{
+  "exitCode": 1,
+  "sourceSha": "5445886d2437e2fae6a2365e05438397c35bab2a",
+  "clone": "/var/folders/r6/2s10_vtx00l5g5kwbl5hkxw00000gn/T/aheart-m1-determinism-7rhva8vj",
+  "nodeModules": "Read-only dependency directory symlinks reused for the build determinism check only; consumer tests use independent npm installs."
+}

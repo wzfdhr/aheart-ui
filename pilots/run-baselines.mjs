@@ -10,6 +10,10 @@ import { promisify } from 'node:util'
 const run = promisify(execFile)
 const root = fileURLToPath(new URL('..', import.meta.url))
 const arg = name => { const i = process.argv.indexOf(name); return i < 0 ? undefined : process.argv[i + 1] }
+const entryMode = arg('--entry-mode') || 'legacy'
+assert.ok(['legacy', 'subpath'].includes(entryMode), '--entry-mode must be legacy or subpath')
+const browserEngine = arg('--browser') || 'chromium'
+assert.ok(['chromium', 'firefox', 'webkit'].includes(browserEngine), '--browser must be chromium, firefox or webkit')
 const strictTypesPolicy = arg('--strict-types') || 'pass'
 assert.ok(['pass', 'known-card-error'].includes(strictTypesPolicy), '--strict-types must be pass or known-card-error')
 const coreTarball = arg('--core-tarball') ? await realpath(arg('--core-tarball')) : undefined
@@ -22,7 +26,8 @@ const out = path.resolve(arg('--out') || path.join(runRoot, `aheart-pilot-eviden
 await mkdir(out, { recursive: false }) // Refuse to overwrite a prior run.
 const workspace = await realpath(await mkdtemp(path.join(runRoot, 'aheart-m0-pilots-')))
 const tooling = createRequire(path.join(root, 'pilots/tooling/package.json'))
-const { chromium, expect } = tooling('@playwright/test')
+const browserTypes = tooling('@playwright/test')
+const { expect } = browserTypes
 const { default: AxeBuilder } = tooling('@axe-core/playwright')
 const available = ['clean-consumer', 'ai-review-gate', 'muxu-todo']
 const names = arg('--only') ? arg('--only').split(',') : available
@@ -30,6 +35,8 @@ assert.ok(names.length > 0 && names.every(name => available.includes(name)), 'Un
 const summary = { status: 'failed', generatedAt: new Date().toISOString(), sourceSha: (await run('git', ['rev-parse', 'HEAD'], { cwd: root })).stdout.trim(), node: process.version, workspace, evidence: out, origin: 'Newly created validation applications; not pre-existing business adoption', pilots: [], userAcceptance: 'not-run', electron: 'not-run (desktop browser baseline only)' }
 summary.packageSource = candidate ? { kind: 'local-core-tarball', ...candidate } : { kind: 'public-registry' }
 summary.strictTypesPolicy = strictTypesPolicy
+summary.entryMode = entryMode
+summary.browserEngine = browserEngine
 const capture = async (record, label, command, args, cwd, directory, expected = 0) => {
   const started = performance.now()
   try {
@@ -46,7 +53,7 @@ const capture = async (record, label, command, args, cwd, directory, expected = 
 }
 let browser
 try {
-  browser = await chromium.launch()
+  browser = await browserTypes[browserEngine].launch(browserEngine === 'firefox' ? { firefoxUserPrefs: { 'network.proxy.type': 0 } } : {})
   for (const name of names) {
     const directory = path.join(out, name), project = path.join(workspace, name)
     await mkdir(directory)
@@ -57,6 +64,20 @@ try {
       await cp(source, project, { recursive: true, filter: file => !/(?:^|\/)(node_modules|dist|ssr\.html)(?:\/|$)/.test(file) })
       for (const file of await readdir(source)) {
         if ((await lstat(path.join(source, file))).isFile()) record.sourceFiles[file] = createHash('sha256').update(await readFile(path.join(source, file))).digest('hex')
+      }
+      record.entryStrategy = name === 'clean-consumer' && entryMode === 'subpath' ? 'public-component-subpaths' : 'legacy-root-compatibility'
+      if (record.entryStrategy === 'public-component-subpaths') {
+        const imports = "import Button from 'aheart-ui/button'\nimport Modal from 'aheart-ui/modal'\nimport Select from 'aheart-ui/select'"
+        for (const file of ['app.js', 'types.ts']) {
+          const target = path.join(project, file)
+          const text = await readFile(target, 'utf8')
+          assert.ok(text.includes("import { Button, Modal, Select } from 'aheart-ui'"))
+          await writeFile(target, text.replace("import { Button, Modal, Select } from 'aheart-ui'", imports).replace('使用现有根入口与全量 CSS，尚未宣称组件 CSS 按需。', '使用公开组件子入口与显式 theme/组件 CSS。'))
+        }
+        const target = path.join(project, 'main.js')
+        await writeFile(target, (await readFile(target, 'utf8')).replace("import 'aheart-ui/style.css'", "import 'aheart-ui/theme.css'\nimport 'aheart-ui/button/style.css'\nimport 'aheart-ui/modal/style.css'\nimport 'aheart-ui/select/style.css'"))
+        await mkdir(path.join(directory, 'consumed-source'))
+        for (const file of ['app.js', 'main.js', 'types.ts']) await cp(path.join(project, file), path.join(directory, 'consumed-source', file))
       }
       const manifest = JSON.parse(await readFile(path.join(project, 'package.json'), 'utf8'))
       if (candidate) {
@@ -100,11 +121,11 @@ try {
       record.url = url
       try {
         for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
-          const context = await browser.newContext({ viewport, reducedMotion: 'reduce' })
+          const context = await browser.newContext({ viewport, reducedMotion: 'reduce', ...(viewport.width < 600 && browserEngine !== 'firefox' ? { isMobile: true, hasTouch: true } : {}) })
           const page = await context.newPage(), errors = []
           page.on('pageerror', error => errors.push(error.message))
           page.on('console', message => { if (message.type() === 'warning' || message.type() === 'error') errors.push(message.text()) })
-          const result = { viewport, browserVersion: browser.version(), url: `${url}/ssr.html`, checks: [], errors }
+          const result = { viewport, browserEngine, browserVersion: browser.version(), url: `${url}/ssr.html`, checks: [], errors }
           record.browser.push(result)
           try {
             const start = performance.now()
@@ -120,10 +141,57 @@ try {
               await page.getByRole('option', { name: '紧凑', exact: true }).click()
               await expect(page.getByLabel('选中方式')).toHaveText('compact')
               const trigger = page.getByRole('button', { name: '打开检查弹窗' })
-              await trigger.click()
+              await trigger.focus()
+              await trigger.press('Enter')
               const dialog = page.getByRole('dialog', { name: '组件检查' })
               await expect(dialog).toBeVisible()
-              for (let i = 0; i < 6; i++) { await page.keyboard.press('Tab'); assert.ok(await dialog.evaluate(element => element.contains(element.ownerDocument.activeElement)), 'Modal focus escaped') }
+              const focusInside = () => dialog.evaluate(element => element.contains(element.ownerDocument.activeElement))
+              await expect.poll(focusInside, { message: 'Modal initial focus must settle inside the dialog' }).toBe(true)
+              for (let i = 0; i < 6; i++) { await page.keyboard.press('Tab'); await expect.poll(focusInside, { message: 'Modal focus escaped' }).toBe(true) }
+              // Compare native navigation independently of Modal and require
+              // the real packed Modal to retain it while containing escapes.
+              const probeHTML = '<input data-tab="radio-one" aria-label="One" type="radio" name="m1-choice" checked><input data-tab="radio-two" aria-label="Two" type="radio" name="m1-choice"><input data-tab="after-radio" aria-label="After radios"><div data-tab="editor" contenteditable="true">Editor</div><details><summary data-tab="summary">More</summary><input data-tab="closed-detail" aria-label="Closed detail"></details><input data-tab="date" aria-label="Date" type="date" value="2026-11-09"><video data-tab="media" controls tabindex="0"></video><button data-tab="end">End</button>'
+              const cases = [['radio-one', 'Tab'], ['after-radio', 'Shift+Tab'], ['after-radio', 'Tab'], ['editor', 'Tab'], ['summary', 'Tab'], ['date', 'Tab'], ['media', 'Tab'], ['end', 'Shift+Tab']]
+              const reference = await context.newPage()
+              const oracle = []
+              try {
+                for (const [origin, key] of cases) {
+                  await reference.setContent(`<div data-m1-tab-probe>${probeHTML}</div>`)
+                  await reference.bringToFront()
+                  await reference.locator('[data-m1-tab-probe]').click({ position: { x: 1, y: 1 } })
+                  const target = reference.locator(`[data-tab="${origin}"]`)
+                  await target.focus()
+                  const supported = await target.evaluate(element => element === element.ownerDocument.activeElement || element.contains(element.ownerDocument.activeElement))
+                  if (!supported) { oracle.push({ origin, key, supported: false }); continue }
+                  await reference.keyboard.press(key)
+                  await reference.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)))
+                  const destination = await reference.evaluate(() => document.activeElement?.closest('[data-tab]')?.getAttribute('data-tab') ?? null)
+                  oracle.push({ origin, key, supported: true, destination })
+                }
+              } finally { await reference.close(); await page.bringToFront() }
+              await dialog.evaluate(element => {
+                const host = element.ownerDocument.createElement('div')
+                host.dataset.m1TabProbe = 'true'
+                element.querySelector('.aheart-modal__body').append(host)
+              })
+              const probe = dialog.locator('[data-m1-tab-probe]')
+              result.modalNativeTab = []
+              for (const native of oracle) {
+                await probe.evaluate((element, html) => { element.innerHTML = html }, probeHTML)
+                await dialog.click({ position: { x: 1, y: 1 } })
+                const target = probe.locator(`[data-tab="${native.origin}"]`)
+                await target.focus()
+                const supported = await target.evaluate(element => element === element.ownerDocument.activeElement || element.contains(element.ownerDocument.activeElement))
+                assert.equal(supported, native.supported, 'Modal changed native programmatic focusability')
+                if (!supported) { result.modalNativeTab.push({ ...native, status: 'not-focusable-in-engine' }); continue }
+                await page.keyboard.press(native.key)
+                await expect.poll(focusInside, { message: 'Native Tab escaped the blocking dialog' }).toBe(true)
+                if (native.destination) await expect(probe.locator(`[data-tab="${native.destination}"]`)).toBeFocused()
+                const actual = await page.evaluate(() => document.activeElement?.closest('[data-tab]')?.getAttribute('data-tab') ?? null)
+                result.modalNativeTab.push({ ...native, actual, contained: true, status: 'passed' })
+              }
+              await probe.evaluate(element => element.remove())
+              result.checks.push('independent native radio/editor/details/composite Tab oracle and containment')
               await page.keyboard.press('Escape')
               await expect(dialog).toBeHidden()
               await expect(trigger).toBeFocused()

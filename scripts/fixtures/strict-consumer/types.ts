@@ -48,3 +48,22 @@ metaSlots.missing({})
 // @ts-expect-error CardGrid has no arbitrary slot names.
 gridSlots.missing({})
 void rendered
+
+// M1 additive public entries must preserve root component and plugin types.
+import SubpathButton, { Button as NamedButton, type ButtonProps } from 'aheart-ui/button'
+import SubpathModal, { Modal as NamedModal, type ModalProps } from 'aheart-ui/modal'
+import SubpathSelect, { Select as NamedSelect, type SelectProps } from 'aheart-ui/select'
+import FullPlugin from 'aheart-ui/full'
+import { Modal, Select } from 'aheart-ui'
+export type M1ExportTypes = [
+  Assert<Equal<typeof Button, typeof SubpathButton>>,
+  Assert<Equal<typeof Button, typeof NamedButton>>,
+  Assert<Equal<typeof Modal, typeof SubpathModal>>,
+  Assert<Equal<typeof Modal, typeof NamedModal>>,
+  Assert<Equal<typeof Select, typeof SubpathSelect>>,
+  Assert<Equal<typeof Select, typeof NamedSelect>>,
+  Assert<Equal<typeof AheartUI, typeof FullPlugin>>
+]
+app.use(FullPlugin).use(SubpathButton).use(SubpathModal).use(SubpathSelect)
+const m1Props: [Partial<ButtonProps>, Partial<ModalProps>, Partial<SelectProps>] = [{}, {}, {}]
+void m1Props

@@ -19,6 +19,23 @@ const mountModal = (options: Record<string, any> = {}) =>
     }
   })
 
+// jsdom has no native Tab navigation. Model the WebKit escape after an
+// unprevented key and let the component's owner-window recovery task settle.
+const simulateEscapingTab = async (wrapper: ReturnType<typeof mountModal>, shiftKey = false) => {
+  const root = wrapper.find('.aheart-modal').element as HTMLElement
+  const doc = root.ownerDocument
+  const active = doc.activeElement as HTMLElement | null
+  await nextTick()
+  active?.focus()
+  const outside = doc.createElement('button')
+  doc.body.appendChild(outside)
+  const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true })
+  root.dispatchEvent(event)
+  if (!event.defaultPrevented) outside.focus()
+  await new Promise<void>(resolve => doc.defaultView!.setTimeout(resolve, 0))
+  outside.remove()
+}
+
 describe('Modal', () => {
   it('opens from a real button entry point and renders the default actions', async () => {
     const wrapper = mount(
@@ -900,6 +917,168 @@ describe('Modal', () => {
     expect(document.activeElement).toBe(first)
 
     wrapper.unmount()
+  })
+
+  it('recovers native Tab escapes without stealing a successful internal move', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="first">First</button><button class="middle">Middle</button><button class="last">Last</button>' }
+    })
+    await nextTick()
+    const first = wrapper.find('.first').element as HTMLElement
+    const middle = wrapper.find('.middle').element as HTMLElement
+    first.focus()
+    const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+    first.dispatchEvent(event)
+    expect(event.defaultPrevented).toBe(false)
+    middle.focus() // A browser that navigated inside successfully owns this move.
+    await new Promise<void>(resolve => window.setTimeout(resolve, 0))
+    expect(document.activeElement).toBe(middle)
+    await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(wrapper.find('.last').element)
+    await simulateEscapingTab(wrapper, true)
+    expect(document.activeElement).toBe(middle)
+    wrapper.unmount()
+  })
+
+  it('preserves positive tabindex order and respects child-owned Tab events', async () => {
+    const wrapper = mountModal({
+      attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="zero">Zero</button><button class="two" tabindex="2">Two</button><button class="one" tabindex="1">One</button>' }
+    })
+    const one = wrapper.find('.one').element as HTMLElement
+    const two = wrapper.find('.two').element as HTMLElement
+    const zero = wrapper.find('.zero').element as HTMLElement
+    one.focus()
+    await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(two)
+    await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(zero)
+    const owned = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+    owned.preventDefault()
+    zero.dispatchEvent(owned)
+    expect(document.activeElement).toBe(zero)
+    wrapper.unmount()
+  })
+
+  it('skips hidden, inert and disabled controls during recovery from a native Tab escape', async () => {
+    const wrapper = mountModal({
+      attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="first">First</button><div style="display:none"><button>Hidden</button></div><div inert><button>Inert</button></div><fieldset disabled><input></fieldset><button tabindex="-1">Skipped</button><button class="last">Last</button>' }
+    })
+    const first = wrapper.find('.first').element as HTMLElement
+    const last = wrapper.find('.last').element as HTMLElement
+    first.focus()
+    await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(last)
+    await simulateEscapingTab(wrapper, true)
+    expect(document.activeElement).toBe(first)
+    wrapper.unmount()
+  })
+
+  it('uses one radio Tab stop per form group, including programmatically focused radios', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<form><input class="a" type="radio" name="choice" checked><input class="a2" type="radio" name="choice"></form><form><input class="b" type="radio" name="choice" checked><input class="b2" type="radio" name="choice"></form><input class="after">' }
+    })
+    const focus = (name: string) => (wrapper.find(name).element as HTMLElement).focus()
+    const tab = (shiftKey = false) => simulateEscapingTab(wrapper, shiftKey)
+    focus('.a'); await tab(); expect(document.activeElement).toBe(wrapper.find('.b').element)
+    await tab(); expect(document.activeElement).toBe(wrapper.find('.after').element)
+    await tab(true); expect(document.activeElement).toBe(wrapper.find('.b').element)
+    focus('.a2'); await tab(); expect(document.activeElement).toBe(wrapper.find('.b').element)
+    wrapper.unmount()
+  })
+
+  it('includes editable hosts while nested editors require an explicit tabindex', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<input class="before"><div class="editor" contenteditable="true">Edit<div class="nested" contenteditable="true">Nested</div></div><button class="after">After</button>' }
+    })
+    const before = wrapper.find('.before').element as HTMLElement
+    const editor = wrapper.find('.editor').element as HTMLElement
+    const nested = wrapper.find('.nested').element as HTMLElement
+    before.focus(); await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(editor)
+    await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(wrapper.find('.after').element)
+    nested.tabIndex = 0; editor.focus()
+    await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(nested)
+    wrapper.unmount()
+  })
+
+  it('skips closed details content and retains visible descendants of visibility-hidden ancestors', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<details><summary class="summary" tabindex="0">More</summary><input class="closed"></details><div style="visibility:hidden"><button class="visible" style="visibility:visible">Visible</button></div><button class="after">After</button>' }
+    })
+    ;(wrapper.find('.summary').element as HTMLElement).focus()
+    await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(wrapper.find('.visible').element)
+    await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(wrapper.find('.after').element)
+    wrapper.unmount()
+  })
+
+  it('leaves internal native composite Tab steps to the browser between dialog boundaries', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="first">First</button><input class="date" type="date"><video class="media" controls tabindex="0"></video><button class="last">Last</button>' }
+    })
+    // jsdom does not emulate implicit native video focusability; the packed
+    // browser probe separately verifies native video navigation.
+    for (const selector of ['.date', '.media']) {
+      const node = wrapper.find(selector).element as HTMLElement
+      node.focus()
+      expect(document.activeElement).toBe(node)
+      const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+      node.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(false)
+    }
+    const date = wrapper.find('.date').element as HTMLElement
+    date.tabIndex = -1; date.focus()
+    const nonTabstop = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+    date.dispatchEvent(nonTabstop)
+    expect(nonTabstop.defaultPrevented).toBe(false)
+    const last = wrapper.find('.last').element as HTMLElement
+    last.focus(); await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(wrapper.find('.first').element)
+    wrapper.unmount()
+  })
+
+  it('continues to the next control when an engine rejects a candidate focus request', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="first">First</button><video class="media" controls tabindex="0"></video><button class="last">Last</button>' }
+    })
+    const first = wrapper.find('.first').element as HTMLElement
+    const last = wrapper.find('.last').element as HTMLElement
+    const focus = vi.spyOn(wrapper.find('.media').element as HTMLElement, 'focus').mockImplementation(() => {})
+    first.focus(); await simulateEscapingTab(wrapper)
+    expect(document.activeElement).toBe(last)
+    await simulateEscapingTab(wrapper, true)
+    expect(document.activeElement).toBe(first)
+    expect(focus).toHaveBeenCalledTimes(2)
+    focus.mockRestore(); wrapper.unmount()
+  })
+
+  it('does not run a deferred recovery after the modal is unmounted', async () => {
+    const outside = document.createElement('button')
+    document.body.appendChild(outside); outside.focus()
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="first">First</button><button class="middle">Middle</button><button class="last">Last</button>' }
+    })
+    await nextTick()
+    ;(wrapper.find('.middle').element as HTMLElement).focus()
+    wrapper.find('.aheart-modal').element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }))
+    wrapper.unmount(); outside.focus()
+    await new Promise<void>(resolve => window.setTimeout(resolve, 0))
+    expect(document.activeElement).toBe(outside)
+    outside.remove()
   })
 
   it('traps shift tab focus back to the last dialog control', async () => {

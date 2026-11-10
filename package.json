@@ -25,7 +25,8 @@
     "check:consumer-types": "node scripts/strict-consumer.mjs",
     "check:generated": "node scripts/check-generated.mjs",
     "check:build-determinism": "node scripts/check-build-determinism.mjs",
-    "release:check": "corepack pnpm test && corepack pnpm typecheck && corepack pnpm check:build-determinism && corepack pnpm docs:build && corepack pnpm release:pack --pack-destination test-results/release-tarballs && corepack pnpm check:consumer-types && corepack pnpm test:e2e && git diff --check"
+    "release:check": "corepack pnpm test && corepack pnpm typecheck && corepack pnpm check:build-determinism && corepack pnpm docs:build && corepack pnpm release:pack --pack-destination test-results/release-tarballs && corepack pnpm check:consumer-types && corepack pnpm test:e2e && git diff --check",
+    "check:m1-consumer": "node scripts/m1-consumer.mjs"
   },
   "keywords": [
     "aheart-ui",

@@ -1,0 +1,1153 @@
+{
+  "status": "passed",
+  "files": [
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/axe-1440.json",
+      "archive": "chromium/ai-review-gate/axe-1440.json.gz",
+      "sha256": "34ecb7e525d628028a04752095258aaf9c7704163dd30b70e6820a16e6704cff",
+      "bytes": 255812,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/axe-390.json",
+      "archive": "chromium/ai-review-gate/axe-390.json.gz",
+      "sha256": "4f7b152726cdb8e6c50aa758682691bfd770a262d941990ca8c8f7edd37bbf54",
+      "bytes": 249646,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/browser-1440.png",
+      "archive": "chromium/ai-review-gate/browser-1440.png",
+      "sha256": "4e79642da2711bfa6b53ba9873f9be7877bd4f40b67c6867715b62a5f9e4d15e",
+      "bytes": 114827,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/browser-390.png",
+      "archive": "chromium/ai-review-gate/browser-390.png",
+      "sha256": "2f89bae571a0d37845aec38b9fe820bfe5c2d67dbb8b8e80a00182f12a8bb1be",
+      "bytes": 56816,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/build-ssr.log",
+      "archive": "chromium/ai-review-gate/build-ssr.log.gz",
+      "sha256": "c12b272c145df1b5b7626a7fc620142eff3eb42e78bf5d37a3e92212a0810059",
+      "bytes": 678,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/candidate-lock.log",
+      "archive": "chromium/ai-review-gate/candidate-lock.log.gz",
+      "sha256": "19a67191b39bdfb63ed4b7d1d43131dd761a9f76e10ebabdcd62cea501dd8d11",
+      "bytes": 21,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/install.log",
+      "archive": "chromium/ai-review-gate/install.log.gz",
+      "sha256": "92bee64d4e7cd8f51662c7d8d29ae70415522fd68504c72ac8261130a9b966f2",
+      "bytes": 25,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/module-graph.json",
+      "archive": "chromium/ai-review-gate/module-graph.json.gz",
+      "sha256": "07f5f4202b0150d0b7d6134334ffc8d4686971b4aab177d56d0a6aa7714df764",
+      "bytes": 38756,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/package-lock.json",
+      "archive": "chromium/ai-review-gate/package-lock.json.gz",
+      "sha256": "aca3949fd7a73411a5f5238eed144cb8c2c7ebc287eebb5ac8d68ffe4f3eaf3b",
+      "bytes": 46744,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/results.json",
+      "archive": "chromium/ai-review-gate/results.json",
+      "sha256": "475af033f379ef6a3f7c88e05e33a3d486ff2518d2847fd87ddb9aa0cf06d4a1",
+      "bytes": 5674,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/strict-types.log",
+      "archive": "chromium/ai-review-gate/strict-types.log.gz",
+      "sha256": "3d5b5793c05c13b79f59119b8ce14edd6dca87648bd73c101951e541ed308f03",
+      "bytes": 85,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/ai-review-gate/typecheck.log",
+      "archive": "chromium/ai-review-gate/typecheck.log.gz",
+      "sha256": "f8fd2069ed39d7a52346f19584de2521e70e4f3ae7a97881e798ef52f7d990e1",
+      "bytes": 71,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/axe-1440.json",
+      "archive": "chromium/clean-consumer/axe-1440.json.gz",
+      "sha256": "b3c98fa37f6d5c089c00dd958f6b3fda2020851ccb194f3b533b76ec469cdb71",
+      "bytes": 92775,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/axe-390.json",
+      "archive": "chromium/clean-consumer/axe-390.json.gz",
+      "sha256": "ab4c678178f23362621b7697d779a192817d3d2cc1cd6cbacbc3e8fc3fc34705",
+      "bytes": 92772,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/browser-1440.png",
+      "archive": "chromium/clean-consumer/browser-1440.png",
+      "sha256": "78a6782b28e0c739889c556e84d458367ec016685e6d7fc5fe9bb12caf8ad230",
+      "bytes": 51943,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/browser-390.png",
+      "archive": "chromium/clean-consumer/browser-390.png",
+      "sha256": "333a4290822e12e2b111a961cff9df512550909d598a585a08d5efd5973a0ea4",
+      "bytes": 44251,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/build-ssr.log",
+      "archive": "chromium/clean-consumer/build-ssr.log.gz",
+      "sha256": "0b05b22306236593ad00af4822131a11bf77922b7361dfb3fa3b51621c79a7dd",
+      "bytes": 671,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/candidate-lock.log",
+      "archive": "chromium/clean-consumer/candidate-lock.log.gz",
+      "sha256": "e64af586ea357f57559d65d1407e250bb430d9affd6f6fb18035db10efc3efe1",
+      "bytes": 18,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/consumed-source/app.js",
+      "archive": "chromium/clean-consumer/consumed-source/app.js",
+      "sha256": "e02b52552146b6bfe56a73fafcef3ce471a07706992148dbce8f6197bc179095",
+      "bytes": 1855,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/consumed-source/main.js",
+      "archive": "chromium/clean-consumer/consumed-source/main.js",
+      "sha256": "1f6e4fc2f049632103b05c40fca19f89d3c20df94a01a43b46cd783eba4532a6",
+      "bytes": 578,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/consumed-source/types.ts",
+      "archive": "chromium/clean-consumer/consumed-source/types.ts",
+      "sha256": "8bfba92d1cb25020af69262a00cb28ddd9d9e6993e107b9193fff8b189ac76d9",
+      "bytes": 255,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/iframe.png",
+      "archive": "chromium/clean-consumer/iframe.png",
+      "sha256": "91c34283df45ae6e46316e23ba2eb200c692168db4b2c794b44aa86a0fe775c1",
+      "bytes": 67127,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/install.log",
+      "archive": "chromium/clean-consumer/install.log.gz",
+      "sha256": "84e1d20f1dc25bd92682b43b4644d3a2027935aa93a5b63dfa841e5c490cc273",
+      "bytes": 25,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/module-graph.json",
+      "archive": "chromium/clean-consumer/module-graph.json.gz",
+      "sha256": "a080d4d1b3a337871054b5bf1fdd1f99baa349c26aef97f64b3db37bd38f3528",
+      "bytes": 10185,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/package-lock.json",
+      "archive": "chromium/clean-consumer/package-lock.json.gz",
+      "sha256": "f2924c5b69f7c0b1722d65aef59d995c346e0a277947344923a4fbe82ccf474c",
+      "bytes": 43758,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/results.json",
+      "archive": "chromium/clean-consumer/results.json",
+      "sha256": "1182f53988a8e2e2ae910c04a115b34aa74878b423c3dd7b91ce6a9673e04289",
+      "bytes": 9241,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/strict-types.log",
+      "archive": "chromium/clean-consumer/strict-types.log.gz",
+      "sha256": "2ec4f908bccb04c41cc68235ca98e4e4523159eeb564c53b1c7c5eaeba4ce101",
+      "bytes": 85,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/clean-consumer/typecheck.log",
+      "archive": "chromium/clean-consumer/typecheck.log.gz",
+      "sha256": "ab337baba6cbfc99d4c60202df61114a8208e9ab5e88788bfd7abb4550947e17",
+      "bytes": 71,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/axe-1440.json",
+      "archive": "chromium/muxu-todo/axe-1440.json.gz",
+      "sha256": "327b1c892912174135447847f2eb7d6045fe56c2bfd80afb861dbed17b1ea096",
+      "bytes": 104005,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/axe-390.json",
+      "archive": "chromium/muxu-todo/axe-390.json.gz",
+      "sha256": "0f2cbeac7a5bbbeda9daf22e16de7256d4f3502c33411fa5b0f82505bf8d62e1",
+      "bytes": 104002,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/browser-1440.png",
+      "archive": "chromium/muxu-todo/browser-1440.png",
+      "sha256": "01c1787d64f5eba52734ca96e665719e9c05864d51c8591480cb08182982d278",
+      "bytes": 47838,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/browser-390.png",
+      "archive": "chromium/muxu-todo/browser-390.png",
+      "sha256": "ed2ed5c8a90188e5146915a10d131802212fbdc531bba7f992ba13b2b2b78ccd",
+      "bytes": 39817,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/build-ssr.log",
+      "archive": "chromium/muxu-todo/build-ssr.log.gz",
+      "sha256": "1686cbba8626cd20760725e80cde741e8fe67e8a4a1dda51779a9b9c3d5ad089",
+      "bytes": 661,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/candidate-lock.log",
+      "archive": "chromium/muxu-todo/candidate-lock.log.gz",
+      "sha256": "b15c56f590a0361f8930e8116d0459a6a30ffc77a03997cf126e6066f2a2c5a9",
+      "bytes": 21,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/install.log",
+      "archive": "chromium/muxu-todo/install.log.gz",
+      "sha256": "1b491976e0cd6107b8bba805913efde7185c5ac77519693fc43423c655deefa3",
+      "bytes": 25,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/module-graph.json",
+      "archive": "chromium/muxu-todo/module-graph.json.gz",
+      "sha256": "bd92a84a222204b8982222b9c9033577e032f14eba24123ed73f9de9ad49c321",
+      "bytes": 10661,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/package-lock.json",
+      "archive": "chromium/muxu-todo/package-lock.json.gz",
+      "sha256": "93fe0361b5a86a26dd63356247b05a64660934b8c3559f863cbf1368a6d0895f",
+      "bytes": 43748,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/results.json",
+      "archive": "chromium/muxu-todo/results.json",
+      "sha256": "e41567875eec9fe4c22f1477d163c45b6b15ed1ac48f69f9835f6149afb2900b",
+      "bytes": 4956,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/strict-types.log",
+      "archive": "chromium/muxu-todo/strict-types.log.gz",
+      "sha256": "becec39fd1362ec570918e9a9c4098ab3558758b5807a3711e425cff4f0fcf0c",
+      "bytes": 80,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/muxu-todo/typecheck.log",
+      "archive": "chromium/muxu-todo/typecheck.log.gz",
+      "sha256": "257666fd8c54b0db874455b78075225d72324d7caeb6403759d3f440bec049d1",
+      "bytes": 66,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium/results.json",
+      "archive": "chromium/results.json",
+      "sha256": "8de7c1b68cab9c914b11735870b7a8d5b35b7eabcb2e64219e4ad9e679dc1ad7",
+      "bytes": 23782,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/axe-1440.json",
+      "archive": "firefox/clean-consumer/axe-1440.json.gz",
+      "sha256": "0fc6f462732871a2ae7c6280a73ee605ead8c8d94b534e376c895742dbf9e3e4",
+      "bytes": 92730,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/axe-390.json",
+      "archive": "firefox/clean-consumer/axe-390.json.gz",
+      "sha256": "ed392089cf33bcb6041ec8395c082ebd67e7ddf4afb45b679ba2c69fd49be270",
+      "bytes": 92728,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/browser-1440.png",
+      "archive": "firefox/clean-consumer/browser-1440.png",
+      "sha256": "2c5d8dd3d565f5cf2a2ffd0477b6c1113c3feb3ddfa586110afdb6dc471a23d6",
+      "bytes": 57134,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/browser-390.png",
+      "archive": "firefox/clean-consumer/browser-390.png",
+      "sha256": "bc82224411b3c2e1b9649de3f9fcdd4acd53b624d6a04a2e4abd15b6d0a4936f",
+      "bytes": 47007,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/build-ssr.log",
+      "archive": "firefox/clean-consumer/build-ssr.log.gz",
+      "sha256": "2302c00240a0f048357cb347ccf979b1de8f83570594894fef9ccc7446aea141",
+      "bytes": 671,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/candidate-lock.log",
+      "archive": "firefox/clean-consumer/candidate-lock.log.gz",
+      "sha256": "ce7bf91f54adc7390cff6bf1c2572fd00ce9cfbd0611637e273059c4710a80c9",
+      "bytes": 18,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/consumed-source/app.js",
+      "archive": "firefox/clean-consumer/consumed-source/app.js",
+      "sha256": "e02b52552146b6bfe56a73fafcef3ce471a07706992148dbce8f6197bc179095",
+      "bytes": 1855,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/consumed-source/main.js",
+      "archive": "firefox/clean-consumer/consumed-source/main.js",
+      "sha256": "1f6e4fc2f049632103b05c40fca19f89d3c20df94a01a43b46cd783eba4532a6",
+      "bytes": 578,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/consumed-source/types.ts",
+      "archive": "firefox/clean-consumer/consumed-source/types.ts",
+      "sha256": "8bfba92d1cb25020af69262a00cb28ddd9d9e6993e107b9193fff8b189ac76d9",
+      "bytes": 255,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/iframe.png",
+      "archive": "firefox/clean-consumer/iframe.png",
+      "sha256": "a5c47bc4480fddf929030223cc01321633df251f33d7e3e691788367e1c8d619",
+      "bytes": 73493,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/install.log",
+      "archive": "firefox/clean-consumer/install.log.gz",
+      "sha256": "764017408645dd66773869e339f2f8be07f5dafc8650c6c61d78f394b4cfcb3b",
+      "bytes": 25,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/module-graph.json",
+      "archive": "firefox/clean-consumer/module-graph.json.gz",
+      "sha256": "a080d4d1b3a337871054b5bf1fdd1f99baa349c26aef97f64b3db37bd38f3528",
+      "bytes": 10185,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/package-lock.json",
+      "archive": "firefox/clean-consumer/package-lock.json.gz",
+      "sha256": "f2924c5b69f7c0b1722d65aef59d995c346e0a277947344923a4fbe82ccf474c",
+      "bytes": 43758,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/results.json",
+      "archive": "firefox/clean-consumer/results.json",
+      "sha256": "b976d6a48d3c2bbf3f52f3abe9c5b1372d72205ab8ea03b387a966754cd32a64",
+      "bytes": 9243,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/strict-types.log",
+      "archive": "firefox/clean-consumer/strict-types.log.gz",
+      "sha256": "2ec4f908bccb04c41cc68235ca98e4e4523159eeb564c53b1c7c5eaeba4ce101",
+      "bytes": 85,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/clean-consumer/typecheck.log",
+      "archive": "firefox/clean-consumer/typecheck.log.gz",
+      "sha256": "ab337baba6cbfc99d4c60202df61114a8208e9ab5e88788bfd7abb4550947e17",
+      "bytes": 71,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox/results.json",
+      "archive": "firefox/results.json",
+      "sha256": "3dfa5a1888b62d6fc45afae375be9ad419be55518351abd3c8d775930610c002",
+      "bytes": 11590,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/axe-1440.json",
+      "archive": "webkit/clean-consumer/axe-1440.json.gz",
+      "sha256": "b329cedb8bfc1e15f40e088272c6945440eb83920ff057f2cad11b8b8b101e25",
+      "bytes": 92763,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/axe-390.json",
+      "archive": "webkit/clean-consumer/axe-390.json.gz",
+      "sha256": "c563a5732577dfe8c142cbe6955acce347cef61b404c3c9aaf31c09a2a26c3b1",
+      "bytes": 92761,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/browser-1440.png",
+      "archive": "webkit/clean-consumer/browser-1440.png",
+      "sha256": "1080f8b6569969299b96fe6be11f55d96321e26fe6dfaad73bb07e9a3c0b371a",
+      "bytes": 79948,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/browser-390.png",
+      "archive": "webkit/clean-consumer/browser-390.png",
+      "sha256": "3474f6f7bf9da61089cb14e3caba4db92610d05e4103ed711b220b1c358c59e6",
+      "bytes": 54488,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/build-ssr.log",
+      "archive": "webkit/clean-consumer/build-ssr.log.gz",
+      "sha256": "63ebf694e2cc2e8e7fa4883400666e3e65836d106a9f05c6c3fd2614f84dbec0",
+      "bytes": 671,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/candidate-lock.log",
+      "archive": "webkit/clean-consumer/candidate-lock.log.gz",
+      "sha256": "ce7bf91f54adc7390cff6bf1c2572fd00ce9cfbd0611637e273059c4710a80c9",
+      "bytes": 18,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/consumed-source/app.js",
+      "archive": "webkit/clean-consumer/consumed-source/app.js",
+      "sha256": "e02b52552146b6bfe56a73fafcef3ce471a07706992148dbce8f6197bc179095",
+      "bytes": 1855,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/consumed-source/main.js",
+      "archive": "webkit/clean-consumer/consumed-source/main.js",
+      "sha256": "1f6e4fc2f049632103b05c40fca19f89d3c20df94a01a43b46cd783eba4532a6",
+      "bytes": 578,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/consumed-source/types.ts",
+      "archive": "webkit/clean-consumer/consumed-source/types.ts",
+      "sha256": "8bfba92d1cb25020af69262a00cb28ddd9d9e6993e107b9193fff8b189ac76d9",
+      "bytes": 255,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/iframe.png",
+      "archive": "webkit/clean-consumer/iframe.png",
+      "sha256": "4f77edd44b58fb4b4d0d454a90187b27e061611a09d7b84057f8c4e686fb52ca",
+      "bytes": 94124,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/install.log",
+      "archive": "webkit/clean-consumer/install.log.gz",
+      "sha256": "764017408645dd66773869e339f2f8be07f5dafc8650c6c61d78f394b4cfcb3b",
+      "bytes": 25,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/module-graph.json",
+      "archive": "webkit/clean-consumer/module-graph.json.gz",
+      "sha256": "a080d4d1b3a337871054b5bf1fdd1f99baa349c26aef97f64b3db37bd38f3528",
+      "bytes": 10185,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/package-lock.json",
+      "archive": "webkit/clean-consumer/package-lock.json.gz",
+      "sha256": "f2924c5b69f7c0b1722d65aef59d995c346e0a277947344923a4fbe82ccf474c",
+      "bytes": 43758,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/results.json",
+      "archive": "webkit/clean-consumer/results.json",
+      "sha256": "411f4043fa393bfd6c30220a3f58b9bfc7d2dca178324787b71db735872912fd",
+      "bytes": 9209,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/strict-types.log",
+      "archive": "webkit/clean-consumer/strict-types.log.gz",
+      "sha256": "2ec4f908bccb04c41cc68235ca98e4e4523159eeb564c53b1c7c5eaeba4ce101",
+      "bytes": 85,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/clean-consumer/typecheck.log",
+      "archive": "webkit/clean-consumer/typecheck.log.gz",
+      "sha256": "ab337baba6cbfc99d4c60202df61114a8208e9ab5e88788bfd7abb4550947e17",
+      "bytes": 71,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit/results.json",
+      "archive": "webkit/results.json",
+      "sha256": "198b261cb5c433a46d619c20b9cc92a62bba9ccb6041bec8f08bdbcbb5de1b25",
+      "bytes": 11554,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/bare-button-module-graph.json",
+      "archive": "consumer/bare-button-module-graph.json.gz",
+      "sha256": "146fd728f07fd3872e3e06c12c92331e09a989e1e93a14f961080780150fae5f",
+      "bytes": 158827,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/build-bare-button.log",
+      "archive": "consumer/build-bare-button.log.gz",
+      "sha256": "c7cdab9214fa8993bb394b2ef930bf7dd5e20e50924702754f753209722c5bdc",
+      "bytes": 328,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/build-button.log",
+      "archive": "consumer/build-button.log.gz",
+      "sha256": "0d913edd5e901a111acf46bf30ea80910a99d934181300d4e8e454399428b144",
+      "bytes": 392,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/build-full.log",
+      "archive": "consumer/build-full.log.gz",
+      "sha256": "44b19e41c22d4f9eb537187d8deaf559681dbb28ca9d9d04651812c086173cd1",
+      "bytes": 728,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/build-legacy-button.log",
+      "archive": "consumer/build-legacy-button.log.gz",
+      "sha256": "d54d7ede79c64402f0d19323ca8b7703ead2ac2cb214cb7e89b6f702b53b2c4d",
+      "bytes": 392,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/build-legacy-full.log",
+      "archive": "consumer/build-legacy-full.log.gz",
+      "sha256": "e82b0bfebd2eb772f13fde3ce79116ae73a15ac8d260abf2a84892afaf670b02",
+      "bytes": 728,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/build-modal.log",
+      "archive": "consumer/build-modal.log.gz",
+      "sha256": "55308a5cc4c724d5c5e6243b5a84679c6f0b3dc8a0c63e55a65e637cb27e8e71",
+      "bytes": 392,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/build-root-button.log",
+      "archive": "consumer/build-root-button.log.gz",
+      "sha256": "a812590e5b4614182accc7e1a10e1d4239e62bcf9255971507f8c516e5dc2b9a",
+      "bytes": 328,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/build-root-modal.log",
+      "archive": "consumer/build-root-modal.log.gz",
+      "sha256": "4cfa86a6c71f018fc4e76f1bbe05b6e4722ff064cbc2e1d11c5154be4d5e79e3",
+      "bytes": 328,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/build-root-select.log",
+      "archive": "consumer/build-root-select.log.gz",
+      "sha256": "572de0d747de46995f3b2680672a16a4cfe3ad66c04de68f13b33ed03ec24556",
+      "bytes": 328,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/build-select.log",
+      "archive": "consumer/build-select.log.gz",
+      "sha256": "614e2e9db56945a0c4be2ba3bb0238f6740fe0c72790618631da2c923a3e7b1e",
+      "bytes": 392,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/button-module-graph.json",
+      "archive": "consumer/button-module-graph.json.gz",
+      "sha256": "f67dbe651f77ef8134cc8db14b86178d3a16b21f874f40beb693ad85d607ce14",
+      "bytes": 159252,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/full-module-graph.json",
+      "archive": "consumer/full-module-graph.json.gz",
+      "sha256": "984ac8450e63b2ead2cda51f44f15f1ad44e965d5d7575dca1ce0d12ab5cb390",
+      "bytes": 196970,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/install.log",
+      "archive": "consumer/install.log.gz",
+      "sha256": "df57b919e442abe91354b550ff7e0b7e00b9bf2f546b982b7e4b0ed864b4e87d",
+      "bytes": 26,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/legacy-button-module-graph.json",
+      "archive": "consumer/legacy-button-module-graph.json.gz",
+      "sha256": "5619a48c442752e6dc8c84ce793bbe545aec4de8286609afd6b583b95bc4f971",
+      "bytes": 159086,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/legacy-full-module-graph.json",
+      "archive": "consumer/legacy-full-module-graph.json.gz",
+      "sha256": "da4f0661b7204d22c59e8084269833e516a19a598cbdeb3595525882ecdfbf04",
+      "bytes": 196971,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/modal-module-graph.json",
+      "archive": "consumer/modal-module-graph.json.gz",
+      "sha256": "9d44f2df6fedb2c4c09ff36cd4c7d04d92a77eedc26f8c61b4d137a32d46f94d",
+      "bytes": 160879,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/node-probe.log",
+      "archive": "consumer/node-probe.log.gz",
+      "sha256": "895dabad917ab91948a51c57dc815f4fd63230726d465d645989110cd5a13db6",
+      "bytes": 44,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/package-lock.json",
+      "archive": "consumer/package-lock.json.gz",
+      "sha256": "8a390797b794dd45e0e3bc3d0acaf20f00744f4111eb7a6be533c73d37ba8cb3",
+      "bytes": 41976,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/results.json",
+      "archive": "consumer/results.json",
+      "sha256": "5d3fcb44e5cd60c83d85e2efef37774bab757c41657da822e071a86c4775d66e",
+      "bytes": 1808,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/root-button-module-graph.json",
+      "archive": "consumer/root-button-module-graph.json.gz",
+      "sha256": "c1ab17ee3c3ecbfa9280a34249c80ae9247c7eced0f52e8e702280908458ee04",
+      "bytes": 172771,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/root-modal-module-graph.json",
+      "archive": "consumer/root-modal-module-graph.json.gz",
+      "sha256": "03f8d5caf46d9689eb4529f03ccf9ff6ad026b8024a485073f5f2b4c8b2a9477",
+      "bytes": 173808,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/root-select-module-graph.json",
+      "archive": "consumer/root-select-module-graph.json.gz",
+      "sha256": "637e159dd4e3e333aefcaea339acd29ad1c2f3cb0ab1bc210ea23800a94e0b0f",
+      "bytes": 175233,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer/select-module-graph.json",
+      "archive": "consumer/select-module-graph.json.gz",
+      "sha256": "5fbeb4377bb24a4a914b7927597365f467a31cbd68d875d067ca326e201289a8",
+      "bytes": 163178,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-determinism/results.json",
+      "archive": "determinism/results.json",
+      "sha256": "87d2bbe67ad62453579b19700dc77c03b40b7043ec3fdb5f5ebe3c8e4ffebe33",
+      "bytes": 217,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-determinism/run.log",
+      "archive": "determinism/run.log.gz",
+      "sha256": "c84bca26e2476833441a96b1f12ec8bc49b14ff3b72abcc673b0705cc91ea1cd",
+      "bytes": 96736,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/baseline-build.log",
+      "archive": "rollback/baseline-build.log.gz",
+      "sha256": "c7be0317ec899cb84cb8e70cc615abb6b07b778ed32c8f219c9ace4d548e001e",
+      "bytes": 661,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/baseline-install.log",
+      "archive": "rollback/baseline-install.log.gz",
+      "sha256": "316962df837e6b96e8f39158979da3057b2f22b31bc6b4b5bc22135334a3934a",
+      "bytes": 25,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/baseline-package-lock.json",
+      "archive": "rollback/baseline-package-lock.json.gz",
+      "sha256": "23b7856dc6cc5a1c0c74b46f6fd339ca532515d11ac6e1805abb075cab9ca12a",
+      "bytes": 43636,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/baseline.png",
+      "archive": "rollback/baseline.png",
+      "sha256": "817da3660a88155c1293cdc52044c353e429d19a5c8b3e6b7862211408face8a",
+      "bytes": 52194,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/restore-build.log",
+      "archive": "rollback/restore-build.log.gz",
+      "sha256": "ec18a576c150b1d82c5ac9f1a631bdc1cac3d2dc6c692e392cab941d426e2517",
+      "bytes": 661,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/restore-install.log",
+      "archive": "rollback/restore-install.log.gz",
+      "sha256": "cd1ac36527877ca53e47bb58b54d50c329417edea82ca9ec38b841922f497a3d",
+      "bytes": 25,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/results.json",
+      "archive": "rollback/results.json",
+      "sha256": "17e3b5d46077c84801e95da7b4b6a1ea3a5485141bfcfaecee0b89d3fc9e12e6",
+      "bytes": 4954,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/rollback-build.log",
+      "archive": "rollback/rollback-build.log.gz",
+      "sha256": "36f9c308c0fc1f633e381de46e9a530c6fa3331401615eef8c73f54fab796063",
+      "bytes": 661,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/rollback-install.log",
+      "archive": "rollback/rollback-install.log.gz",
+      "sha256": "316962df837e6b96e8f39158979da3057b2f22b31bc6b4b5bc22135334a3934a",
+      "bytes": 25,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/rollback-package-lock.json",
+      "archive": "rollback/rollback-package-lock.json.gz",
+      "sha256": "23b7856dc6cc5a1c0c74b46f6fd339ca532515d11ac6e1805abb075cab9ca12a",
+      "bytes": 43636,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/rollback.png",
+      "archive": "rollback/rollback.png",
+      "sha256": "2f7bc4507279eaffa61c295db38d67cc0840836b3fa4065bf4fe04c385daa960",
+      "bytes": 52663,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/upgrade-build.log",
+      "archive": "rollback/upgrade-build.log.gz",
+      "sha256": "5967b72c8ac0045b15db187b44c9908fac954ba055a34d447900c05f93e530d9",
+      "bytes": 661,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/upgrade-install.log",
+      "archive": "rollback/upgrade-install.log.gz",
+      "sha256": "cd1ac36527877ca53e47bb58b54d50c329417edea82ca9ec38b841922f497a3d",
+      "bytes": 25,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/upgrade-lock.log",
+      "archive": "rollback/upgrade-lock.log.gz",
+      "sha256": "9cf9d927e10d01900567e7e4b8e7d56ac63de3185776a1fa895490cbe20e6e05",
+      "bytes": 21,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/upgrade-package-lock.json",
+      "archive": "rollback/upgrade-package-lock.json.gz",
+      "sha256": "93fe0361b5a86a26dd63356247b05a64660934b8c3559f863cbf1368a6d0895f",
+      "bytes": 43748,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback/upgrade.png",
+      "archive": "rollback/upgrade.png",
+      "sha256": "9dfc59f9dc15bcce4e3ae023e0cf4593d4dc7bad128b1359f624780504646edc",
+      "bytes": 57179,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/results.json",
+      "archive": "strict/results.json",
+      "sha256": "6a5c0abb21f5f9504f8526e54ea711f3cad5a6a44613994bdeaa56f13274ec5f",
+      "bytes": 44193,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/package.json",
+      "archive": "strict/vue-3.5.38-K6m367/package.json",
+      "sha256": "257b425e3d0267fd4a04e1fe94ddeb676e12a1f4f455ad5ce8c5ebe5fbad7df4",
+      "bytes": 325,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/types.ts",
+      "archive": "strict/vue-3.5.38-K6m367/types.ts",
+      "sha256": "f4e52d351ce963d540d52e1527a306033a67bf0ff8d9d3e142de21877325a079",
+      "bytes": 3844,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/tsconfig.json",
+      "archive": "strict/vue-3.5.38-K6m367/tsconfig.json",
+      "sha256": "f07e6f4b2841409a710a36e0808085ee18a9ed489f3abf895fcf6f538c027f65",
+      "bytes": 252,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/package-lock.json",
+      "archive": "strict/vue-3.5.38-K6m367/package-lock.json.gz",
+      "sha256": "a6c7b9a191e8f93f915d4247f9a1d04bff20e10e8f652b250d1872dd14557316",
+      "bytes": 17106,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/install.log",
+      "archive": "strict/vue-3.5.38-K6m367/install.log.gz",
+      "sha256": "cde0509f7807dd45db1ecf402f28089ea85789465b8ecfcaa5f07433ab81fce7",
+      "bytes": 181,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/tsconfig.audit.json",
+      "archive": "strict/vue-3.5.38-K6m367/tsconfig.audit.json",
+      "sha256": "2878b55dfd39f6fdb73437d59257b701a60c3755f3298a29189e49e1d89b30df",
+      "bytes": 27771,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/repro.ts",
+      "archive": "strict/vue-3.5.38-K6m367/repro.ts",
+      "sha256": "580d0a52d8804b32a7a00b609b6c6a672d030843a0e0e181532d26936a793cea",
+      "bytes": 63,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/tsconfig.repro.json",
+      "archive": "strict/vue-3.5.38-K6m367/tsconfig.repro.json",
+      "sha256": "03508ecc8fa1267be84fc4f532565c18b17ea43620bf1cc850862130a8a642b3",
+      "bytes": 277,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/roots.log",
+      "archive": "strict/vue-3.5.38-K6m367/roots.log.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/all-declarations.log",
+      "archive": "strict/vue-3.5.38-K6m367/all-declarations.log.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.38-K6m367/repro.log",
+      "archive": "strict/vue-3.5.38-K6m367/repro.log.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/package.json",
+      "archive": "strict/vue-3.5.44-cvyvnA/package.json",
+      "sha256": "5eca3069c1b1b4b9f1b3fe6db45ca2f31c2d15a180698e2545214cd9e8403f89",
+      "bytes": 325,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/types.ts",
+      "archive": "strict/vue-3.5.44-cvyvnA/types.ts",
+      "sha256": "f4e52d351ce963d540d52e1527a306033a67bf0ff8d9d3e142de21877325a079",
+      "bytes": 3844,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/tsconfig.json",
+      "archive": "strict/vue-3.5.44-cvyvnA/tsconfig.json",
+      "sha256": "f07e6f4b2841409a710a36e0808085ee18a9ed489f3abf895fcf6f538c027f65",
+      "bytes": 252,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/package-lock.json",
+      "archive": "strict/vue-3.5.44-cvyvnA/package-lock.json.gz",
+      "sha256": "ca3076599486027785ae02babb2331278043d9f422984994a0eb6b5ccb3b5dad",
+      "bytes": 17083,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/install.log",
+      "archive": "strict/vue-3.5.44-cvyvnA/install.log.gz",
+      "sha256": "b4b91034d8b6afa31fc3bd79b30c9fc8f1d4d25ac85d4a9f74332797cb5b3a56",
+      "bytes": 181,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/tsconfig.audit.json",
+      "archive": "strict/vue-3.5.44-cvyvnA/tsconfig.audit.json",
+      "sha256": "2878b55dfd39f6fdb73437d59257b701a60c3755f3298a29189e49e1d89b30df",
+      "bytes": 27771,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/repro.ts",
+      "archive": "strict/vue-3.5.44-cvyvnA/repro.ts",
+      "sha256": "580d0a52d8804b32a7a00b609b6c6a672d030843a0e0e181532d26936a793cea",
+      "bytes": 63,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/tsconfig.repro.json",
+      "archive": "strict/vue-3.5.44-cvyvnA/tsconfig.repro.json",
+      "sha256": "03508ecc8fa1267be84fc4f532565c18b17ea43620bf1cc850862130a8a642b3",
+      "bytes": 277,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/roots.log",
+      "archive": "strict/vue-3.5.44-cvyvnA/roots.log.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/all-declarations.log",
+      "archive": "strict/vue-3.5.44-cvyvnA/all-declarations.log.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict/vue-3.5.44-cvyvnA/repro.log",
+      "archive": "strict/vue-3.5.44-cvyvnA/repro.log.gz",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-native-tab-review.json",
+      "archive": "diagnostics/m1-native-tab-review.json",
+      "sha256": "91d5124335ac2546e98fc876529267039c80b1a5172bfb2581a87255ac4612f6",
+      "bytes": 283,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-native-composite-review.json",
+      "archive": "diagnostics/m1-native-composite-review.json",
+      "sha256": "5648eccf374ff5db806329862a163b3fa5ab06763e8110b938c97c5f17875e23",
+      "bytes": 152,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-webkit-deferred-focus-proof.json",
+      "archive": "diagnostics/m1-webkit-deferred-focus-proof.json",
+      "sha256": "5d4f098d1d810164433d242aa330c1f1e2827af1b9fa39a0486f76576eb87590",
+      "bytes": 119,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-modal-tests.log",
+      "archive": "modal-tests.log.gz",
+      "sha256": "188146979d49e4e71aa0a5050d3b141757ae93847ae68074d260b91d31c1b16a",
+      "bytes": 655,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-build.log",
+      "archive": "build.log.gz",
+      "sha256": "341642f861f53113c03b936a8cbc53a6f898f276477ace5fe0b9a1c6808ca31c",
+      "bytes": 47602,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-typecheck.log",
+      "archive": "typecheck.log.gz",
+      "sha256": "f85edecd5abe6f66bf25dd7d2c0302f255dc2018b516485018a8831b73548cea",
+      "bytes": 718,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-pack.log",
+      "archive": "pack.log.gz",
+      "sha256": "d78c7bf8fd69efe8bebc01304f741ed3345044814ae2e04ee122d713b8ecd1c6",
+      "bytes": 304,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-chromium.log",
+      "archive": "chromium.log.gz",
+      "sha256": "dea19895f9fe97a55b25e40f55781926569ced71544444c50bf4684700950945",
+      "bytes": 757,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-firefox.log",
+      "archive": "firefox.log.gz",
+      "sha256": "4f6963d9a27729269097d7625f788e3ec3a8cd177cce9f8b253eb0d245fc12e6",
+      "bytes": 418,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-webkit.log",
+      "archive": "webkit.log.gz",
+      "sha256": "75b66ceae61eed9f19128c666d7575f689308cc0c4b8306718218e54e5320396",
+      "bytes": 417,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-consumer.log",
+      "archive": "consumer.log.gz",
+      "sha256": "5d3fcb44e5cd60c83d85e2efef37774bab757c41657da822e071a86c4775d66e",
+      "bytes": 1808,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-strict.log",
+      "archive": "strict.log.gz",
+      "sha256": "081c4a8e13012b7911ab077e41f9823d4869dcfb8b36f39c65ff240d1906da72",
+      "bytes": 416,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-rollback.log",
+      "archive": "rollback.log.gz",
+      "sha256": "08d1f02745e4537b1b1babfc1984de1cd7278ff274dea4e7b7533b5c7d7fd506",
+      "bytes": 151,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-tarballs/aheart-ui-1.2.0.tgz",
+      "archive": "artifacts/aheart-ui-1.2.0.tgz",
+      "sha256": "38c00fed373bba4c30a4b0c0bbc9e0e38bb3db5360d2948f5bc5aca1458782a1",
+      "bytes": 593214,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-tarballs/aheart-ui-dnd-1.0.0.tgz",
+      "archive": "artifacts/aheart-ui-dnd-1.0.0.tgz",
+      "sha256": "f2ffba7d81fbf34ca6f41ff59faa12187a31c2361d6d74b61239ebc3c096ae0f",
+      "bytes": 26814,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-tarballs/aheart-ui-ai-1.0.0.tgz",
+      "archive": "artifacts/aheart-ui-ai-1.0.0.tgz",
+      "sha256": "f09be0bb5b31d089c7b5d34492cb3361e46c9ab978e31f74f3383044287f102b",
+      "bytes": 74401,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-zcof2Z/clean-consumer/dist/assets/main-DaI0I7ph.css",
+      "archive": "preview-clean-consumer/assets/main-DaI0I7ph.css",
+      "sha256": "50bab947f2d9ca3c75b7f2afb030e6451a942550df19dd658c3e19c55930b2cc",
+      "bytes": 25758,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-zcof2Z/clean-consumer/dist/assets/main-NdvUp_CS.js",
+      "archive": "preview-clean-consumer/assets/main-NdvUp_CS.js",
+      "sha256": "6bbf1bafac4cc18a3230e62569b9c52ffbd6ff174d1cf831d8231bd3ca357794",
+      "bytes": 199480,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-zcof2Z/clean-consumer/dist/iframe.html",
+      "archive": "preview-clean-consumer/iframe.html",
+      "sha256": "9823e0c1b758eda2aa7a5807975dbe682f60f5879a33d46fd7c7886b6e8988bf",
+      "bytes": 343,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-zcof2Z/clean-consumer/dist/index.html",
+      "archive": "preview-clean-consumer/index.html",
+      "sha256": "46e0c249fd264fa0e827f8cc67e5792ec84e6074d3d405a65fa096bd35acf4a9",
+      "bytes": 394,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-zcof2Z/clean-consumer/dist/module-graph.json",
+      "archive": "preview-clean-consumer/module-graph.json.gz",
+      "sha256": "8d2dfe9f1953a4a8da2a0946ad09a4ee722c5f01177e0fffb0d8b314b1c656e4",
+      "bytes": 10184,
+      "gzip": true
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-zcof2Z/clean-consumer/dist/ssr.html",
+      "archive": "preview-clean-consumer/ssr.html",
+      "sha256": "326b9f46fc47c052ad75b9fec6a4808eebfd4fff0a44246ed5c208275d9f7d53",
+      "bytes": 2923,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-preview.json",
+      "archive": "preview-verification.json",
+      "sha256": "0b029eabb8add8ce61ca4f9ee5b1d90542ed2169146da771087693fb855e2ba6",
+      "bytes": 173,
+      "gzip": false
+    },
+    {
+      "source": "/Volumes/\u65b0\u52a0\u5377/Codex/\u684c\u9762\u5f52\u6863/\u9879\u76ee\u8d44\u6599/aheart-ui-v2-m1/.pilot-runs/m1-deferred-full-tests.log",
+      "archive": "full-tests.log.gz",
+      "sha256": "070f3b96699ec7b32a8aa86ef80fc019304b43a059b4796647cb18cf6add86ae",
+      "bytes": 40321,
+      "gzip": true
+    }
+  ]
+}

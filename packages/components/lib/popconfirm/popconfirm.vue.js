@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const index = require("../button/index.js");
+const button_index = require("../button/index.js");
 const floatingCore = require("../utils/floating-core.js");
 require("../utils/floating.css.js");
 const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
@@ -395,7 +395,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                 class: vue.normalizeClass(["aheart-popconfirm__actions", actionsClass.value]),
                 style: vue.normalizeStyle(actionsStyle.value)
               }, [
-                _ctx.showCancel ? (vue.openBlock(), vue.createBlock(vue.unref(index.default), vue.mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
+                _ctx.showCancel ? (vue.openBlock(), vue.createBlock(vue.unref(button_index.default), vue.mergeProps({ key: 0 }, resolvedCancelButtonProps.value, {
                   class: ["aheart-popconfirm__cancel", cancelButtonClass.value],
                   style: cancelButtonStyle.value,
                   onClick: handleCancel
@@ -405,7 +405,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
                   ]),
                   _: 1
                 }, 16, ["class", "style"])) : vue.createCommentVNode("", true),
-                vue.createVNode(vue.unref(index.default), vue.mergeProps(resolvedOkButtonProps.value, {
+                vue.createVNode(vue.unref(button_index.default), vue.mergeProps(resolvedOkButtonProps.value, {
                   class: ["aheart-popconfirm__ok", okButtonClass.value],
                   style: okButtonStyle.value,
                   onClick: handleConfirm

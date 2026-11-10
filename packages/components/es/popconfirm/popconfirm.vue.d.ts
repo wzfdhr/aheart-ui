@@ -47,8 +47,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
-    readonly okButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
-    readonly cancelButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly okButtonProps: PropType<Partial<import("../button").ButtonProps>>;
+    readonly cancelButtonProps: PropType<Partial<import("../button").ButtonProps>>;
     readonly disabled: BooleanConstructor;
     readonly showCancel: {
         readonly type: BooleanConstructor;
@@ -131,8 +131,8 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
         readonly type: PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
-    readonly okButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
-    readonly cancelButtonProps: PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly okButtonProps: PropType<Partial<import("../button").ButtonProps>>;
+    readonly cancelButtonProps: PropType<Partial<import("../button").ButtonProps>>;
     readonly disabled: BooleanConstructor;
     readonly showCancel: {
         readonly type: BooleanConstructor;

@@ -5,3 +5,5 @@ const Select = withInstall(select, 'ASelect')
 
 export type * from './types'
 export default Select
+
+export { Select }
