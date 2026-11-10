@@ -486,35 +486,60 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     onBeforeUnmount(() => {
       unregisterModalOverlay();
     });
+    let pendingTabCheck;
+    let pendingTabWindow = null;
+    const clearPendingTabCheck = () => {
+      if (pendingTabCheck !== void 0)
+        pendingTabWindow == null ? void 0 : pendingTabWindow.clearTimeout(pendingTabCheck);
+      pendingTabCheck = void 0;
+      pendingTabWindow = null;
+    };
+    watch(() => props.open, (open) => {
+      if (!open)
+        clearPendingTabCheck();
+    }, { flush: "sync" });
+    onBeforeUnmount(clearPendingTabCheck);
     const handleTrapTab = (event) => {
-      if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== "Tab") {
+      if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== "Tab")
         return;
-      }
-      const dialog = dialogRef.value;
-      if (!dialog) {
-        return;
-      }
-      const focusableElements = getFocusableElements(true);
+      clearPendingTabCheck();
       if (event.defaultPrevented)
         return;
+      const dialog = dialogRef.value;
+      if (!dialog)
+        return;
+      const elements = getFocusableElements(true);
       const active = dialog.ownerDocument.activeElement;
-      const current = active ? focusableElements.indexOf(active) : -1;
-      const composite = active && (active.shadowRoot || ["AUDIO", "VIDEO", "SELECT"].includes(active.tagName) || active.tagName === "INPUT" && ["date", "datetime-local", "month", "week", "time", "file"].includes(active.type));
-      if (composite && current >= 0 && (event.shiftKey ? current > 0 : current < focusableElements.length - 1))
-        return;
-      event.preventDefault();
-      if (!focusableElements.length) {
-        dialog.focus();
-        return;
-      }
-      const next = current < 0 ? event.shiftKey ? focusableElements.length - 1 : 0 : (current + (event.shiftKey ? -1 : 1) + focusableElements.length) % focusableElements.length;
+      const current = active ? elements.indexOf(active) : -1;
       const direction = event.shiftKey ? -1 : 1;
-      for (let offset = 0; offset < focusableElements.length; offset += 1) {
-        const index = (next + offset * direction + focusableElements.length) % focusableElements.length;
-        if (focusElement(focusableElements[index]))
-          return;
+      const next = current < 0 ? event.shiftKey ? elements.length - 1 : 0 : (current + direction + elements.length) % elements.length;
+      const recover = () => {
+        for (let offset = 0; offset < elements.length; offset += 1) {
+          const index = (next + offset * direction + elements.length) % elements.length;
+          const target = elements[index];
+          if (target.isConnected && dialog.contains(target) && isFocusableElementAvailable(target) && focusElement(target))
+            return;
+        }
+        focusDialog();
+      };
+      const boundary = event.shiftKey ? active === elements[0] : active === elements[elements.length - 1];
+      if (!elements.length || boundary || !dialog.contains(active)) {
+        event.preventDefault();
+        recover();
+        return;
       }
-      dialog.focus();
+      const view = dialog.ownerDocument.defaultView;
+      if (!view)
+        return;
+      pendingTabWindow = view;
+      pendingTabCheck = view.setTimeout(() => {
+        pendingTabCheck = void 0;
+        pendingTabWindow = null;
+        if (!props.open || !shouldTrapFocus.value || !isModalTopmost() || dialogRef.value !== dialog || !dialog.isConnected || view.closed)
+          return;
+        if (!dialog.contains(dialog.ownerDocument.activeElement))
+          recover();
+      }, 0);
     };
     const notifyClosableClose = () => {
       var _a, _b;

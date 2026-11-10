@@ -148,51 +148,50 @@ try {
               const focusInside = () => dialog.evaluate(element => element.contains(element.ownerDocument.activeElement))
               await expect.poll(focusInside, { message: 'Modal initial focus must settle inside the dialog' }).toBe(true)
               for (let i = 0; i < 6; i++) { await page.keyboard.press('Tab'); await expect.poll(focusInside, { message: 'Modal focus escaped' }).toBe(true) }
-              // Exercise native form/editable semantics inside the real packed Modal.
+              // Compare native navigation independently of Modal and require
+              // the real packed Modal to retain it while containing escapes.
+              const probeHTML = '<input data-tab="radio-one" aria-label="One" type="radio" name="m1-choice" checked><input data-tab="radio-two" aria-label="Two" type="radio" name="m1-choice"><input data-tab="after-radio" aria-label="After radios"><div data-tab="editor" contenteditable="true">Editor</div><details><summary data-tab="summary">More</summary><input data-tab="closed-detail" aria-label="Closed detail"></details><input data-tab="date" aria-label="Date" type="date" value="2026-11-09"><video data-tab="media" controls tabindex="0"></video><button data-tab="end">End</button>'
+              const cases = [['radio-one', 'Tab'], ['after-radio', 'Shift+Tab'], ['after-radio', 'Tab'], ['editor', 'Tab'], ['summary', 'Tab'], ['date', 'Tab'], ['media', 'Tab'], ['end', 'Shift+Tab']]
+              const reference = await context.newPage()
+              const oracle = []
+              try {
+                for (const [origin, key] of cases) {
+                  await reference.setContent(`<div data-m1-tab-probe>${probeHTML}</div>`)
+                  await reference.bringToFront()
+                  await reference.locator('[data-m1-tab-probe]').click({ position: { x: 1, y: 1 } })
+                  const target = reference.locator(`[data-tab="${origin}"]`)
+                  await target.focus()
+                  const supported = await target.evaluate(element => element === element.ownerDocument.activeElement || element.contains(element.ownerDocument.activeElement))
+                  if (!supported) { oracle.push({ origin, key, supported: false }); continue }
+                  await reference.keyboard.press(key)
+                  await reference.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)))
+                  const destination = await reference.evaluate(() => document.activeElement?.closest('[data-tab]')?.getAttribute('data-tab') ?? null)
+                  oracle.push({ origin, key, supported: true, destination })
+                }
+              } finally { await reference.close(); await page.bringToFront() }
               await dialog.evaluate(element => {
                 const host = element.ownerDocument.createElement('div')
                 host.dataset.m1TabProbe = 'true'
-                host.innerHTML = '<input data-tab="radio-one" type="radio" name="m1-choice" checked><input data-tab="radio-two" type="radio" name="m1-choice"><input data-tab="after-radio"><div data-tab="editor" contenteditable="true">Editor</div><details><summary data-tab="summary">More</summary><input data-tab="closed-detail"></details><input data-tab="date" type="date" value="2026-11-09"><video data-tab="media" controls></video><button data-tab="end">End</button>'
                 element.querySelector('.aheart-modal__body').append(host)
               })
               const probe = dialog.locator('[data-m1-tab-probe]')
-              await probe.locator('[data-tab="radio-one"]').focus()
-              await page.keyboard.press('Tab')
-              await expect(probe.locator('[data-tab="after-radio"]')).toBeFocused()
-              await page.keyboard.press('Tab')
-              await expect(probe.locator('[data-tab="editor"]')).toBeFocused()
-              await page.keyboard.press('Tab')
-              await expect(probe.locator('[data-tab="summary"]')).toBeFocused()
-              await page.keyboard.press('Tab')
-              await expect(probe.locator('[data-tab="date"]')).toBeFocused()
-              const media = probe.locator('[data-tab="media"]')
-              const mediaFocusable = await media.evaluate(element => {
-                const previous = element.ownerDocument.activeElement
-                element.focus()
-                const focused = element.ownerDocument.activeElement === element || element.contains(element.ownerDocument.activeElement)
-                previous?.focus()
-                return focused
-              })
-              await probe.locator('[data-tab="end"]').focus()
-              await page.keyboard.press('Shift+Tab')
-              await expect(probe.locator(mediaFocusable ? '[data-tab="media"]' : '[data-tab="date"]')).toBeFocused()
-              if (mediaFocusable) {
-                await media.evaluate(element => element.addEventListener('keydown', event => {
-                  if (event.key === 'Tab') queueMicrotask(() => { element.dataset.tabPrevented = String(event.defaultPrevented) })
-                }))
-                await page.keyboard.press('Tab')
-                await expect.poll(() => media.getAttribute('data-tab-prevented')).toBe('false')
+              result.modalNativeTab = []
+              for (const native of oracle) {
+                await probe.evaluate((element, html) => { element.innerHTML = html }, probeHTML)
+                await dialog.click({ position: { x: 1, y: 1 } })
+                const target = probe.locator(`[data-tab="${native.origin}"]`)
+                await target.focus()
+                const supported = await target.evaluate(element => element === element.ownerDocument.activeElement || element.contains(element.ownerDocument.activeElement))
+                assert.equal(supported, native.supported, 'Modal changed native programmatic focusability')
+                if (!supported) { result.modalNativeTab.push({ ...native, status: 'not-focusable-in-engine' }); continue }
+                await page.keyboard.press(native.key)
+                await expect.poll(focusInside, { message: 'Native Tab escaped the blocking dialog' }).toBe(true)
+                if (native.destination) await expect(probe.locator(`[data-tab="${native.destination}"]`)).toBeFocused()
+                const actual = await page.evaluate(() => document.activeElement?.closest('[data-tab]')?.getAttribute('data-tab') ?? null)
+                result.modalNativeTab.push({ ...native, actual, contained: true, status: 'passed' })
               }
-              const date = probe.locator('[data-tab="date"]')
-              await date.focus()
-              await date.evaluate(element => element.addEventListener('keydown', event => {
-                if (event.key === 'Tab') queueMicrotask(() => { element.dataset.tabPrevented = String(event.defaultPrevented) })
-              }))
-              await page.keyboard.press('Tab')
-              await expect.poll(() => date.getAttribute('data-tab-prevented')).toBe('false')
-              result.modalNativeTab = { radioGroup: 'passed', editableHost: 'passed', closedDetails: 'passed', compositeDefaultPrevented: false, mediaProgrammaticFocus: mediaFocusable, mediaDefaultPrevented: mediaFocusable ? false : null }
               await probe.evaluate(element => element.remove())
-              result.checks.push('Modal radio/editable/closed-details/native-composite Tab semantics')
+              result.checks.push('independent native radio/editor/details/composite Tab oracle and containment')
               await page.keyboard.press('Escape')
               await expect(dialog).toBeHidden()
               await expect(trigger).toBeFocused()

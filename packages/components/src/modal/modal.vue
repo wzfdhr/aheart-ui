@@ -592,46 +592,56 @@ onBeforeUnmount(() => {
   unregisterModalOverlay()
 })
 
+let pendingTabCheck: number | undefined
+let pendingTabWindow: Window | null = null
+const clearPendingTabCheck = () => {
+  if (pendingTabCheck !== undefined) pendingTabWindow?.clearTimeout(pendingTabCheck)
+  pendingTabCheck = undefined
+  pendingTabWindow = null
+}
+watch(() => props.open, open => { if (!open) clearPendingTabCheck() }, { flush: 'sync' })
+onBeforeUnmount(clearPendingTabCheck)
+
 const handleTrapTab = (event: KeyboardEvent) => {
-  if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== 'Tab') {
-    return
-  }
-
-  const dialog = dialogRef.value
-
-  if (!dialog) {
-    return
-  }
-
-  const focusableElements = getFocusableElements(true)
+  if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== 'Tab') return
+  clearPendingTabCheck()
   if (event.defaultPrevented) return
-  const active = dialog.ownerDocument.activeElement as HTMLElement | null
-  const current = active ? focusableElements.indexOf(active) : -1
-  const composite = active && (
-    active.shadowRoot || ['AUDIO', 'VIDEO', 'SELECT'].includes(active.tagName) ||
-    (active.tagName === 'INPUT' && ['date', 'datetime-local', 'month', 'week', 'time', 'file'].includes((active as HTMLInputElement).type))
-  )
-  // Preserve native/encapsulated internal Tab steps. At the dialog boundary,
-  // retain the existing wrap behavior; ordinary controls cycle explicitly.
-  if (composite && current >= 0 && (event.shiftKey ? current > 0 : current < focusableElements.length - 1)) return
+  const dialog = dialogRef.value
+  if (!dialog) return
 
-  // Native Tab navigation can skip buttons (for example in WebKit), so only
-  // wrapping at the DOM-list edges can let focus leave a blocking dialog.
-  // Move every trapped Tab explicitly, in positive-tabindex then DOM order.
-  event.preventDefault()
-  if (!focusableElements.length) {
-    dialog.focus()
+  const elements = getFocusableElements(true)
+  const active = dialog.ownerDocument.activeElement as HTMLElement | null
+  const current = active ? elements.indexOf(active) : -1
+  const direction = event.shiftKey ? -1 : 1
+  const next = current < 0
+    ? (event.shiftKey ? elements.length - 1 : 0)
+    : (current + direction + elements.length) % elements.length
+  const recover = () => {
+    for (let offset = 0; offset < elements.length; offset += 1) {
+      const index = (next + offset * direction + elements.length) % elements.length
+      const target = elements[index]
+      if (target.isConnected && dialog.contains(target) && isFocusableElementAvailable(target) && focusElement(target)) return
+    }
+    focusDialog()
+  }
+  const boundary = event.shiftKey ? active === elements[0] : active === elements[elements.length - 1]
+  if (!elements.length || boundary || !dialog.contains(active)) {
+    event.preventDefault()
+    recover()
     return
   }
-  const next = current < 0
-    ? (event.shiftKey ? focusableElements.length - 1 : 0)
-    : (current + (event.shiftKey ? -1 : 1) + focusableElements.length) % focusableElements.length
-  const direction = event.shiftKey ? -1 : 1
-  for (let offset = 0; offset < focusableElements.length; offset += 1) {
-    const index = (next + offset * direction + focusableElements.length) % focusableElements.length
-    if (focusElement(focusableElements[index])) return
-  }
-  dialog.focus()
+
+  // Keep native radio/editor/composite navigation. Some engines skip ordinary
+  // controls and leave the document; recover only after that actually happens.
+  const view = dialog.ownerDocument.defaultView
+  if (!view) return
+  pendingTabWindow = view
+  pendingTabCheck = view.setTimeout(() => {
+    pendingTabCheck = undefined
+    pendingTabWindow = null
+    if (!props.open || !shouldTrapFocus.value || !isModalTopmost() || dialogRef.value !== dialog || !dialog.isConnected || view.closed) return
+    if (!dialog.contains(dialog.ownerDocument.activeElement)) recover()
+  }, 0)
 }
 
 const notifyClosableClose = () => {
