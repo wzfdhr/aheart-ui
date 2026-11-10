@@ -1008,8 +1008,10 @@ describe('Modal', () => {
   it('leaves internal native composite Tab steps to the browser between dialog boundaries', async () => {
     const wrapper = mountModal({ attachTo: document.body,
       props: { open: true, closable: false, footer: false, getContainer: false },
-      slots: { default: '<button class="first">First</button><input class="date" type="date"><video class="media" controls></video><button class="last">Last</button>' }
+      slots: { default: '<button class="first">First</button><input class="date" type="date"><video class="media" controls tabindex="0"></video><button class="last">Last</button>' }
     })
+    // jsdom does not emulate implicit native video focusability; the packed
+    // browser probe separately covers a video without an explicit tabindex.
     for (const selector of ['.date', '.media']) {
       const node = wrapper.find(selector).element as HTMLElement
       node.focus()
