@@ -24,3 +24,5 @@
 - 两项必需试点均需从 tarball 安装，clean-consumer 采用新 subpath，ai-review-gate 可保留旧根入口以证明无业务重写兼容；可选 Todo 继续作为回归。
 
 M1 Gate 以实际记录的 E2/E3/E4 为准。未经负责人确认不标为 Accepted；本次 M0 确认不授权 M1 合并、部署或 npm 发布。
+
+2026-11-10：负责人已认可本 M1 候选及契约，并授权 #41 合并与文档站更新；主线 CI/Pages 通过。完整依据见 [阶段验收记录](decision-log.md)。冻结的入口、依赖和数值预算保持原值。

@@ -6,7 +6,7 @@
 > 技术 RFC：[Aheart UI v2 架构与产品体系优化设计](./2026-09-08-aheart-ui-v2-architecture-optimization-design.md)  
 > 阶段验收标准：[Aheart UI v2 阶段验收标准](./2026-09-08-aheart-ui-v2-phase-acceptance-criteria.md)
 
-> 2026-11-05：[A1 修订](./2026-11-05-aheart-ui-v2-solo-scope-amendment.md) 已合入并生效，其版本、试点和阶段条款优先。原规范正文保留；当前 M0 Accepted（2026-11-09 负责人确认），M1 In progress，见 [决策日志](../../../evidence/M0/decision-log.md)。
+> 2026-11-05：[A1 修订](./2026-11-05-aheart-ui-v2-solo-scope-amendment.md) 已合入并生效，其版本、试点和阶段条款优先。原规范正文保留；当前 [M0 Accepted](../../../evidence/M0/decision-log.md)（2026-11-09），[M1 Accepted](../../../evidence/M1/decision-log.md)（2026-11-10 负责人认可、主线 CI/Pages 通过）。
 
 ## 使用规则
 
@@ -81,16 +81,16 @@ M8 v2 决策：等待 M1–M7 的决策数据，不以代码完成数替代
 
 ### 任务清单
 
-- [x] **M1-PM-01** 选定首批验证组件 Button、Modal、Select，并写明用户任务与不支持边界；Combobox 固定留在 M3。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；阶段仍待 PR、主线与负责人验收。
-- [x] **M1-TM-01** 设计并冻结 exports、`/full`、兼容 facade、`theme.css`、组件 CSS 和 `sideEffects` 规则。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；阶段仍待 PR、主线与负责人验收。
-- [x] **M1-TM-02** 定义 bundle/CSS/SSR/类型/样式冲突预算及失败阈值。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；阶段仍待 PR、主线与负责人验收。
-- [x] **M1-DEV-01** 实现 Button/Modal/Select 的 subpath、ESM/CJS、类型和样式入口。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；阶段仍待 PR、主线与负责人验收。
-- [x] **M1-DEV-02** 建立消费 fixture，验证根 named import、subpath、`/full` 与旧 v1 兼容入口。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；阶段仍待 PR、主线与负责人验收。
+- [x] **M1-PM-01** 选定首批验证组件 Button、Modal、Select，并写明用户任务与不支持边界；Combobox 固定留在 M3。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；2026-11-10：[M1 阶段验收](../../../evidence/M1/decision-log.md) Go / Accepted。
+- [x] **M1-TM-01** 设计并冻结 exports、`/full`、兼容 facade、`theme.css`、组件 CSS 和 `sideEffects` 规则。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；2026-11-10：[M1 阶段验收](../../../evidence/M1/decision-log.md) Go / Accepted。
+- [x] **M1-TM-02** 定义 bundle/CSS/SSR/类型/样式冲突预算及失败阈值。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；2026-11-10：[M1 阶段验收](../../../evidence/M1/decision-log.md) Go / Accepted。
+- [x] **M1-DEV-01** 实现 Button/Modal/Select 的 subpath、ESM/CJS、类型和样式入口。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；2026-11-10：[M1 阶段验收](../../../evidence/M1/decision-log.md) Go / Accepted。
+- [x] **M1-DEV-02** 建立消费 fixture，验证根 named import、subpath、`/full` 与旧 v1 兼容入口。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；2026-11-10：[M1 阶段验收](../../../evidence/M1/decision-log.md) Go / Accepted。
 - [ ] **M1-DEV-03** Resolver Preview：按已生效 A1 移出 M1，归新 M3；本阶段不实施，不计 M1 门禁。
-- [x] **M1-QA-01** 对三试点运行安装、构建、SSR hydration、样式和关键交互；记录每个入口结果。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；阶段仍待 PR、主线与负责人验收。
-- [x] **M1-QA-02** 做 bundle 分析，确认未引入无关组件；失败时保留报告而非调高预算掩盖问题。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；阶段仍待 PR、主线与负责人验收。
-- [x] **M1-DOC-01** 写唯一推荐安装路径、迁移指南和故障排查；高级入口单独归档。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；阶段仍待 PR、主线与负责人验收。
-- [x] **M1-REL-01** 生成干净 tarball、校验 files/exports/license，并在隔离 registry 或本地 pack 流程验证。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；阶段仍待 PR、主线与负责人验收。
+- [x] **M1-QA-01** 对三试点运行安装、构建、SSR hydration、样式和关键交互；记录每个入口结果。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；2026-11-10：[M1 阶段验收](../../../evidence/M1/decision-log.md) Go / Accepted。
+- [x] **M1-QA-02** 做 bundle 分析，确认未引入无关组件；失败时保留报告而非调高预算掩盖问题。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；2026-11-10：[M1 阶段验收](../../../evidence/M1/decision-log.md) Go / Accepted。
+- [x] **M1-DOC-01** 写唯一推荐安装路径、迁移指南和故障排查；高级入口单独归档。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；2026-11-10：[M1 阶段验收](../../../evidence/M1/decision-log.md) Go / Accepted。
+- [x] **M1-REL-01** 生成干净 tarball、校验 files/exports/license，并在隔离 registry 或本地 pack 流程验证。 2026-11-09：[本地实现/验证证据](../../../evidence/M1/native-tab-review-2026-11-09/report.md)；2026-11-10：[M1 阶段验收](../../../evidence/M1/decision-log.md) Go / Accepted。
 
 ### 输出物、验收与降级
 

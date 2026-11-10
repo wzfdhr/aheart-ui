@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "checkedAtUtc": "2026-11-10T05:42:47.248028+00:00",
+  "command": "git rev-parse <candidate|merged>^{tree}; verify each original source-manifest SHA-256; audit original worktree status count",
+  "exitCode": 0,
+  "candidate": "d56f449e48632b3842156e99ccf083b4d1d673e4",
+  "merged": "259db118c7c95904ae7054313fd0b7a0e2630214",
+  "trees": {
+    "d56f449e48632b3842156e99ccf083b4d1d673e4": "35a427ee99aa8c1ddddb192f3d01d3de9c95e040",
+    "259db118c7c95904ae7054313fd0b7a0e2630214": "35a427ee99aa8c1ddddb192f3d01d3de9c95e040"
+  },
+  "runtimeSourceSha": "c76b33529162152fea4d029482d0b8bcf67871a2",
+  "verifiedSourceInputs": 1799,
+  "originalWorktreeStatusRecords": 4402
+}
