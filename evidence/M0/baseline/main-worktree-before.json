@@ -1,0 +1,14 @@
+{
+  "capturedAt": "2026-11-04T09:13:03.937763+00:00",
+  "root": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui",
+  "exitCode": 0,
+  "entryCount": 4405,
+  "statusCounts": {
+    " M": 2074,
+    "??": 2331
+  },
+  "statusSha256": "846f3053cc0a6254aa00b2a0d239584b3a51e601f6483b6134826ccba98a638e",
+  "dirtyContentFingerprint": "dcff4c443777f3ae68815cee937c5772b60f55f2e05d11c10f34040ad9d30c0d",
+  "algorithm": "status -z entry bytes plus sha256 of file contents or symlink target; rename source bytes appended",
+  "gitErrors": ""
+}

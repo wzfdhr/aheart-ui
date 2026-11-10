@@ -1,0 +1,17 @@
+{
+  "baseSha": "4915127aca0888a85015c5020a3f80ba3906931c",
+  "branch": "codex/v2-m1",
+  "uncommittedChanges": true,
+  "files": {
+    ".gitignore": "71b24998110d9ed967c895b06fd9a325b31a51f84a8626fe49b35c435d187f84",
+    "packages/components/src/button/style.css": "38bd477c597485dcb424cced9639a326c6cdb4f836ca01141809ff131377bdff",
+    "packages/components/src/theme/index.css": "401250d0c659cc3aa3eef6f5c2ce988b34343abf478a8b87b44d50b9b92c5b6f",
+    "packages/components/es/style.css": "ad185935f77964fae633c76c3ebded352c6c04913d19e10f8c42baca122f406a",
+    "packages/components/lib/style.css": "ad185935f77964fae633c76c3ebded352c6c04913d19e10f8c42baca122f406a",
+    "e2e/button-hover-contrast.spec.ts": "1ec4643272855abd4b8c0544987fb0cd78d848fc04d5543ec50aeb2e2ff7637c",
+    "pilots/run-baselines.mjs": "6794ef8e420b026ce77c5ac23059d1aec94ddcb5a71a7c2fea7bd0949155d146",
+    "pilots/README.md": "e3a358ee5d094e2b4fdee7f86331a13008fa836208a29116c0d8f5082a37dc73",
+    "docs/guide/theme.md": "fe301938829faa69b890c71b6b2806b002a0b0adf1ea43295f62b2bfbfba0f97",
+    "pnpm-lock.yaml": "727e14611383425ea54db5c6d132c630935f0906bd4c5ab5fdf0cd3885c97ff5"
+  }
+}

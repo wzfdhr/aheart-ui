@@ -1,0 +1,30 @@
+[
+  {
+    "source": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui/docs/superpowers/specs/2026-09-08-aheart-ui-product-and-technical-master-plan.md",
+    "destination": "docs/superpowers/specs/2026-09-08-aheart-ui-product-and-technical-master-plan.md",
+    "sha256": "28d0558881efbc2e59d4d255ede63a0ee4aacbea16b1435a185a3aeb173a35b9",
+    "bytes": 22602,
+    "approval": "Approval Draft; not approved by copying"
+  },
+  {
+    "source": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui/docs/superpowers/specs/2026-09-08-aheart-ui-v2-architecture-optimization-design.md",
+    "destination": "docs/superpowers/specs/2026-09-08-aheart-ui-v2-architecture-optimization-design.md",
+    "sha256": "207d02717f829ce202dcba1a54a6ef1fa82d2d9e078e112112421c11c71b0e39",
+    "bytes": 42102,
+    "approval": "Approval Draft; not approved by copying"
+  },
+  {
+    "source": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui/docs/superpowers/specs/2026-09-08-aheart-ui-v2-phase-acceptance-criteria.md",
+    "destination": "docs/superpowers/specs/2026-09-08-aheart-ui-v2-phase-acceptance-criteria.md",
+    "sha256": "9ab6d5ce21b10f0d42928c5e8af172304775c5a651c5711ecb67cdf4e743d805",
+    "bytes": 23669,
+    "approval": "Approval Draft; not approved by copying"
+  },
+  {
+    "source": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui/docs/superpowers/specs/2026-09-08-aheart-ui-v2-task-flow-checklist.md",
+    "destination": "docs/superpowers/specs/2026-09-08-aheart-ui-v2-task-flow-checklist.md",
+    "sha256": "3214cec7465944ddd4d950fcaa660d8345cc9e46beb363f2f39aa73160fd79e3",
+    "bytes": 21946,
+    "approval": "Approval Draft; not approved by copying"
+  }
+]

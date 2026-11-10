@@ -1,0 +1,32 @@
+{
+  "sourcePr": 39,
+  "sourceSha": "8b460a62cc89d388ead69968f3848791cec074fa",
+  "patchSha256": "06208d132cf7dc329861bef05390a6c752924ab51b049dc7b41dd9b37010cede",
+  "files": [
+    ".github/workflows/ci.yml",
+    "package.json",
+    "packages/components/es/card/index.d.ts",
+    "packages/components/lib/card/index.d.ts",
+    "packages/components/src/card/index.ts",
+    "scripts/ci-config.test.mjs",
+    "scripts/fixtures/strict-consumer/README.md",
+    "scripts/fixtures/strict-consumer/tsconfig.json",
+    "scripts/fixtures/strict-consumer/types.ts",
+    "scripts/package-entrypoints.test.mjs",
+    "scripts/release-contract.mjs",
+    "scripts/strict-consumer.mjs"
+  ],
+  "preExistingChanges": [
+    ".gitignore",
+    "docs/guide/theme.md",
+    "docs/superpowers/specs/2026-09-08-aheart-ui-v2-task-flow-checklist.md",
+    "evidence/M0/decision-log.md",
+    "packages/components/es/style.css",
+    "packages/components/lib/style.css",
+    "packages/components/src/button/style.css",
+    "packages/components/src/theme/index.css",
+    "pilots/README.md",
+    "pilots/run-baselines.mjs"
+  ],
+  "overlap": []
+}

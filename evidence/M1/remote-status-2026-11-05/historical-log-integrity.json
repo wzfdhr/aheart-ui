@@ -1,0 +1,14 @@
+[
+  {
+    "file": "docs/superpowers/evidence/v1.1.0-release-2026-09-29/logs/release-check-ci.log.gz",
+    "compressedSha256": "72571bb62c831b7ae592254370bce8f4a599a6a7e9fe8de6c0b7fc294e15aa69",
+    "compressedMatches": true,
+    "uncompressedMatches": true
+  },
+  {
+    "file": "docs/superpowers/evidence/v1.1.0-release-2026-09-29/logs/r1-coverage.log.gz",
+    "compressedSha256": "dd54b9916f342b4b63f0af631023d74bb1c967cc209e2fc2184ed05e4f564362",
+    "compressedMatches": true,
+    "uncompressedMatches": true
+  }
+]

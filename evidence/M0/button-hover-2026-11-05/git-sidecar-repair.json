@@ -1,0 +1,18 @@
+{
+  "backup": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui/.git/metadata-sidecars-2026-11-05/pack",
+  "files": [
+    "._pack-004117bd38280996e3d596b22b5334fbea69a6a9.idx",
+    "._pack-1b3da2f83e044ee10f217970874a15b940b80fcd.idx",
+    "._pack-2d3bd3a83f956b31fe103d84b99d41758d7277d0.idx",
+    "._pack-355a4873681278ad24037110644a17b02d714e06.idx",
+    "._pack-3996875f2bd7ba8a4ee8eadc58767a870cbe565b.idx",
+    "._pack-42680e3410a1eaf622f5d8c5d9d6e0547c88cae7.idx",
+    "._pack-471117fad8d6dbae552b1ad451d2a512b24c9d61.idx",
+    "._pack-5b9e293b573c2c9836dd553bb4888d53ddd406c2.idx",
+    "._pack-5e714a8bd78ae085b3d12de02969d014067253dc.idx",
+    "._pack-d233db8e37eeb4663bf478bcb77b8c455df5f61d.idx",
+    "._pack-e25fa07adc7d6be695081f83eaf05ff837ee7a80.idx",
+    "._pack-eaa35bec8da8b2b68679aefc97358b271a8ffc1b.idx"
+  ],
+  "validation": "Git log/status/worktree list exit 0 with empty stderr; real pack/index files left in place"
+}

@@ -1,0 +1,186 @@
+{
+  "name": "ai-review-gate",
+  "status": "failed",
+  "project": "/Volumes/新加卷/Codex/桌面归档/项目资料/aheart-ui-v2-m1/.pilot-runs/aheart-m0-pilots-gRYs71/ai-review-gate",
+  "commands": [
+    {
+      "label": "install",
+      "command": [
+        "npm",
+        "ci",
+        "--include=dev",
+        "--ignore-scripts",
+        "--no-audit",
+        "--no-fund",
+        "--registry=https://registry.npmjs.org/"
+      ],
+      "exitCode": 0,
+      "seconds": 3.8520192080000015,
+      "expectedExit": 0
+    },
+    {
+      "label": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "seconds": 1.1659105420000015,
+      "expectedExit": 0
+    },
+    {
+      "label": "strict-types",
+      "command": [
+        "npm",
+        "run",
+        "typecheck:strict"
+      ],
+      "exitCode": 2,
+      "seconds": 1.4731514170000009,
+      "expectedExit": 2
+    },
+    {
+      "label": "build-ssr",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "seconds": 4.495656749999998,
+      "expectedExit": 0
+    }
+  ],
+  "browser": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browserVersion": "149.0.7827.55",
+      "url": "http://127.0.0.1:60100/ssr.html",
+      "checks": [
+        "SSR hydration",
+        "Workbench task reorder",
+        "checklist gate",
+        "Modal preview",
+        "local chat lifecycle",
+        "approval",
+        "repeat prevention",
+        "explicit Button hover"
+      ],
+      "errors": [],
+      "firstRenderMilliseconds": 53.77883400000064,
+      "hover": {
+        "text": "上 移",
+        "active": true,
+        "foreground": "rgb(31, 35, 41)",
+        "background": "oklab(0 0 0 / 0)"
+      },
+      "status": "failed",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   {\n+     id: 'color-contrast',\n+     impact: 'serious',\n+     targets: [\n+       [\n+         'article[data-task-id=\"inspect\"] > .aheart-ai-workbench__task-body > .aheart-ai-workbench__task-actions > .aheart-button--text.aheart-button--variant-text[data-action=\"move-up\"] > .aheart-button__content'\n+       ]\n+     ]\n+   }\n+ ]\n- []\n\n    at file:///Volumes/%E6%96%B0%E5%8A%A0%E5%8D%B7/Codex/%E6%A1%8C%E9%9D%A2%E5%BD%92%E6%A1%A3/%E9%A1%B9%E7%9B%AE%E8%B5%84%E6%96%99/aheart-ui-v2-m1/pilots/run-baselines.mjs:184:20"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "browserVersion": "149.0.7827.55",
+      "url": "http://127.0.0.1:60100/ssr.html",
+      "checks": [
+        "SSR hydration",
+        "Workbench task reorder",
+        "checklist gate",
+        "Modal preview",
+        "local chat lifecycle",
+        "approval",
+        "repeat prevention",
+        "explicit Button hover"
+      ],
+      "errors": [],
+      "firstRenderMilliseconds": 39.99133299999812,
+      "hover": {
+        "text": "上 移",
+        "active": true,
+        "foreground": "rgb(31, 35, 41)",
+        "background": "oklab(0 0 0 / 0)"
+      },
+      "status": "failed",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ [\n+   {\n+     id: 'color-contrast',\n+     impact: 'serious',\n+     targets: [\n+       [\n+         'article[data-task-id=\"inspect\"] > .aheart-ai-workbench__task-body > .aheart-ai-workbench__task-actions > .aheart-button--text.aheart-button--variant-text[data-action=\"move-up\"] > .aheart-button__content'\n+       ]\n+     ]\n+   }\n+ ]\n- []\n\n    at file:///Volumes/%E6%96%B0%E5%8A%A0%E5%8D%B7/Codex/%E6%A1%8C%E9%9D%A2%E5%BD%92%E6%A1%A3/%E9%A1%B9%E7%9B%AE%E8%B5%84%E6%96%99/aheart-ui-v2-m1/pilots/run-baselines.mjs:184:20"
+    }
+  ],
+  "sourceFiles": {
+    "README.md": "d52513a77b29bbb6748f1dec9b72292a9c1bea184669f167635494913048e5fe",
+    "app.js": "21683dfa77c8a7688ead0dd4424fe1a8a944fe578aa39edc2a061b0578de3383",
+    "iframe.html": "9823e0c1b758eda2aa7a5807975dbe682f60f5879a33d46fd7c7886b6e8988bf",
+    "index.html": "f755c8d3e951476cc7c2685dc9675850e0fb2127a017d466241700ca894b4d0a",
+    "main.js": "6746cbff194ca2f4727e95c163a36484c08d83b7b37b86881fe541fa0c23f99d",
+    "package-lock.json": "a16c79fa9faa2c01798e57d03765094e5c913498a96dda34bb346dea9a411289",
+    "package.json": "629eab69f1861215981ebab2a8a935b51bcfaf33744858cdd460fe640ec3eb59",
+    "ssr.mjs": "86d69046205bdfa484c43ada30e10fc2bb6144ad808190aca68c5983785951a9",
+    "style.css": "a47e9e8dbec279ad42809b2ecc57357ff2e8ef37eab9b13fe151f785757ab98a",
+    "tsconfig.json": "c59094b325081757c582e3f683f0401f7feb59d3649427fa3f94e4568f76244a",
+    "tsconfig.strict.json": "b33f818a882c93c36add9ac4d8bb1510df539030ba3cba4a51cae417c2908928",
+    "types.ts": "e830ab15fb2043e2f50951797db623b35d6c08aa8490960af65921533254e72c",
+    "vite.config.js": "e75f2f3c572aa3312b1ec0af91c08b13d4e7e6b1f2fcb8ed684d5ace38514571"
+  },
+  "packages": {
+    "aheart-ui": {
+      "version": "1.1.0",
+      "symlink": false
+    },
+    "vue": {
+      "version": "3.5.44",
+      "symlink": false
+    },
+    "@aheart-ui/ai": {
+      "version": "1.0.0",
+      "symlink": false
+    },
+    "@aheart-ui/dnd": {
+      "version": "1.0.0",
+      "symlink": false
+    }
+  },
+  "knownIssues": [
+    "Installed core Card declarations fail skipLibCheck:false (PR #39); no silent suppression of strict result"
+  ],
+  "lockSha256": "a16c79fa9faa2c01798e57d03765094e5c913498a96dda34bb346dea9a411289",
+  "moduleGraph": {
+    "renderedModules": 261,
+    "ai": true,
+    "dnd": true,
+    "css": [
+      {
+        "file": "assets/main-D7s5anfe.css",
+        "bytes": 207042,
+        "gzipBytes": 28185
+      }
+    ],
+    "js": [
+      {
+        "file": "assets/iframe-l0sNRNKZ.js",
+        "bytes": 1,
+        "gzipBytes": 21
+      },
+      {
+        "file": "assets/index-DBtMpUPe.js",
+        "bytes": 28,
+        "gzipBytes": 48
+      },
+      {
+        "file": "assets/ssr-DBtMpUPe.js",
+        "bytes": 28,
+        "gzipBytes": 48
+      },
+      {
+        "file": "assets/main-CHA1sbmM.js",
+        "bytes": 303574,
+        "gzipBytes": 100272
+      }
+    ]
+  },
+  "url": "http://127.0.0.1:60100",
+  "error": "Browser baseline has failures; inspect per-viewport reports"
+}

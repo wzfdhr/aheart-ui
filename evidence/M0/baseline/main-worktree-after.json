@@ -1,0 +1,12 @@
+{
+  "capturedAt": "2026-11-05T07:40:28.139775+00:00",
+  "entryCount": 4408,
+  "statusCounts": {
+    " M": 2074,
+    "??": 2334
+  },
+  "statusSha256": "f38324bdc5919067e85cd21a4e994f5c65230eb2c3e99effa0010e2e08805c13",
+  "dirtyContentFingerprint": "be58e4d11d3b6fb10a04063c4c03db309becac0a1acc4f0f6f244092cef26e37",
+  "matchesEarlierSnapshot": false,
+  "exitCode": 0
+}

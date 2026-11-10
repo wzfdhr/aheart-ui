@@ -1,0 +1,12 @@
+{
+  "name": "aheart-m0-clean-consumer",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "aheart-ui": "1.1.0",
+    "@aheart-ui/dnd": "1.0.0",
+    "@aheart-ui/ai": "1.0.0",
+    "vue": "3.5.44",
+    "typescript": "5.9.3"
+  }
+}

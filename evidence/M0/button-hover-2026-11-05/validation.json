@@ -1,0 +1,30 @@
+{
+  "coreBuild": {
+    "exitCode": 0
+  },
+  "coreTypecheck": {
+    "exitCode": 0
+  },
+  "buttonUnit": {
+    "exitCode": 0,
+    "passed": 26
+  },
+  "productionDocsAndButtonE2E": {
+    "exitCode": 0,
+    "passed": 4,
+    "durationSeconds": 16.5,
+    "webServerTimeoutMs": 120000
+  },
+  "publicBaseline": {
+    "exitCode": 1,
+    "contrastFailedViewports": 4
+  },
+  "candidateBaseline": {
+    "exitCode": 2,
+    "browserPassedViewports": 6,
+    "strictTypeStatus": "known Card TS2344 in all three pilots; not passed"
+  },
+  "userAcceptance": "not-run",
+  "publish": "not-run",
+  "merge": "not-run"
+}
