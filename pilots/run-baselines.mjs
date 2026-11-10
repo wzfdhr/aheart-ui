@@ -165,15 +165,24 @@ try {
               await expect(probe.locator('[data-tab="summary"]')).toBeFocused()
               await page.keyboard.press('Tab')
               await expect(probe.locator('[data-tab="date"]')).toBeFocused()
+              const media = probe.locator('[data-tab="media"]')
+              const mediaFocusable = await media.evaluate(element => {
+                const previous = element.ownerDocument.activeElement
+                element.focus()
+                const focused = element.ownerDocument.activeElement === element || element.contains(element.ownerDocument.activeElement)
+                previous?.focus()
+                return focused
+              })
               await probe.locator('[data-tab="end"]').focus()
               await page.keyboard.press('Shift+Tab')
-              await expect(probe.locator('[data-tab="media"]')).toBeFocused()
-              const media = probe.locator('[data-tab="media"]')
-              await media.evaluate(element => element.addEventListener('keydown', event => {
-                if (event.key === 'Tab') queueMicrotask(() => { element.dataset.tabPrevented = String(event.defaultPrevented) })
-              }))
-              await page.keyboard.press('Tab')
-              await expect.poll(() => media.getAttribute('data-tab-prevented')).toBe('false')
+              await expect(probe.locator(mediaFocusable ? '[data-tab="media"]' : '[data-tab="date"]')).toBeFocused()
+              if (mediaFocusable) {
+                await media.evaluate(element => element.addEventListener('keydown', event => {
+                  if (event.key === 'Tab') queueMicrotask(() => { element.dataset.tabPrevented = String(event.defaultPrevented) })
+                }))
+                await page.keyboard.press('Tab')
+                await expect.poll(() => media.getAttribute('data-tab-prevented')).toBe('false')
+              }
               const date = probe.locator('[data-tab="date"]')
               await date.focus()
               await date.evaluate(element => element.addEventListener('keydown', event => {
@@ -181,7 +190,7 @@ try {
               }))
               await page.keyboard.press('Tab')
               await expect.poll(() => date.getAttribute('data-tab-prevented')).toBe('false')
-              result.modalNativeTab = { radioGroup: 'passed', editableHost: 'passed', closedDetails: 'passed', compositeDefaultPrevented: false, mediaDefaultPrevented: false }
+              result.modalNativeTab = { radioGroup: 'passed', editableHost: 'passed', closedDetails: 'passed', compositeDefaultPrevented: false, mediaProgrammaticFocus: mediaFocusable, mediaDefaultPrevented: mediaFocusable ? false : null }
               await probe.evaluate(element => element.remove())
               result.checks.push('Modal radio/editable/closed-details/native-composite Tab semantics')
               await page.keyboard.press('Escape')

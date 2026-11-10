@@ -1026,6 +1026,22 @@ describe('Modal', () => {
     wrapper.unmount()
   })
 
+  it('continues to the next control when an engine rejects a candidate focus request', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="first">First</button><video class="media" controls tabindex="0"></video><button class="last">Last</button>' }
+    })
+    const first = wrapper.find('.first').element as HTMLElement
+    const last = wrapper.find('.last').element as HTMLElement
+    const focus = vi.spyOn(wrapper.find('.media').element as HTMLElement, 'focus').mockImplementation(() => {})
+    first.focus(); await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(last)
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(first)
+    expect(focus).toHaveBeenCalledTimes(2)
+    focus.mockRestore(); wrapper.unmount()
+  })
+
   it('traps shift tab focus back to the last dialog control', async () => {
     const wrapper = mountModal({
       attachTo: document.body,

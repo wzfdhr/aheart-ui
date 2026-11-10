@@ -556,15 +556,22 @@ const getFocusableElements = (tabOrder = false) => {
   return candidates.filter(element => !excluded.has(element))
 }
 
+const focusElement = (element: HTMLElement) => {
+  element.focus()
+  const active = element.ownerDocument.activeElement
+  return active === element || element.contains(active)
+}
+
 const focusDialog = () => {
   if (!props.open) {
     return
   }
 
   const dialog = dialogRef.value
-  const target = getFocusableElements()[0] ?? dialog
-
-  target?.focus()
+  for (const target of getFocusableElements()) {
+    if (focusElement(target)) return
+  }
+  dialog?.focus()
 }
 
 onBeforeMount(() => {
@@ -619,7 +626,12 @@ const handleTrapTab = (event: KeyboardEvent) => {
   const next = current < 0
     ? (event.shiftKey ? focusableElements.length - 1 : 0)
     : (current + (event.shiftKey ? -1 : 1) + focusableElements.length) % focusableElements.length
-  focusableElements[next].focus()
+  const direction = event.shiftKey ? -1 : 1
+  for (let offset = 0; offset < focusableElements.length; offset += 1) {
+    const index = (next + offset * direction + focusableElements.length) % focusableElements.length
+    if (focusElement(focusableElements[index])) return
+  }
+  dialog.focus()
 }
 
 const notifyClosableClose = () => {

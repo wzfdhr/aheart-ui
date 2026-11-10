@@ -455,13 +455,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return candidates.filter((element) => !excluded.has(element));
     };
+    const focusElement = (element) => {
+      element.focus();
+      const active = element.ownerDocument.activeElement;
+      return active === element || element.contains(active);
+    };
     const focusDialog = () => {
       if (!props.open) {
         return;
       }
       const dialog = dialogRef.value;
-      const target = getFocusableElements()[0] ?? dialog;
-      target == null ? void 0 : target.focus();
+      for (const target of getFocusableElements()) {
+        if (focusElement(target))
+          return;
+      }
+      dialog == null ? void 0 : dialog.focus();
     };
     onBeforeMount(() => {
       if (props.open)
@@ -500,7 +508,13 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         return;
       }
       const next = current < 0 ? event.shiftKey ? focusableElements.length - 1 : 0 : (current + (event.shiftKey ? -1 : 1) + focusableElements.length) % focusableElements.length;
-      focusableElements[next].focus();
+      const direction = event.shiftKey ? -1 : 1;
+      for (let offset = 0; offset < focusableElements.length; offset += 1) {
+        const index = (next + offset * direction + focusableElements.length) % focusableElements.length;
+        if (focusElement(focusableElements[index]))
+          return;
+      }
+      dialog.focus();
     };
     const notifyClosableClose = () => {
       var _a, _b;
