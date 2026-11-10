@@ -1,5 +1,7 @@
 # M1 v1.2 本地实现与消费验证
 
+> 初始候选历史记录。本文的每次 Tab 显式推进方案已被原生控件对照发现存在回归并替换；当前候选、最终测试与 tarball 见 [最终原生 Tab 验证报告](../native-tab-review-2026-11-09/report.md)。本目录原始证据保留，不再作为最新通过结论。
+
 2026-11-09。M0 已获负责人书面 Go；**M1 实现已具备本地验证证据，阶段仍为 In progress / 待审查，未合并、未部署、未发布 npm。**
 
 运行时代码提交 `5445886d2437e2fae6a2365e05438397c35bab2a`，基线 master `90285d6`。试验在代码提交前启动，因此原始 runner 的 sourceSha 仍显示当时 HEAD；[source-manifest.json](source-manifest.json) 逐个核对源文件 Git blob 与该提交一致，不回写原始日志。最终 tarball SHA 见 [artifacts.json](artifacts.json)，core 为 `2e42ed55f5a98a23364cf3dea90b8bf8a4e3c471cda9a89723b9a635694df377`。

@@ -1,0 +1,11 @@
+[
+  {
+    "case": "native date Tab",
+    "active": "date",
+    "videoTabIndex": 0
+  },
+  {
+    "case": "candidate date Tab",
+    "active": "after"
+  }
+]

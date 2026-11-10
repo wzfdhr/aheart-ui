@@ -1,0 +1,19 @@
+[
+  {
+    "case": "native radio Tab",
+    "active": "after"
+  },
+  {
+    "case": "native editable Tab",
+    "active": "editor",
+    "tabIndex": -1
+  },
+  {
+    "case": "candidate radio Tab",
+    "active": "two"
+  },
+  {
+    "case": "candidate editable Tab",
+    "active": "end"
+  }
+]
