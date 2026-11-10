@@ -1,0 +1,2582 @@
+{
+  "status": "passed",
+  "headSha": "d56f449e48632b3842156e99ccf083b4d1d673e4",
+  "originalWorktreeStatusRecords": 4402,
+  "runs": [
+    {
+      "conclusion": "success",
+      "event": "push",
+      "headSha": "d56f449e48632b3842156e99ccf083b4d1d673e4",
+      "jobs": [
+        {
+          "completedAt": "2026-11-10T04:11:07Z",
+          "conclusion": "success",
+          "databaseId": 129624462243,
+          "name": "typecheck",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:34Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:39Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:48Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:03Z",
+              "conclusion": "success",
+              "name": "Typecheck",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:48Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:04Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 10,
+              "startedAt": "2026-11-10T04:11:03Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:04Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 11,
+              "startedAt": "2026-11-10T04:11:04Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:04Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 12,
+              "startedAt": "2026-11-10T04:11:04Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:04Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 13,
+              "startedAt": "2026-11-10T04:11:04Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462243"
+        },
+        {
+          "completedAt": "2026-11-10T04:12:26Z",
+          "conclusion": "success",
+          "databaseId": 129624462554,
+          "name": "coverage",
+          "startedAt": "2026-11-10T04:10:31Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:33Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:32Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:44Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:23Z",
+              "conclusion": "success",
+              "name": "R1 branch coverage",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "success",
+              "name": "Upload coverage evidence",
+              "number": 7,
+              "startedAt": "2026-11-10T04:12:23Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 12,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 13,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 14,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:25Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462554"
+        },
+        {
+          "completedAt": "2026-11-10T04:10:56Z",
+          "conclusion": "success",
+          "databaseId": 129624462640,
+          "name": "docs",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:33Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:32Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:35Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:42Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:44Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:54Z",
+              "conclusion": "success",
+              "name": "Build Docs",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:54Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 10,
+              "startedAt": "2026-11-10T04:10:54Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:54Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 11,
+              "startedAt": "2026-11-10T04:10:54Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:54Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 12,
+              "startedAt": "2026-11-10T04:10:54Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:54Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 13,
+              "startedAt": "2026-11-10T04:10:54Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462640"
+        },
+        {
+          "completedAt": "2026-11-10T04:12:41Z",
+          "conclusion": "success",
+          "databaseId": 129624462646,
+          "name": "qg5-cross-browser (desktop)",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:34Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:38Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:47Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:42Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:47Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:37Z",
+              "conclusion": "success",
+              "name": "QG5 E2E",
+              "number": 7,
+              "startedAt": "2026-11-10T04:11:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:38Z",
+              "conclusion": "success",
+              "name": "Upload QG5 Playwright Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:12:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:38Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:12:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:38Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:12:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:39Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:12:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:39Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:12:39Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462646"
+        },
+        {
+          "completedAt": "2026-11-10T04:12:38Z",
+          "conclusion": "success",
+          "databaseId": 129624462674,
+          "name": "qg5-cross-browser (mobile)",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:34Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:38Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:45Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:38Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:34Z",
+              "conclusion": "success",
+              "name": "QG5 E2E",
+              "number": 7,
+              "startedAt": "2026-11-10T04:11:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:35Z",
+              "conclusion": "success",
+              "name": "Upload QG5 Playwright Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:12:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:35Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:12:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:35Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:12:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:35Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:12:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:35Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:12:35Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462674"
+        },
+        {
+          "completedAt": "2026-11-10T04:13:43Z",
+          "conclusion": "success",
+          "databaseId": 129624462694,
+          "name": "consumer",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:33Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:32Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:44Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:45Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:28Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:30Z",
+              "conclusion": "success",
+              "name": "Verify Release Tarballs",
+              "number": 7,
+              "startedAt": "2026-11-10T04:11:28Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:53Z",
+              "conclusion": "success",
+              "name": "Strict packed consumer types (workspace Vue and Vue 3.5.44)",
+              "number": 8,
+              "startedAt": "2026-11-10T04:11:30Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:21Z",
+              "conclusion": "success",
+              "name": "Pack and run isolated consumers",
+              "number": 9,
+              "startedAt": "2026-11-10T04:11:53Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:40Z",
+              "conclusion": "success",
+              "name": "M1 public entries, CSS and module graph",
+              "number": 10,
+              "startedAt": "2026-11-10T04:12:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:39Z",
+              "conclusion": "success",
+              "name": "M1 split and compatibility pilot paths",
+              "number": 11,
+              "startedAt": "2026-11-10T04:12:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:40Z",
+              "conclusion": "success",
+              "name": "Upload Consumer Evidence",
+              "number": 12,
+              "startedAt": "2026-11-10T04:13:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:40Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 22,
+              "startedAt": "2026-11-10T04:13:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:40Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 23,
+              "startedAt": "2026-11-10T04:13:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:41Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 24,
+              "startedAt": "2026-11-10T04:13:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:41Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 25,
+              "startedAt": "2026-11-10T04:13:41Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462694"
+        },
+        {
+          "completedAt": "2026-11-10T04:12:24Z",
+          "conclusion": "success",
+          "databaseId": 129624462704,
+          "name": "build-generated",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:33Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:32Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:42Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:45Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:21Z",
+              "conclusion": "success",
+              "name": "Check Build Determinism and Generated Output",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:21Z",
+              "conclusion": "skipped",
+              "name": "Capture Build Diagnostics",
+              "number": 7,
+              "startedAt": "2026-11-10T04:12:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:21Z",
+              "conclusion": "skipped",
+              "name": "Upload Build Diagnostics",
+              "number": 8,
+              "startedAt": "2026-11-10T04:12:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:21Z",
+              "conclusion": "success",
+              "name": "Check Whitespace",
+              "number": 9,
+              "startedAt": "2026-11-10T04:12:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:21Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 16,
+              "startedAt": "2026-11-10T04:12:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:22Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 17,
+              "startedAt": "2026-11-10T04:12:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:22Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 18,
+              "startedAt": "2026-11-10T04:12:22Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:22Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 19,
+              "startedAt": "2026-11-10T04:12:22Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462704"
+        },
+        {
+          "completedAt": "2026-11-10T04:13:02Z",
+          "conclusion": "success",
+          "databaseId": 129624462717,
+          "name": "qg5-cross-browser (desktop-webkit)",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:34Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:38Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:39Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:48Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:05Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:48Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:56Z",
+              "conclusion": "success",
+              "name": "QG5 E2E",
+              "number": 7,
+              "startedAt": "2026-11-10T04:12:05Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:58Z",
+              "conclusion": "success",
+              "name": "Upload QG5 Playwright Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:12:56Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:58Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:12:58Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:58Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:12:58Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:58Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:12:58Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:58Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:12:58Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462717"
+        },
+        {
+          "completedAt": "2026-11-10T04:13:07Z",
+          "conclusion": "success",
+          "databaseId": 129624462737,
+          "name": "qg5-cross-browser (mobile-webkit)",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:35Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:38Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:40Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:47Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:49Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:47Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:51Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:49Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:01Z",
+              "conclusion": "success",
+              "name": "QG5 E2E",
+              "number": 7,
+              "startedAt": "2026-11-10T04:11:51Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:03Z",
+              "conclusion": "success",
+              "name": "Upload QG5 Playwright Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:13:01Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:03Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:13:03Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:03Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:13:03Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:04Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:13:03Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:04Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:13:04Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462737"
+        },
+        {
+          "completedAt": "2026-11-10T04:29:09Z",
+          "conclusion": "success",
+          "databaseId": 129624462757,
+          "name": "unit",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:33Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:32Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:43Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:45Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:20:27Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:29:07Z",
+              "conclusion": "success",
+              "name": "Unit and script tests",
+              "number": 7,
+              "startedAt": "2026-11-10T04:20:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:29:07Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 12,
+              "startedAt": "2026-11-10T04:29:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:29:08Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 13,
+              "startedAt": "2026-11-10T04:29:07Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:29:08Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 14,
+              "startedAt": "2026-11-10T04:29:08Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:29:08Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "startedAt": "2026-11-10T04:29:08Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462757"
+        },
+        {
+          "completedAt": "2026-11-10T04:23:56Z",
+          "conclusion": "success",
+          "databaseId": 129624462826,
+          "name": "qg5-cross-browser (desktop-firefox)",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:34Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:38Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:47Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:22:39Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:47Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:51Z",
+              "conclusion": "success",
+              "name": "QG5 E2E",
+              "number": 7,
+              "startedAt": "2026-11-10T04:22:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:53Z",
+              "conclusion": "success",
+              "name": "Upload QG5 Playwright Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:23:51Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:53Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:23:53Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:53Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:23:53Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:53Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:23:53Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:53Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:23:53Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624462826"
+        },
+        {
+          "completedAt": "2026-11-10T05:10:19Z",
+          "conclusion": "success",
+          "databaseId": 129624463056,
+          "name": "browser",
+          "startedAt": "2026-11-10T04:10:32Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:34Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:38Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:45Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:47Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:24:45Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:47Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T05:10:13Z",
+              "conclusion": "success",
+              "name": "End-to-End Tests",
+              "number": 7,
+              "startedAt": "2026-11-10T04:24:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T05:10:15Z",
+              "conclusion": "success",
+              "name": "Upload End-to-End Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T05:10:13Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T05:10:16Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T05:10:15Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T05:10:16Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T05:10:16Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T05:10:16Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T05:10:16Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T05:10:16Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T05:10:16Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510/job/129624463056"
+        }
+      ],
+      "status": "completed",
+      "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754145510"
+    },
+    {
+      "conclusion": "success",
+      "event": "pull_request",
+      "headSha": "d56f449e48632b3842156e99ccf083b4d1d673e4",
+      "jobs": [
+        {
+          "completedAt": "2026-11-10T04:11:07Z",
+          "conclusion": "success",
+          "databaseId": 129624480999,
+          "name": "docs",
+          "startedAt": "2026-11-10T04:10:34Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:38Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:40Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:38Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:45Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:48Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:05Z",
+              "conclusion": "success",
+              "name": "Build Docs",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:48Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:05Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 10,
+              "startedAt": "2026-11-10T04:11:05Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:05Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 11,
+              "startedAt": "2026-11-10T04:11:05Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:05Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 12,
+              "startedAt": "2026-11-10T04:11:05Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:05Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 13,
+              "startedAt": "2026-11-10T04:11:05Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624480999"
+        },
+        {
+          "completedAt": "2026-11-10T04:27:36Z",
+          "conclusion": "success",
+          "databaseId": 129624481174,
+          "name": "qg5-cross-browser (mobile-webkit)",
+          "startedAt": "2026-11-10T04:10:34Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:39Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:40Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:45Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:26:40Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:27:33Z",
+              "conclusion": "success",
+              "name": "QG5 E2E",
+              "number": 7,
+              "startedAt": "2026-11-10T04:26:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:27:34Z",
+              "conclusion": "success",
+              "name": "Upload QG5 Playwright Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:27:33Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:27:34Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:27:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:27:34Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:27:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:27:34Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:27:34Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:27:34Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:27:34Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481174"
+        },
+        {
+          "completedAt": "2026-11-10T04:12:27Z",
+          "conclusion": "success",
+          "databaseId": 129624481261,
+          "name": "qg5-cross-browser (desktop-firefox)",
+          "startedAt": "2026-11-10T04:10:35Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:39Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:40Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:47Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:27Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:47Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:23Z",
+              "conclusion": "success",
+              "name": "QG5 E2E",
+              "number": 7,
+              "startedAt": "2026-11-10T04:11:27Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:25Z",
+              "conclusion": "success",
+              "name": "Upload QG5 Playwright Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:12:23Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:25Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:12:25Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:25Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:12:25Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:25Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:12:25Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:25Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:12:25Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481261"
+        },
+        {
+          "completedAt": "2026-11-10T04:23:15Z",
+          "conclusion": "success",
+          "databaseId": 129624481284,
+          "name": "consumer",
+          "startedAt": "2026-11-10T04:10:35Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:39Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:40Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:48Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:20:40Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:48Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:20:42Z",
+              "conclusion": "success",
+              "name": "Verify Release Tarballs",
+              "number": 7,
+              "startedAt": "2026-11-10T04:20:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:21:09Z",
+              "conclusion": "success",
+              "name": "Strict packed consumer types (workspace Vue and Vue 3.5.44)",
+              "number": 8,
+              "startedAt": "2026-11-10T04:20:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:21:40Z",
+              "conclusion": "success",
+              "name": "Pack and run isolated consumers",
+              "number": 9,
+              "startedAt": "2026-11-10T04:21:09Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:22:03Z",
+              "conclusion": "success",
+              "name": "M1 public entries, CSS and module graph",
+              "number": 10,
+              "startedAt": "2026-11-10T04:21:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:12Z",
+              "conclusion": "success",
+              "name": "M1 split and compatibility pilot paths",
+              "number": 11,
+              "startedAt": "2026-11-10T04:22:03Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:13Z",
+              "conclusion": "success",
+              "name": "Upload Consumer Evidence",
+              "number": 12,
+              "startedAt": "2026-11-10T04:23:12Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:13Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 22,
+              "startedAt": "2026-11-10T04:23:13Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:14Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 23,
+              "startedAt": "2026-11-10T04:23:13Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:14Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 24,
+              "startedAt": "2026-11-10T04:23:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:23:14Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 25,
+              "startedAt": "2026-11-10T04:23:14Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481284"
+        },
+        {
+          "completedAt": "2026-11-10T04:44:29Z",
+          "conclusion": "success",
+          "databaseId": 129624481333,
+          "name": "browser",
+          "startedAt": "2026-11-10T04:10:35Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:39Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:40Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:48Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:30Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:48Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:44:22Z",
+              "conclusion": "success",
+              "name": "End-to-End Tests",
+              "number": 7,
+              "startedAt": "2026-11-10T04:11:30Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:44:26Z",
+              "conclusion": "success",
+              "name": "Upload End-to-End Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:44:22Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:44:26Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:44:26Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:44:26Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:44:26Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:44:27Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:44:26Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:44:27Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:44:27Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481333"
+        },
+        {
+          "completedAt": "2026-11-10T04:11:07Z",
+          "conclusion": "success",
+          "databaseId": 129624481355,
+          "name": "typecheck",
+          "startedAt": "2026-11-10T04:10:35Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:39Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:40Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:47Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:49Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:47Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:05Z",
+              "conclusion": "success",
+              "name": "Typecheck",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:49Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:05Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 10,
+              "startedAt": "2026-11-10T04:11:05Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:05Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 11,
+              "startedAt": "2026-11-10T04:11:05Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:06Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 12,
+              "startedAt": "2026-11-10T04:11:05Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:06Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 13,
+              "startedAt": "2026-11-10T04:11:06Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481355"
+        },
+        {
+          "completedAt": "2026-11-10T04:12:33Z",
+          "conclusion": "success",
+          "databaseId": 129624481382,
+          "name": "coverage",
+          "startedAt": "2026-11-10T04:10:59Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:11:01Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:11:00Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:03Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:11:01Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:04Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:11:03Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:12Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:11:04Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:14Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:11:12Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:28Z",
+              "conclusion": "success",
+              "name": "R1 branch coverage",
+              "number": 6,
+              "startedAt": "2026-11-10T04:11:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:29Z",
+              "conclusion": "success",
+              "name": "Upload coverage evidence",
+              "number": 7,
+              "startedAt": "2026-11-10T04:12:28Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:30Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 12,
+              "startedAt": "2026-11-10T04:12:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:30Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 13,
+              "startedAt": "2026-11-10T04:12:30Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:30Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 14,
+              "startedAt": "2026-11-10T04:12:30Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:30Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "startedAt": "2026-11-10T04:12:30Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481382"
+        },
+        {
+          "completedAt": "2026-11-10T04:12:27Z",
+          "conclusion": "success",
+          "databaseId": 129624481383,
+          "name": "build-generated",
+          "startedAt": "2026-11-10T04:10:35Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:37Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:41Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:37Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:42Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:41Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:49Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:51Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:49Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "success",
+              "name": "Check Build Determinism and Generated Output",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:51Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "skipped",
+              "name": "Capture Build Diagnostics",
+              "number": 7,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "skipped",
+              "name": "Upload Build Diagnostics",
+              "number": 8,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "success",
+              "name": "Check Whitespace",
+              "number": 9,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 16,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 17,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 18,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:24Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 19,
+              "startedAt": "2026-11-10T04:12:24Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481383"
+        },
+        {
+          "completedAt": "2026-11-10T04:19:32Z",
+          "conclusion": "success",
+          "databaseId": 129624481402,
+          "name": "unit",
+          "startedAt": "2026-11-10T04:11:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:11:12Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:11:10Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:14Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:11:12Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:16Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:11:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:22Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:11:16Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:24Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:11:22Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:13Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:11:24Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:19:28Z",
+              "conclusion": "success",
+              "name": "Unit and script tests",
+              "number": 7,
+              "startedAt": "2026-11-10T04:12:13Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:19:29Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 12,
+              "startedAt": "2026-11-10T04:19:28Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:19:29Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 13,
+              "startedAt": "2026-11-10T04:19:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:19:29Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 14,
+              "startedAt": "2026-11-10T04:19:29Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:19:29Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "startedAt": "2026-11-10T04:19:29Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481402"
+        },
+        {
+          "completedAt": "2026-11-10T04:13:06Z",
+          "conclusion": "success",
+          "databaseId": 129624481416,
+          "name": "qg5-cross-browser (desktop)",
+          "startedAt": "2026-11-10T04:11:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:11:11Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:11:10Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:13Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:11:11Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:14Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:11:13Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:21Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:11:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:23Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:11:21Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:17Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:11:23Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:01Z",
+              "conclusion": "success",
+              "name": "QG5 E2E",
+              "number": 7,
+              "startedAt": "2026-11-10T04:12:17Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:03Z",
+              "conclusion": "success",
+              "name": "Upload QG5 Playwright Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:13:01Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:03Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:13:03Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:03Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:13:03Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:03Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:13:03Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:13:03Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:13:03Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481416"
+        },
+        {
+          "completedAt": "2026-11-10T04:12:45Z",
+          "conclusion": "success",
+          "databaseId": 129624481426,
+          "name": "qg5-cross-browser (desktop-webkit)",
+          "startedAt": "2026-11-10T04:10:35Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:10:36Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:10:35Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:39Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:10:36Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:40Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:10:39Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:46Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:10:40Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:10:47Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:10:46Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:55Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:10:47Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:42Z",
+              "conclusion": "success",
+              "name": "QG5 E2E",
+              "number": 7,
+              "startedAt": "2026-11-10T04:11:55Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:43Z",
+              "conclusion": "success",
+              "name": "Upload QG5 Playwright Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:12:42Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:43Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:12:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:43Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:12:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:43Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:12:43Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:43Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:12:43Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481426"
+        },
+        {
+          "completedAt": "2026-11-10T04:12:48Z",
+          "conclusion": "success",
+          "databaseId": 129624481777,
+          "name": "qg5-cross-browser (mobile)",
+          "startedAt": "2026-11-10T04:11:10Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completedAt": "2026-11-10T04:11:11Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "startedAt": "2026-11-10T04:11:10Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:13Z",
+              "conclusion": "success",
+              "name": "Checkout",
+              "number": 2,
+              "startedAt": "2026-11-10T04:11:11Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:14Z",
+              "conclusion": "success",
+              "name": "Setup pnpm",
+              "number": 3,
+              "startedAt": "2026-11-10T04:11:13Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:20Z",
+              "conclusion": "success",
+              "name": "Setup Node",
+              "number": 4,
+              "startedAt": "2026-11-10T04:11:14Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:22Z",
+              "conclusion": "success",
+              "name": "Install",
+              "number": 5,
+              "startedAt": "2026-11-10T04:11:20Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:11:59Z",
+              "conclusion": "success",
+              "name": "Install Playwright Browsers",
+              "number": 6,
+              "startedAt": "2026-11-10T04:11:22Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:44Z",
+              "conclusion": "success",
+              "name": "QG5 E2E",
+              "number": 7,
+              "startedAt": "2026-11-10T04:11:59Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:45Z",
+              "conclusion": "success",
+              "name": "Upload QG5 Playwright Evidence",
+              "number": 8,
+              "startedAt": "2026-11-10T04:12:44Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:45Z",
+              "conclusion": "success",
+              "name": "Post Setup Node",
+              "number": 14,
+              "startedAt": "2026-11-10T04:12:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:45Z",
+              "conclusion": "success",
+              "name": "Post Setup pnpm",
+              "number": 15,
+              "startedAt": "2026-11-10T04:12:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:46Z",
+              "conclusion": "success",
+              "name": "Post Checkout",
+              "number": 16,
+              "startedAt": "2026-11-10T04:12:45Z",
+              "status": "completed"
+            },
+            {
+              "completedAt": "2026-11-10T04:12:46Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "startedAt": "2026-11-10T04:12:46Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637/job/129624481777"
+        }
+      ],
+      "status": "completed",
+      "url": "https://github.com/wzfdhr/aheart-ui/actions/runs/42754151637"
+    }
+  ],
+  "pushBrowserSummary": [
+    "2026-11-10T04:25:05.8082870Z Running 908 tests using 1 worker",
+    "2026-11-10T05:10:12.5674764Z   127 skipped",
+    "2026-11-10T05:10:12.5704337Z   781 passed (45.4m)"
+  ]
+}

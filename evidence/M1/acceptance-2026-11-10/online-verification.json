@@ -1,0 +1,74 @@
+{
+  "status": "passed",
+  "checkedAtUtc": "2026-11-10T06:22:45.434071+00:00",
+  "sourceSha": "259db118c7c95904ae7054313fd0b7a0e2630214",
+  "deploymentId": 7675123651,
+  "pagesRunId": 42767778878,
+  "requests": [
+    {
+      "url": "https://wzfdhr.github.io/aheart-ui/?m1=259db118c7c95904ae7054313fd0b7a0e2630214",
+      "status": 200,
+      "bytes": 57653,
+      "sha256": "59a14d1de2646debe77bef0b09073e20863986ebd7d0381ec75ffcab482c0a01",
+      "etag": "\"6af2b7b3-e135\""
+    },
+    {
+      "url": "https://wzfdhr.github.io/aheart-ui/guide/on-demand.html?m1=259db118c7c95904ae7054313fd0b7a0e2630214",
+      "status": 200,
+      "bytes": 60355,
+      "sha256": "70b5badb138065265ed2b6d0da3e5581eec477cd5e30efd857868f6f18c5ec24",
+      "etag": "\"6af2b7b3-ebc3\""
+    },
+    {
+      "url": "https://wzfdhr.github.io/aheart-ui/assets/app.T0sYzNWL.js",
+      "status": 200,
+      "bytes": 1353,
+      "sha256": "70660f12a071885d647fce2b0703a34cefd115f9fa7676a4119fe8df5d1b38de",
+      "etag": "\"6af2b7b3-549\""
+    },
+    {
+      "url": "https://wzfdhr.github.io/aheart-ui/assets/chunks/framework.MBGCvyr0.js",
+      "status": 200,
+      "bytes": 109397,
+      "sha256": "21d3cc204dd6ef6270000651c68b88c3a97ac72c92807277775699f18b087899",
+      "etag": "\"6af2b7b3-1ab55\""
+    },
+    {
+      "url": "https://wzfdhr.github.io/aheart-ui/assets/chunks/theme.CJVH3FXL.js",
+      "status": 200,
+      "bytes": 813913,
+      "sha256": "62ea49fd9128fad1761bee3a1efbeeaffde14b06803de08b1d5fec66dd3d1350",
+      "etag": "\"6af2b7b3-c6b59\""
+    },
+    {
+      "url": "https://wzfdhr.github.io/aheart-ui/assets/guide_on-demand.md.ncUKwTrE.lean.js",
+      "status": 200,
+      "bytes": 442,
+      "sha256": "fbcbad7030a13ee04687fa1a344317caf36da4d6781fec3ebfd96cfba8ed2226",
+      "etag": "\"6af2b7b3-1ba\""
+    },
+    {
+      "url": "https://wzfdhr.github.io/aheart-ui/assets/index.md.CaKdnsGE.lean.js",
+      "status": 200,
+      "bytes": 11043,
+      "sha256": "2b4bda85bbc4fb7162b03614962c66aee906f1c586c124131a5bdbdf7e311fbd",
+      "etag": "\"6af2b7b3-2b23\""
+    },
+    {
+      "url": "https://wzfdhr.github.io/aheart-ui/assets/style.D8vbEQHn.css",
+      "status": 200,
+      "bytes": 373681,
+      "sha256": "0b41daca8ea56c1ef0e48c555438966fca8f4b2df05f973c4f8ff54d0d4b0e53",
+      "etag": "\"6af2b7b3-5b3b1\""
+    }
+  ],
+  "guideSignals": [
+    "1.2 按需候选",
+    "尚未发布到 npm",
+    "aheart-ui/button",
+    "aheart-ui/modal",
+    "aheart-ui/select",
+    "aheart-ui/theme.css",
+    "aheart-ui/full.css"
+  ]
+}

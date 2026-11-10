@@ -2,7 +2,7 @@
 
 2026-11-09。运行时与验证器提交 `c76b33529162152fea4d029482d0b8bcf67871a2`，基线 `90285d6`。此报告取代[初始本地候选](../implementation-2026-11-09/report.md)的当前结论；初始日志和 tarball 原样保留。
 
-**M0 已获负责人书面 Go；M1 仍为 In progress / 待验收。** [PR #41](https://github.com/wzfdhr/aheart-ui/pull/41) 尚未合并，线上文档和 npm 未更新。之前对 #38/#39/#40 的授权不扩展为本 PR 的合并授权。
+**2026-11-10：M1 Go / Accepted。** 负责人已认可候选并授权合并 #41、更新文档站；#41 已合入 `259db11`，主线 CI 与同提交的 Pages 部署通过，见 [八门禁与交付记录](../decision-log.md)。本地验证快照日期仍为 2026-11-09；原始日志与 tarball 保留。npm 发布不在本轮授权内。
 
 ## 最终行为
 
@@ -49,4 +49,4 @@ Modal 保留弹窗内部的浏览器原生 Tab 导航：已知首尾边界同步
 
 ## 门禁
 
-本地证据通过；必需远端 CI 待本轮提交完成后核实。G1 契约负责人审查、G6 PR/CI、G7 主线/Pages 与 G8 M1 用户验收未全部完成，M1 不得标记 Accepted。候选静态预览见 preview-clean-consumer/；npm 发布仍未授权。完成 CI 后提交负责人决策，不进入 M2/M3。
+本地、PR、合并、主线 CI、Pages、pack 与负责人验收均通过，完整 G1–G8 和八状态见 [阶段验收记录](../decision-log.md)。候选静态预览见 preview-clean-consumer/。npm published 为 N/A：本轮未执行 npm 发布。

@@ -1,0 +1,145 @@
+{
+  "status": "passed",
+  "headSha": "d56f449e48632b3842156e99ccf083b4d1d673e4",
+  "checkoutMergeSha": "347a7d8bab4ccb040f4223cd40350bcf2979e5ef",
+  "identicalTree": "35a427ee99aa8c1ddddb192f3d01d3de9c95e040",
+  "runId": 42754151637,
+  "artifactId": 13735636565,
+  "artifactSha256": "982261b4053a0276f8192e477490de446c3bb7ab526b7b09302d353ca1b5b945",
+  "results": [
+    {
+      "file": "m1-consumer/results.json",
+      "status": "passed",
+      "sourceSha": null,
+      "tarballSHA256": "44ddec22cd4a0e1ab3ab58dd90c44bdf5235f04f1570143b6a6dbfa640654f21",
+      "packageSource": null,
+      "entryMode": null,
+      "browserEngine": null
+    },
+    {
+      "file": "m1-pilots/chromium/ai-review-gate/results.json",
+      "status": "passed",
+      "sourceSha": null,
+      "tarballSHA256": null,
+      "packageSource": null,
+      "entryMode": null,
+      "browserEngine": null
+    },
+    {
+      "file": "m1-pilots/chromium/clean-consumer/results.json",
+      "status": "passed",
+      "sourceSha": null,
+      "tarballSHA256": null,
+      "packageSource": null,
+      "entryMode": null,
+      "browserEngine": null
+    },
+    {
+      "file": "m1-pilots/chromium/muxu-todo/results.json",
+      "status": "passed",
+      "sourceSha": null,
+      "tarballSHA256": null,
+      "packageSource": null,
+      "entryMode": null,
+      "browserEngine": null
+    },
+    {
+      "file": "m1-pilots/chromium/results.json",
+      "status": "passed",
+      "sourceSha": "347a7d8bab4ccb040f4223cd40350bcf2979e5ef",
+      "tarballSHA256": null,
+      "packageSource": {
+        "kind": "local-core-tarball",
+        "path": "/home/runner/work/aheart-ui/aheart-ui/test-results/release-tarballs/aheart-ui-1.2.0.tgz",
+        "version": "1.2.0",
+        "sha256": "44ddec22cd4a0e1ab3ab58dd90c44bdf5235f04f1570143b6a6dbfa640654f21"
+      },
+      "entryMode": "subpath",
+      "browserEngine": "chromium"
+    },
+    {
+      "file": "m1-pilots/firefox/clean-consumer/results.json",
+      "status": "passed",
+      "sourceSha": null,
+      "tarballSHA256": null,
+      "packageSource": null,
+      "entryMode": null,
+      "browserEngine": null
+    },
+    {
+      "file": "m1-pilots/firefox/results.json",
+      "status": "passed",
+      "sourceSha": "347a7d8bab4ccb040f4223cd40350bcf2979e5ef",
+      "tarballSHA256": null,
+      "packageSource": {
+        "kind": "local-core-tarball",
+        "path": "/home/runner/work/aheart-ui/aheart-ui/test-results/release-tarballs/aheart-ui-1.2.0.tgz",
+        "version": "1.2.0",
+        "sha256": "44ddec22cd4a0e1ab3ab58dd90c44bdf5235f04f1570143b6a6dbfa640654f21"
+      },
+      "entryMode": "subpath",
+      "browserEngine": "firefox"
+    },
+    {
+      "file": "m1-pilots/webkit/clean-consumer/results.json",
+      "status": "passed",
+      "sourceSha": null,
+      "tarballSHA256": null,
+      "packageSource": null,
+      "entryMode": null,
+      "browserEngine": null
+    },
+    {
+      "file": "d9-consumers/d8-results.json",
+      "status": "passed",
+      "sourceSha": null,
+      "tarballSHA256": null,
+      "packageSource": null,
+      "entryMode": null,
+      "browserEngine": null
+    },
+    {
+      "file": "m1-pilots/webkit/results.json",
+      "status": "passed",
+      "sourceSha": "347a7d8bab4ccb040f4223cd40350bcf2979e5ef",
+      "tarballSHA256": null,
+      "packageSource": {
+        "kind": "local-core-tarball",
+        "path": "/home/runner/work/aheart-ui/aheart-ui/test-results/release-tarballs/aheart-ui-1.2.0.tgz",
+        "version": "1.2.0",
+        "sha256": "44ddec22cd4a0e1ab3ab58dd90c44bdf5235f04f1570143b6a6dbfa640654f21"
+      },
+      "entryMode": "subpath",
+      "browserEngine": "webkit"
+    },
+    {
+      "file": "d9-consumers/form-results.json",
+      "status": "passed",
+      "sourceSha": null,
+      "tarballSHA256": "44ddec22cd4a0e1ab3ab58dd90c44bdf5235f04f1570143b6a6dbfa640654f21",
+      "packageSource": null,
+      "entryMode": null,
+      "browserEngine": null
+    },
+    {
+      "file": "d9-consumers/root-results.json",
+      "status": "passed",
+      "sourceSha": null,
+      "tarballSHA256": "44ddec22cd4a0e1ab3ab58dd90c44bdf5235f04f1570143b6a6dbfa640654f21",
+      "packageSource": null,
+      "entryMode": null,
+      "browserEngine": null
+    },
+    {
+      "file": "d9-consumers/strict/results.json",
+      "status": "passed",
+      "sourceSha": null,
+      "tarballSHA256": null,
+      "packageSource": null,
+      "entryMode": null,
+      "browserEngine": null
+    }
+  ],
+  "sameCoreTarballAcrossRemoteConsumers": "44ddec22cd4a0e1ab3ab58dd90c44bdf5235f04f1570143b6a6dbfa640654f21",
+  "note": "PR checkout is GitHub synthetic merge; its tree is identical to the proposed head. Remote tarball hash is independently retained; not conflated with the macOS local pack."
+}

@@ -1,0 +1,10 @@
+{
+  "runId": 42754151637,
+  "jobId": 129624481333,
+  "headSha": "d56f449e48632b3842156e99ccf083b4d1d673e4",
+  "tests": 908,
+  "passed": 781,
+  "skipped": 127,
+  "durationMinutes": 32.9,
+  "e2eSourcesAndConfigurationChanged": false
+}

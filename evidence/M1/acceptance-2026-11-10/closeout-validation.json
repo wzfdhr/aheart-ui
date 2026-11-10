@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "baseSha": "259db118c7c95904ae7054313fd0b7a0e2630214",
+  "scope": "M1 owner decision and delivery evidence; docs/evidence files",
+  "sourceManifestInputsUnchanged": 1799,
+  "localMarkdownLinksExisting": 52,
+  "docsBuild": {
+    "command": "corepack pnpm docs:build",
+    "exitCode": 0,
+    "rawLogSha256": "00f42f6f3177da06666fe911956861e9d301d20a68cd89efd16bf611b1794de6"
+  },
+  "diffCheck": {
+    "command": "git diff --check",
+    "exitCode": 0
+  }
+}

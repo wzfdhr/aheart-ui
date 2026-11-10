@@ -1,0 +1,12 @@
+{
+  "owner": "wzfdhr",
+  "date": "2026-11-10",
+  "decision": "认可，授权合并并更新文档站",
+  "approvedHead": "d56f449e48632b3842156e99ccf083b4d1d673e4",
+  "pr": 41,
+  "mergeSha": "259db118c7c95904ae7054313fd0b7a0e2630214",
+  "mainCiRun": 42763380087,
+  "npmPublishAuthorized": false,
+  "phaseAtDecision": "Owner approved; main CI and Pages pending",
+  "note": "Authorization snapshot; verified final delivery state is recorded in evidence/M1/decision-log.md after G7 completes."
+}
