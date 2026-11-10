@@ -148,6 +148,35 @@ try {
               const focusInside = () => dialog.evaluate(element => element.contains(element.ownerDocument.activeElement))
               await expect.poll(focusInside, { message: 'Modal initial focus must settle inside the dialog' }).toBe(true)
               for (let i = 0; i < 6; i++) { await page.keyboard.press('Tab'); await expect.poll(focusInside, { message: 'Modal focus escaped' }).toBe(true) }
+              // Exercise native form/editable semantics inside the real packed Modal.
+              await dialog.evaluate(element => {
+                const host = element.ownerDocument.createElement('div')
+                host.dataset.m1TabProbe = 'true'
+                host.innerHTML = '<input data-tab="radio-one" type="radio" name="m1-choice" checked><input data-tab="radio-two" type="radio" name="m1-choice"><input data-tab="after-radio"><div data-tab="editor" contenteditable="true">Editor</div><details><summary data-tab="summary">More</summary><input data-tab="closed-detail"></details><input data-tab="date" type="date" value="2026-11-09"><button data-tab="end">End</button>'
+                element.querySelector('.aheart-modal__body').append(host)
+              })
+              const probe = dialog.locator('[data-m1-tab-probe]')
+              await probe.locator('[data-tab="radio-one"]').focus()
+              await page.keyboard.press('Tab')
+              await expect(probe.locator('[data-tab="after-radio"]')).toBeFocused()
+              await page.keyboard.press('Tab')
+              await expect(probe.locator('[data-tab="editor"]')).toBeFocused()
+              await page.keyboard.press('Tab')
+              await expect(probe.locator('[data-tab="summary"]')).toBeFocused()
+              await page.keyboard.press('Tab')
+              await expect(probe.locator('[data-tab="date"]')).toBeFocused()
+              await probe.locator('[data-tab="end"]').focus()
+              await page.keyboard.press('Shift+Tab')
+              await expect(probe.locator('[data-tab="date"]')).toBeFocused()
+              const date = probe.locator('[data-tab="date"]')
+              await date.evaluate(element => element.addEventListener('keydown', event => {
+                if (event.key === 'Tab') queueMicrotask(() => { element.dataset.tabPrevented = String(event.defaultPrevented) })
+              }))
+              await page.keyboard.press('Tab')
+              await expect.poll(() => date.getAttribute('data-tab-prevented')).toBe('false')
+              result.modalNativeTab = { radioGroup: 'passed', editableHost: 'passed', closedDetails: 'passed', compositeDefaultPrevented: false }
+              await probe.evaluate(element => element.remove())
+              result.checks.push('Modal radio/editable/closed-details/native-composite Tab semantics')
               await page.keyboard.press('Escape')
               await expect(dialog).toBeHidden()
               await expect(trigger).toBeFocused()

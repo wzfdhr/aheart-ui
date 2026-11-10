@@ -960,6 +960,70 @@ describe('Modal', () => {
     wrapper.unmount()
   })
 
+  it('uses one radio Tab stop per form group, including programmatically focused radios', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<form><input class="a" type="radio" name="choice" checked><input class="a2" type="radio" name="choice"></form><form><input class="b" type="radio" name="choice" checked><input class="b2" type="radio" name="choice"></form><input class="after">' }
+    })
+    const focus = (name: string) => (wrapper.find(name).element as HTMLElement).focus()
+    const tab = (shiftKey = false) => wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab', shiftKey })
+    focus('.a'); await tab(); expect(document.activeElement).toBe(wrapper.find('.b').element)
+    await tab(); expect(document.activeElement).toBe(wrapper.find('.after').element)
+    await tab(true); expect(document.activeElement).toBe(wrapper.find('.b').element)
+    focus('.a2'); await tab(); expect(document.activeElement).toBe(wrapper.find('.b').element)
+    wrapper.unmount()
+  })
+
+  it('includes editable hosts while nested editors require an explicit tabindex', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<input class="before"><div class="editor" contenteditable="true">Edit<div class="nested" contenteditable="true">Nested</div></div><button class="after">After</button>' }
+    })
+    const before = wrapper.find('.before').element as HTMLElement
+    const editor = wrapper.find('.editor').element as HTMLElement
+    const nested = wrapper.find('.nested').element as HTMLElement
+    before.focus(); await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(editor)
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(wrapper.find('.after').element)
+    nested.tabIndex = 0; editor.focus()
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(nested)
+    wrapper.unmount()
+  })
+
+  it('skips closed details content and retains visible descendants of visibility-hidden ancestors', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<details><summary class="summary" tabindex="0">More</summary><input class="closed"></details><div style="visibility:hidden"><button class="visible" style="visibility:visible">Visible</button></div><button class="after">After</button>' }
+    })
+    ;(wrapper.find('.summary').element as HTMLElement).focus()
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(wrapper.find('.visible').element)
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(wrapper.find('.after').element)
+    wrapper.unmount()
+  })
+
+  it('leaves internal native composite Tab steps to the browser between dialog boundaries', async () => {
+    const wrapper = mountModal({ attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="first">First</button><input class="date" type="date"><video class="media" controls></video><button class="last">Last</button>' }
+    })
+    for (const selector of ['.date', '.media']) {
+      const node = wrapper.find(selector).element as HTMLElement
+      node.focus()
+      expect(document.activeElement).toBe(node)
+      const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+      node.dispatchEvent(event)
+      expect(event.defaultPrevented).toBe(false)
+    }
+    const last = wrapper.find('.last').element as HTMLElement
+    last.focus(); await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(wrapper.find('.first').element)
+    wrapper.unmount()
+  })
+
   it('traps shift tab focus back to the last dialog control', async () => {
     const wrapper = mountModal({
       attachTo: document.body,
