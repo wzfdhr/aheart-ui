@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const index = require("../button/index.js");
+const button_index = require("../button/index.js");
 const dropdown_vue_vue_type_script_setup_true_lang = require("./dropdown.vue.js");
 const types = require("./types.js");
 const _sfc_main = /* @__PURE__ */ vue.defineComponent({
@@ -52,7 +52,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     };
     const mainButtonNode = vue.computed(
       () => vue.h(
-        index.default,
+        button_index.default,
         {
           className: "aheart-dropdown-button__main",
           type: props.type,
@@ -105,7 +105,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         },
         {
           default: () => vue.h(
-            index.default,
+            button_index.default,
             {
               className: "aheart-dropdown-button__toggle",
               type: props.type,

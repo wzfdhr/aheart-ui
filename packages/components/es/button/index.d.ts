@@ -264,3 +264,5 @@ declare const Button: import("../utils/install").SFCWithInstall<{
     };
 })>;
 export default Button;
+export { Button };
+export type * from './types';

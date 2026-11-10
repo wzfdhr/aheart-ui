@@ -1,6 +1,27 @@
 # M0 阶段报告与执行准备 — 2026-11-05
 
-状态：**Needs decision / 用户验收 Pending**。M1：**Blocked**。本报告替代旧 M0 审计中“无候选/消费者证据”“roadmap 缺失”等不准确结论，并更新 11 月 4 日后变化的发布事实。批准文档与阶段通过分别判断。
+状态：**Accepted（2026-11-09 负责人书面确认）**。M1：**In progress**。本报告替代旧 M0 审计中“无候选/消费者证据”“roadmap 缺失”等不准确结论，并更新 11 月 4 日后变化的发布事实。批准文档与阶段通过分别判断。
+
+## 2026-11-09 M0 Go
+
+负责人 wzfdhr 在“待实际试用 AI 工作台、提供反馈并确认 M0 通过，之后进入 M1”的阶段说明后回复 **“确认”**。本次记录为负责人对 M0 基线及阶段 Go 的书面确认；不补造逐项操作日志、访谈内容或量化满意度。此前“保持待验收”的决定由本次确认更新。
+
+适用 A1：四份规范与修订已批准并合入，clean-consumer 与自用项目 ai-review-gate 已登记并归档基线，P0=0。入口/依赖/兼容契约以 [契约文档](contract-review.md) 为准。M1 按 v1.2 additive 推进 Button/Modal/Select、显式 CSS 与 /full；Resolver、Icons、Primitive、AI/DND 拆分均在后续阶段。本次确认不包含 npm 发布，也不扩大此前仅针对 #38/#39/#40 的合并部署授权。
+
+| 门禁 | 状态 | 依据 |
+| --- | --- | --- |
+| G1 设计冻结 | Pass | 四份 Approved 规范、已生效 A1、contract-review.md |
+| G2 代码 | Pass | #39/#40 的 v1 修复与试点源码，master 90285d6 |
+| G3 自动检查 | Pass | 主线 CI [42732612399](https://github.com/wzfdhr/aheart-ui/actions/runs/42732612399)，12/12 success |
+| G4 视觉 | Pass | 两项必需试点及可选 Todo，六视口交互/axe，card-integration-2026-11-05 |
+| G5 包 | Pass | tarball SHA、两版 Vue 严格类型、独立安装及升级回退记录 |
+| G6 PR | Pass | #38/#39/#40 已合并 |
+| G7 主线/Pages | Pass | master 90285d6；[部署 42738114400](https://github.com/wzfdhr/aheart-ui/actions/runs/42738114400) success，线上 HTTP/CSS 核验通过 |
+| G8 用户验收 | Pass | wzfdhr 本轮书面“确认”；以上述阶段说明为上下文 |
+
+Local / PR / Merged / Main CI / Pages / npm pack：Pass（证据如上）；npm registry：N/A（本轮未发布）；Decision：**Go / Accepted**。物理 iOS、连续 10 次 QG5、公开 v1.1.x 补丁保留为 A1 的独立 v1 待办。M1 自身的验收与发布决策另行记录。
+
+## 2026-11-05 历史快照（状态以本次 Go 为准）
 
 2026-11-05 后续推进：[Button 悬停对比度修复与消费回归](button-hover-2026-11-05/report.md)。本地候选的三个试点六视口交互/axe 通过，普通按钮与 AI 排序按钮的对比度 P1 在本地修复；Card TS2344 仍失败。M0-QA-01 基线脚本任务完成，M0-PM-02 的真实使用反馈与阶段 Go 仍待完成。共享 Git 对象目录的 AppleDouble 索引元数据已隔离备份，文档构建恢复正常。未合并或发布。
 

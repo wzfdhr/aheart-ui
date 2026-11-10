@@ -46,8 +46,8 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
             readonly default: "primary";
         };
-        readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
-        readonly cancelButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
+        readonly okButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
+        readonly cancelButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
         readonly disabled: BooleanConstructor;
         readonly showCancel: {
             readonly type: BooleanConstructor;
@@ -163,8 +163,8 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
             readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
             readonly default: "primary";
         };
-        readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
-        readonly cancelButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
+        readonly okButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
+        readonly cancelButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
         readonly disabled: BooleanConstructor;
         readonly showCancel: {
             readonly type: BooleanConstructor;
@@ -271,8 +271,8 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly type: import("vue").PropType<"success" | "warning" | "link" | "default" | "text" | "dashed" | "primary" | "danger">;
         readonly default: "primary";
     };
-    readonly okButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
-    readonly cancelButtonProps: import("vue").PropType<Partial<import("../button/types").ButtonProps>>;
+    readonly okButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
+    readonly cancelButtonProps: import("vue").PropType<Partial<import("../button").ButtonProps>>;
     readonly disabled: BooleanConstructor;
     readonly showCancel: {
         readonly type: BooleanConstructor;

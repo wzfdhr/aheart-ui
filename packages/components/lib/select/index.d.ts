@@ -381,3 +381,4 @@ declare const Select: import("../utils/install").SFCWithInstall<{
 })>;
 export type * from './types';
 export default Select;
+export { Select };

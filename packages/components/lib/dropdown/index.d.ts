@@ -64,7 +64,7 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     };
     readonly danger: BooleanConstructor;
     readonly loading: {
-        readonly type: import("vue").PropType<import("../button/types").ButtonLoading>;
+        readonly type: import("vue").PropType<import("../button").ButtonLoading>;
         readonly default: false;
     };
     readonly icon: {
@@ -147,7 +147,7 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     };
     readonly danger: BooleanConstructor;
     readonly loading: {
-        readonly type: import("vue").PropType<import("../button/types").ButtonLoading>;
+        readonly type: import("vue").PropType<import("../button").ButtonLoading>;
         readonly default: false;
     };
     readonly icon: {
@@ -172,7 +172,7 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     readonly open: boolean;
     readonly disabled: boolean;
     readonly placement: import("./types").DropdownPlacement;
-    readonly loading: import("../button/types").ButtonLoading;
+    readonly loading: import("../button").ButtonLoading;
     readonly arrow: import("./types").DropdownArrow;
     readonly danger: boolean;
     readonly nativeType: "reset" | "submit" | "button";

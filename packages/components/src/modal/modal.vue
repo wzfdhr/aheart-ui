@@ -502,11 +502,17 @@ const restoreTriggerFocus = () => {
   target.focus()
 }
 
-const isFocusableElementAvailable = (element: HTMLElement) =>
-  !element.hasAttribute('hidden') &&
-  element.getAttribute('aria-hidden') !== 'true' &&
-  element.tabIndex >= 0 &&
-  !(element.tagName === 'INPUT' && (element as HTMLInputElement).type === 'hidden')
+const isFocusableElementAvailable = (element: HTMLElement) => {
+  if (element.tabIndex < 0 || element.matches(':disabled') || (element.tagName === 'INPUT' && (element as HTMLInputElement).type === 'hidden')) return false
+  const view = element.ownerDocument.defaultView
+  for (let node: HTMLElement | null = element; node; node = node.parentElement) {
+    if (node.hidden || node.hasAttribute('inert') || node.getAttribute('aria-hidden') === 'true') return false
+    const style = view?.getComputedStyle(node)
+    if (style?.display === 'none' || style?.visibility === 'hidden' || style?.visibility === 'collapse') return false
+    if (node === dialogRef.value) break
+  }
+  return true
+}
 
 const getFocusableElements = () => {
   const dialog = dialogRef.value
@@ -515,7 +521,9 @@ const getFocusableElements = () => {
     return []
   }
 
-  return Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable)
+  return Array.from(dialog.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR))
+    .filter(isFocusableElementAvailable)
+    .sort((a, b) => (a.tabIndex > 0 ? a.tabIndex : Number.MAX_SAFE_INTEGER) - (b.tabIndex > 0 ? b.tabIndex : Number.MAX_SAFE_INTEGER))
 }
 
 const focusDialog = () => {
@@ -559,23 +567,21 @@ const handleTrapTab = (event: KeyboardEvent) => {
   }
 
   const focusableElements = getFocusableElements()
-  const firstElement = focusableElements[0] ?? dialog
-  const lastElement = focusableElements[focusableElements.length - 1] ?? dialog
-  const activeElement = dialog.ownerDocument.activeElement
+  if (event.defaultPrevented) return
 
-  if (event.shiftKey) {
-    if (activeElement === firstElement || !dialog.contains(activeElement)) {
-      event.preventDefault()
-      lastElement.focus()
-    }
-
+  // Native Tab navigation can skip buttons (for example in WebKit), so only
+  // wrapping at the DOM-list edges can let focus leave a blocking dialog.
+  // Move every trapped Tab explicitly, in positive-tabindex then DOM order.
+  event.preventDefault()
+  if (!focusableElements.length) {
+    dialog.focus()
     return
   }
-
-  if (activeElement === lastElement || !dialog.contains(activeElement)) {
-    event.preventDefault()
-    firstElement.focus()
-  }
+  const current = focusableElements.indexOf(dialog.ownerDocument.activeElement as HTMLElement)
+  const next = current < 0
+    ? (event.shiftKey ? focusableElements.length - 1 : 0)
+    : (current + (event.shiftKey ? -1 : 1) + focusableElements.length) % focusableElements.length
+  focusableElements[next].focus()
 }
 
 const notifyClosableClose = () => {

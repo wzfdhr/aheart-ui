@@ -66,3 +66,14 @@ node pilots/check-rollback.mjs --project .pilot-runs/aheart-m0-pilots-XXXXXX/mux
 退出码：基线 runner 返回 0 表示无已知失败，1 表示本轮检查失败，2 表示基线已采集但仍有公开包的已知严格类型失败。始终以逐项结果判断，不把预期失败写成通过。
 
 磁盘位置：默认将独立安装副本和证据存入 worktree 下的 `.pilot-runs/`（Git 忽略），跟随仓库所在磁盘，不再使用系统 `/tmp`。可用 `--work-dir <目录>` 指定其他盘上的安装副本目录。
+
+## M1 1.2 候选
+
+`--entry-mode subpath` 只改写隔离副本中的 clean-consumer 导入及 CSS，原业务流程保持一致；AI 工作台和 Todo 保留旧入口验证兼容。`--browser chromium|firefox|webkit` 控制真实浏览器，手机视口在 Chromium/WebKit 开启触屏移动上下文。默认仍为 legacy + chromium，便于复测公开 1.1.0 历史基线。
+
+```sh
+node pilots/run-baselines.mjs --core-tarball test-results/release-tarballs/aheart-ui-1.2.0.tgz --entry-mode subpath --out .pilot-runs/m1-chromium
+node pilots/run-baselines.mjs --core-tarball test-results/release-tarballs/aheart-ui-1.2.0.tgz --entry-mode subpath --only clean-consumer --browser webkit --out .pilot-runs/m1-webkit
+```
+
+产物含消费后的源码、锁文件、包来源、模块图、SSR 与交互/axe 结果。不以自动化运行代替阶段负责人验收。

@@ -1,75 +1,35 @@
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { defineConfig, type Plugin } from "vite";
 import vue from "@vitejs/plugin-vue"
 import dts from 'vite-plugin-dts'
 
-const styleSourceFiles = [
-    'theme/index.css',
-    'button/style.css',
-    'cascader/style.css',
-    'config-provider/style.css',
-    'space/style.css',
-    'divider/style.css',
-    'date-picker/style.css',
-    'time-picker/style.css',
-    'upload/style.css',
-    'tree/style.css',
-    'tree-select/style.css',
-    'flex/style.css',
-    'grid/style.css',
-    'icon/style.css',
-    'typography/style.css',
-    'tag/style.css',
-    'badge/style.css',
-    'alert/style.css',
-    'message/style.css',
-    'modal/style.css',
-    'drawer/style.css',
-    'utils/floating.css',
-    'tooltip/style.css',
-    'popover/style.css',
-    'popconfirm/style.css',
-    'spin/style.css',
-    'skeleton/style.css',
-    'empty/style.css',
-    'breadcrumb/style.css',
-    'dropdown/style.css',
-    'menu/style.css',
-    'tabs/style.css',
-    'steps/style.css',
-    'input/style.css',
-    'textarea/style.css',
-    'input-number/style.css',
-    'checkbox/style.css',
-    'radio/style.css',
-    'switch/style.css',
-    'splitter/style.css',
-    'card/style.css',
-    'descriptions/style.css',
-    'pagination/style.css',
-    'select/style.css',
-    'form/style.css',
-    'table/style.css'
-]
+import { componentEntries, fullStyleSources } from './build/entries.mjs'
+
 
 function deterministicStyleBundle(): Plugin {
     return {
         name: 'aheart-deterministic-style-bundle',
         closeBundle() {
-            const css = `${styleSourceFiles
+            const css = `${fullStyleSources
                 .map((file) => readFileSync(new URL(`./src/${file}`, import.meta.url), 'utf8').trimEnd())
                 .join('\n')}\n`
 
-            for (const file of ['es/style.css', 'lib/style.css']) {
-                const target = new URL(`./${file}`, import.meta.url)
-
-                if (existsSync(target)) {
-                    writeFileSync(target, css)
+            for (const directory of ['es', 'lib']) {
+                const emit = (file: string, contents: string) => {
+                    const target = new URL(`./${directory}/${file}`, import.meta.url)
+                    mkdirSync(new URL('.', target), { recursive: true })
+                    writeFileSync(target, contents)
+                }
+                emit('style.css', css)
+                emit('full.css', css)
+                emit('theme.css', readFileSync(new URL('./src/theme/index.css', import.meta.url), 'utf8'))
+                for (const entry of componentEntries) {
+                    emit(`${entry.subpath}/style.css`, `${entry.styles.map((file: string) => readFileSync(new URL(`./src/${file}`, import.meta.url), 'utf8').trimEnd()).join('\n')}\n`)
                 }
             }
 
-            for (const source of styleSourceFiles) {
+            for (const source of fullStyleSources) {
                 const output = source.replace(/\.css$/, '.css.js')
                 const esTarget = new URL(`./es/${output}`, import.meta.url)
                 const libTarget = new URL(`./lib/${output}`, import.meta.url)
@@ -79,8 +39,8 @@ function deterministicStyleBundle(): Plugin {
                 writeFileSync(libTarget, '"use strict";\n')
             }
 
-            writeFileSync(new URL('./es/package.json', import.meta.url), '{\n  "type": "module",\n  "sideEffects": false\n}\n')
-            writeFileSync(new URL('./lib/package.json', import.meta.url), '{\n  "type": "commonjs",\n  "sideEffects": false\n}\n')
+            writeFileSync(new URL('./es/package.json', import.meta.url), '{\n  "type": "module",\n  "sideEffects": ["**/*.css"]\n}\n')
+            writeFileSync(new URL('./lib/package.json', import.meta.url), '{\n  "type": "commonjs",\n  "sideEffects": ["**/*.css"]\n}\n')
         }
     }
 }
@@ -100,6 +60,8 @@ export default defineConfig(
                 external: ['vue', '@floating-ui/dom', '@lucide/vue', '@tanstack/vue-virtual', 'dayjs', /^dayjs\//],
                 input: {
                     index: 'src/index.ts',
+                    full: 'src/full.ts',
+                    ...Object.fromEntries(componentEntries.map(({ subpath, sourceEntry }) => [`${subpath}/index`, sourceEntry])),
                     'message/index': 'src/message/index.ts',
                     'utils/floating': 'src/utils/floating.ts',
                     'utils/use-async-task': 'src/utils/use-async-task.ts',

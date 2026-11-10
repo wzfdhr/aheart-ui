@@ -64,7 +64,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly danger: BooleanConstructor;
     readonly loading: {
-        readonly type: PropType<import("../button/types").ButtonLoading>;
+        readonly type: PropType<import("../button").ButtonLoading>;
         readonly default: false;
     };
     readonly icon: {
@@ -147,7 +147,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     };
     readonly danger: BooleanConstructor;
     readonly loading: {
-        readonly type: PropType<import("../button/types").ButtonLoading>;
+        readonly type: PropType<import("../button").ButtonLoading>;
         readonly default: false;
     };
     readonly icon: {
@@ -172,7 +172,7 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly open: boolean;
     readonly disabled: boolean;
     readonly placement: import("./types").DropdownPlacement;
-    readonly loading: import("../button/types").ButtonLoading;
+    readonly loading: import("../button").ButtonLoading;
     readonly arrow: import("./types").DropdownArrow;
     readonly danger: boolean;
     readonly nativeType: "reset" | "submit" | "button";

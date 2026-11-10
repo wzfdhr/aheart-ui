@@ -6,7 +6,7 @@
 > 技术 RFC：[Aheart UI v2 架构与产品体系优化设计](./2026-09-08-aheart-ui-v2-architecture-optimization-design.md)  
 > 阶段验收标准：[Aheart UI v2 阶段验收标准](./2026-09-08-aheart-ui-v2-phase-acceptance-criteria.md)
 
-> 2026-11-05：[A1 修订](./2026-11-05-aheart-ui-v2-solo-scope-amendment.md) 已合入并生效，其版本、试点和阶段条款优先。原规范正文保留；当前 M0 用户验收 Pending，M1 Blocked，见 [决策日志](../../../evidence/M0/decision-log.md)。
+> 2026-11-05：[A1 修订](./2026-11-05-aheart-ui-v2-solo-scope-amendment.md) 已合入并生效，其版本、试点和阶段条款优先。原规范正文保留；当前 M0 Accepted（2026-11-09 负责人确认），M1 In progress，见 [决策日志](../../../evidence/M0/decision-log.md)。
 
 ## 使用规则
 

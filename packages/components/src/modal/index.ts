@@ -5,3 +5,5 @@ const Modal = withInstall(modal, 'AModal')
 
 export default Modal
 export type { ModalProps } from './types'
+
+export { Modal }

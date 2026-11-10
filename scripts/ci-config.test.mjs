@@ -145,7 +145,7 @@ test('splits CI into observable unit, typecheck, build, docs, consumer and brows
   assert.match(workflowSource, /--components-tarball/)
   assert.match(workflowSource, /--dnd-tarball/)
   assert.match(workflowSource, /--ai-tarball/)
-  assert.match(workflowSource, /aheart-ui-1\.1\.0\.tgz/)
+  assert.match(workflowSource, /aheart-ui-1\.2\.0\.tgz/)
   assert.doesNotMatch(workflowSource, /  verify:\n/)
 })
 

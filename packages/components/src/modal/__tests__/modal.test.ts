@@ -902,6 +902,64 @@ describe('Modal', () => {
     wrapper.unmount()
   })
 
+  it('moves intermediate Tab focus explicitly when native navigation skips controls', async () => {
+    const wrapper = mountModal({
+      attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="first">First</button><button class="middle">Middle</button><button class="last">Last</button>' }
+    })
+    const first = wrapper.find('.first').element as HTMLElement
+    const middle = wrapper.find('.middle').element as HTMLElement
+    const last = wrapper.find('.last').element as HTMLElement
+    first.focus()
+    const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+    first.dispatchEvent(event)
+    expect(event.defaultPrevented).toBe(true)
+    expect(document.activeElement).toBe(middle)
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(last)
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(middle)
+    wrapper.unmount()
+  })
+
+  it('preserves positive tabindex order and respects child-owned Tab events', async () => {
+    const wrapper = mountModal({
+      attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="zero">Zero</button><button class="two" tabindex="2">Two</button><button class="one" tabindex="1">One</button>' }
+    })
+    const one = wrapper.find('.one').element as HTMLElement
+    const two = wrapper.find('.two').element as HTMLElement
+    const zero = wrapper.find('.zero').element as HTMLElement
+    one.focus()
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(two)
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(zero)
+    const owned = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+    owned.preventDefault()
+    zero.dispatchEvent(owned)
+    expect(document.activeElement).toBe(zero)
+    wrapper.unmount()
+  })
+
+  it('skips hidden, inert and disabled controls during explicit Tab movement', async () => {
+    const wrapper = mountModal({
+      attachTo: document.body,
+      props: { open: true, closable: false, footer: false, getContainer: false },
+      slots: { default: '<button class="first">First</button><div style="display:none"><button>Hidden</button></div><div inert><button>Inert</button></div><fieldset disabled><input></fieldset><button tabindex="-1">Skipped</button><button class="last">Last</button>' }
+    })
+    const first = wrapper.find('.first').element as HTMLElement
+    const last = wrapper.find('.last').element as HTMLElement
+    first.focus()
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(last)
+    await wrapper.find('.aheart-modal').trigger('keydown', { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(first)
+    wrapper.unmount()
+  })
+
   it('traps shift tab focus back to the last dialog control', async () => {
     const wrapper = mountModal({
       attachTo: document.body,

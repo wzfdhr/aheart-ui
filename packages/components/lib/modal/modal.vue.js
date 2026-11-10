@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
-const index$1 = require("../button/index.js");
+const button_index = require("../button/index.js");
 const index = require("../skeleton/index.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const useTeleportReady = require("../utils/use-teleport-ready.js");
@@ -268,7 +268,7 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const createFooterButton = (className, buttonProps, onClick, content) => {
       const { class: customClass, ...restButtonProps } = buttonProps;
       return vue.h(
-        index$1.default,
+        button_index.default,
         {
           ...restButtonProps,
           class: [className, customClass],
@@ -393,13 +393,27 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       target.focus();
     };
-    const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element.tagName === "INPUT" && element.type === "hidden");
+    const isFocusableElementAvailable = (element) => {
+      if (element.tabIndex < 0 || element.matches(":disabled") || element.tagName === "INPUT" && element.type === "hidden")
+        return false;
+      const view = element.ownerDocument.defaultView;
+      for (let node = element; node; node = node.parentElement) {
+        if (node.hidden || node.hasAttribute("inert") || node.getAttribute("aria-hidden") === "true")
+          return false;
+        const style = view == null ? void 0 : view.getComputedStyle(node);
+        if ((style == null ? void 0 : style.display) === "none" || (style == null ? void 0 : style.visibility) === "hidden" || (style == null ? void 0 : style.visibility) === "collapse")
+          return false;
+        if (node === dialogRef.value)
+          break;
+      }
+      return true;
+    };
     const getFocusableElements = () => {
       const dialog = dialogRef.value;
       if (!dialog) {
         return [];
       }
-      return Array.from(dialog.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
+      return Array.from(dialog.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable).sort((a, b) => (a.tabIndex > 0 ? a.tabIndex : Number.MAX_SAFE_INTEGER) - (b.tabIndex > 0 ? b.tabIndex : Number.MAX_SAFE_INTEGER));
     };
     const focusDialog = () => {
       if (!props.open) {
@@ -433,20 +447,16 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         return;
       }
       const focusableElements = getFocusableElements();
-      const firstElement = focusableElements[0] ?? dialog;
-      const lastElement = focusableElements[focusableElements.length - 1] ?? dialog;
-      const activeElement = dialog.ownerDocument.activeElement;
-      if (event.shiftKey) {
-        if (activeElement === firstElement || !dialog.contains(activeElement)) {
-          event.preventDefault();
-          lastElement.focus();
-        }
+      if (event.defaultPrevented)
+        return;
+      event.preventDefault();
+      if (!focusableElements.length) {
+        dialog.focus();
         return;
       }
-      if (activeElement === lastElement || !dialog.contains(activeElement)) {
-        event.preventDefault();
-        firstElement.focus();
-      }
+      const current = focusableElements.indexOf(dialog.ownerDocument.activeElement);
+      const next = current < 0 ? event.shiftKey ? focusableElements.length - 1 : 0 : (current + (event.shiftKey ? -1 : 1) + focusableElements.length) % focusableElements.length;
+      focusableElements[next].focus();
     };
     const notifyClosableClose = () => {
       var _a, _b;

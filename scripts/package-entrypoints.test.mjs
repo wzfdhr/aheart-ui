@@ -25,6 +25,10 @@ test('Card exports preserve consumer prop, slot, alias and install types', async
     skipLibCheck: true,
     paths: {
       'aheart-ui': [path.join(workspaceRoot, 'packages/components/es/index.d.ts')],
+      'aheart-ui/button': [path.join(workspaceRoot, 'packages/components/es/button/index.d.ts')],
+      'aheart-ui/modal': [path.join(workspaceRoot, 'packages/components/es/modal/index.d.ts')],
+      'aheart-ui/select': [path.join(workspaceRoot, 'packages/components/es/select/index.d.ts')],
+      'aheart-ui/full': [path.join(workspaceRoot, 'packages/components/es/full.d.ts')],
       'aheart-ui/es/*': [path.join(workspaceRoot, 'packages/components/es/*')],
       '@aheart-ui/dnd': [path.join(workspaceRoot, 'packages/dnd/es/index.d.ts')],
       '@aheart-ui/ai': [path.join(workspaceRoot, 'packages/ai/es/index.d.ts')],
@@ -52,11 +56,11 @@ for (const packageDir of packages) {
   })
 }
 
-test('components generated module roots are marked side-effect free for root named-import tree shaking', async () => {
+test('components generated module roots retain CSS side effects while JavaScript can tree shake', async () => {
   const esmPackage = JSON.parse(await readFile(path.join(workspaceRoot, 'packages/components/es/package.json'), 'utf8'))
   const cjsPackage = JSON.parse(await readFile(path.join(workspaceRoot, 'packages/components/lib/package.json'), 'utf8'))
-  assert.equal(esmPackage.sideEffects, false)
-  assert.equal(cjsPackage.sideEffects, false)
+  assert.deepEqual(esmPackage.sideEffects, ['**/*.css'])
+  assert.deepEqual(cjsPackage.sideEffects, ['**/*.css'])
 })
 
 test('dnd package exports resolve consumer types for business records and standalone values', async (t) => {
