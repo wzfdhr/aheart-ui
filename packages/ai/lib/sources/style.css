@@ -1,0 +1,54 @@
+:root {
+  --aheart-ai-cyan: #0e7490;
+  --aheart-ai-cyan-strong: #0e7490;
+  --aheart-ai-brand-strong: #0958d9;
+  --aheart-ai-cyan-soft: #ecfeff;
+  --aheart-ai-line: #e4e7ec;
+  --aheart-ai-surface: #ffffff;
+  --aheart-ai-surface-subtle: #f8fafc;
+  --aheart-ai-text: #182230;
+  --aheart-ai-text-secondary: #667085;
+}
+
+.aheart-ai-sources h3,
+.aheart-ai-sources p {
+  margin: 0;
+}
+
+.aheart-ai-sources {
+  display: grid;
+  gap: 8px;
+}
+
+.aheart-ai-sources ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aheart-ai-sources li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-block-size: 34px;
+  padding: 6px 8px;
+  border: 1px solid var(--aheart-ai-line);
+  border-radius: 5px;
+  background: var(--aheart-ai-surface-subtle);
+  font-size: 12px;
+}
+
+.aheart-ai-sources {
+  padding-block-start: 8px;
+  border-block-start: 1px solid var(--aheart-ai-line);
+}
+
+.aheart-ai-sources a {
+  color: var(--aheart-ai-brand-strong);
+}
+
+.aheart-ai-sources h3 {
+  font-size: 12px;
+  color: var(--aheart-ai-text-secondary);
+}

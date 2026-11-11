@@ -1,0 +1,36 @@
+:root {
+  --aheart-ai-cyan: #0e7490;
+  --aheart-ai-cyan-strong: #0e7490;
+  --aheart-ai-brand-strong: #0958d9;
+  --aheart-ai-cyan-soft: #ecfeff;
+  --aheart-ai-line: #e4e7ec;
+  --aheart-ai-surface: #ffffff;
+  --aheart-ai-surface-subtle: #f8fafc;
+  --aheart-ai-text: #182230;
+  --aheart-ai-text-secondary: #667085;
+}
+
+.aheart-ai-actions button {
+  min-block-size: 28px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--aheart-ai-text-secondary);
+  font: 12px/1.4 inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease-out, background-color 120ms ease-out, color 120ms ease-out;
+}
+
+.aheart-ai-actions button:hover,
+.aheart-ai-actions button:focus-visible {
+  border-color: #b9c2cf;
+  background: var(--aheart-ai-surface-subtle);
+  color: var(--aheart-ai-text);
+  outline: none;
+}
+
+.aheart-ai-actions {
+  display: grid;
+  gap: 8px;
+}

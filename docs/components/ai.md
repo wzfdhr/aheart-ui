@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { AIChatPanel as AAIChatPanel } from '@aheart-ui/ai/chat'
+import { AIProcess as AAIProcess, AIThoughtChain as AAIThoughtChain } from '@aheart-ui/ai/agent'
 import { computed, ref } from 'vue'
 import type { AIAttachment, AIMessage, AIStreamEvent, AITransport } from '@aheart-ui/ai'
 

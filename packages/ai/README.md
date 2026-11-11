@@ -15,8 +15,17 @@ import '@aheart-ui/dnd/style.css'
 import '@aheart-ui/ai/style.css'
 ```
 
-该包不包含模型 SDK、API Key、鉴权或持久化。业务层通过 `AITransport` 接入流式服务。Vue `>=3.4.0 <4` 和 `aheart-ui` 由业务应用提供。
+该包不包含模型 SDK、API Key、鉴权或持久化。业务层通过 `AITransport` 接入流式服务。Vue `>=3.5.0 <4` 和 `aheart-ui` 由业务应用提供。
 
 AIForm 的日期时间字段包含 `date`、`time`、`date-range` 与 `time-range`，所有值均为字符串或完整双端字符串范围，不向业务 schema 暴露 Dayjs。运行时会拒绝不可解析的日期时间默认值；必填范围不允许单端为空。
+
+## 1.1 候选按需入口
+
+```ts
+import { AIChatPanel } from '@aheart-ui/ai/chat'
+import '@aheart-ui/ai/chat/style.css'
+```
+
+使用 Agent 表单时导入 `@aheart-ui/ai/agent` 与基础表单样式。Workbench 使用 `@aheart-ui/ai/workbench`、该场景样式和 `@aheart-ui/dnd/sortable/style.css`。旧根入口与样式仍可用于逐步迁移。
 
 完整用法见[中文 AI 对话文档](https://github.com/wzfdhr/aheart-ui/blob/master/docs/components/ai.md)、[AIForm 文档](https://github.com/wzfdhr/aheart-ui/blob/master/docs/components/ai-form.md)和[工作台文档](https://github.com/wzfdhr/aheart-ui/blob/master/docs/components/ai-agent-workbench.md)。

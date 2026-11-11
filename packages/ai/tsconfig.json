@@ -1,5 +1,6 @@
 {
   "extends": "../../tsconfig.json",
+  "compilerOptions": { "moduleResolution": "Bundler" },
   "include": ["src/**/*.ts", "src/**/*.vue"],
   "exclude": ["es", "lib", "node_modules", "src/**/__tests__/**"]
 }

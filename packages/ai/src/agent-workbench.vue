@@ -143,7 +143,7 @@
 <script setup lang="ts">
 import { computed, getCurrentInstance, h, nextTick, onBeforeUnmount, onBeforeUpdate, onMounted, ref, useId, watch } from 'vue'
 import { Button as AButton, Drawer as ADrawer, Splitter as ASplitter, SplitterPanel as ASplitterPanel, Tabs as ATabs } from 'aheart-ui'
-import { SortableList as ASortableList } from '@aheart-ui/dnd'
+import { SortableList as ASortableList } from '@aheart-ui/dnd/sortable'
 import AIAttachments from './attachments.vue'
 import AIChatPanel from './chat-panel.vue'
 import AIConversations from './conversations.vue'

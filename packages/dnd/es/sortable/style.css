@@ -1,0 +1,8 @@
+.aheart-dnd-dragging { cursor: grabbing; user-select: none; }
+.aheart-dnd-keyboard-grabbed { outline: 2px solid currentColor; outline-offset: 2px; cursor: grabbing; }
+.aheart-dnd-keyboard-compatible { outline: 2px dashed currentColor; outline-offset: 2px; }
+.aheart-dnd-sortable-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.aheart-dnd-sortable-item { cursor: grab; outline: none; }
+.aheart-dnd-sortable-handle { cursor: grab; touch-action: none; }
+.aheart-dnd-sortable-item:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.aheart-dnd-live-region { position: fixed; overflow: hidden; inline-size: 1px; block-size: 1px; clip: rect(0 0 0 0); white-space: nowrap; }

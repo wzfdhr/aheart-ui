@@ -4,36 +4,49 @@ import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { publicRuntimeExports, publicStyleExports } from '../packages/components/build/entries.mjs'
+import { getComponentEntries, optionalPackageExports } from '../packages/build/package-entries.mjs'
 
 const repositoryRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
+
+const commonPackageFiles = ['README.md', 'LICENSE', 'package.json', 'es/package.json', 'es/index.js', 'es/index.d.ts', 'es/style.css', 'lib/package.json', 'lib/index.js', 'lib/index.d.ts', 'lib/style.css']
+const filesForExports = (exports) => [...new Set([...commonPackageFiles, ...Object.values(exports)
+  .flatMap(value => typeof value === 'string' ? [value] : Object.values(value))
+  .map(target => target.slice(2))])]
+const baseExports = { ...publicRuntimeExports, ...publicStyleExports }
+const dndExports = optionalPackageExports(getComponentEntries('dnd'))
+const aiExports = optionalPackageExports(getComponentEntries('ai'))
 
 export const packageContracts = [
   {
     name: 'aheart-ui',
     version: '1.2.0',
     packageDir: 'packages/components',
-    expectedExports: { ...publicRuntimeExports, ...publicStyleExports },
+    expectedExports: baseExports,
     cssSideEffects: true,
-    requiredFiles: ['README.md', 'LICENSE', 'package.json', 'es/package.json', 'es/index.js', 'es/index.d.ts', 'es/style.css', 'lib/package.json', 'lib/index.js', 'lib/index.d.ts', 'lib/style.css', ...new Set(Object.values({ ...publicRuntimeExports, ...publicStyleExports }).flatMap(value => typeof value === 'string' ? [value.slice(2)] : Object.values(value).map(target => target.slice(2))))]
+    requiredFiles: filesForExports(baseExports)
   },
   {
     name: '@aheart-ui/dnd',
-    version: '1.0.0',
+    version: '1.1.0',
     packageDir: 'packages/dnd',
+    expectedExports: dndExports,
+    cssSideEffects: true,
     expectedDependencies: {
       '@atlaskit/pragmatic-drag-and-drop': '2.0.1',
       '@atlaskit/pragmatic-drag-and-drop-auto-scroll': '3.0.0'
     },
-    requiredFiles: ['README.md', 'LICENSE', 'package.json', 'es/package.json', 'es/index.js', 'es/index.d.ts', 'es/style.css', 'lib/package.json', 'lib/index.js', 'lib/index.d.ts', 'lib/style.css']
+    requiredFiles: filesForExports(dndExports)
   },
   {
     name: '@aheart-ui/ai',
-    version: '1.0.0',
+    version: '1.1.0',
     packageDir: 'packages/ai',
+    expectedExports: aiExports,
+    cssSideEffects: true,
     expectedVuePeer: '>=3.5.0 <4',
-    expectedDependencies: { '@aheart-ui/dnd': '^1.0.0' },
+    expectedDependencies: { '@aheart-ui/dnd': '^1.1.0' },
     expectedPeerDependencies: { 'aheart-ui': '^1.1.0' },
-    requiredFiles: ['README.md', 'LICENSE', 'package.json', 'es/package.json', 'es/index.js', 'es/index.d.ts', 'es/style.css', 'lib/package.json', 'lib/index.js', 'lib/index.d.ts', 'lib/style.css']
+    requiredFiles: filesForExports(aiExports)
   }
 ]
 

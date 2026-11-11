@@ -61,6 +61,8 @@ export default defineConfig(
                 input: {
                     index: 'src/index.ts',
                     full: 'src/full.ts',
+                    'constant/index': 'src/constant/index.ts',
+                    'resolver/index': 'src/resolver/index.ts',
                     ...Object.fromEntries(componentEntries.map(({ subpath, sourceEntry }) => [`${subpath}/index`, sourceEntry])),
                     'message/index': 'src/message/index.ts',
                     'utils/floating': 'src/utils/floating.ts',

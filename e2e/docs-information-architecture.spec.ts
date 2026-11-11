@@ -7,7 +7,7 @@ test.describe('GitHub Pages v2 product information architecture', () => {
     await page.goto('/')
 
     const nav = page.locator('.VPNavBarMenu')
-    for (const label of ['开始', '基础组件', '组合组件', 'AI 产品', '工程质量', 'v2（暂停）']) {
+    for (const label of ['开始', '基础组件', '组合组件', 'AI 产品', '工程质量', '路线图']) {
       await expect(nav.getByRole('link', { name: label, exact: true })).toBeVisible()
     }
     await expect(nav.getByText('扩展能力', { exact: true })).toBeVisible()
@@ -16,7 +16,7 @@ test.describe('GitHub Pages v2 product information architecture', () => {
       await expect(page.getByRole('link', { name: label, exact: true })).toBeVisible()
     }
     await expect(nav.getByRole('link', { name: 'AI 产品', exact: true })).toHaveAttribute('href', /\/ai\/overview/)
-    await expect(nav.getByRole('link', { name: 'v2（暂停）', exact: true })).toHaveAttribute('href', /\/roadmap\/v2/)
+    await expect(nav.getByRole('link', { name: '路线图', exact: true })).toHaveAttribute('href', /\/roadmap\/v2/)
 
     await page.goto('/components/overview')
     await expect(page.getByRole('heading', { name: '基础组件' })).toBeVisible()
@@ -45,14 +45,14 @@ test.describe('GitHub Pages v2 product information architecture', () => {
     }
 
     await page.goto('/roadmap/v2')
-    await expect(page.locator('body')).toContainText('v2 当前保持暂停')
-    await expect(page.locator('body')).toContainText('M0–M8 均未启动')
+    await expect(page.locator('body')).toContainText('路线图按已批准的 A1 阶段划分')
+    await expect(page.locator('body')).toContainText('AI/DND 与文档')
 
     await page.goto('/ai/overview')
-    await expect(page.locator('body')).toContainText('尚未公共 npm 发布')
-    await expect(page.locator('body')).toContainText('M6')
+    await expect(page.locator('body')).toContainText('公开 1.0.0 提供根入口')
+    await expect(page.locator('body')).toContainText('M3 候选')
     await page.goto('/dnd/overview')
-    await expect(page.locator('body')).toContainText('尚未公共 npm 发布')
+    await expect(page.locator('body')).toContainText('Sortable 等子入口')
     await page.goto('/motion/overview')
     await expect(page.locator('body')).toContainText('Later')
   })

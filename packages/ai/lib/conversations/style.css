@@ -1,0 +1,48 @@
+:root {
+  --aheart-ai-cyan: #0e7490;
+  --aheart-ai-cyan-strong: #0e7490;
+  --aheart-ai-brand-strong: #0958d9;
+  --aheart-ai-cyan-soft: #ecfeff;
+  --aheart-ai-line: #e4e7ec;
+  --aheart-ai-surface: #ffffff;
+  --aheart-ai-surface-subtle: #f8fafc;
+  --aheart-ai-text: #182230;
+  --aheart-ai-text-secondary: #667085;
+}
+
+.aheart-ai-conversations {
+  display: grid;
+  gap: 8px;
+}
+
+.aheart-ai-conversations button {
+  min-block-size: 36px;
+  padding: 7px 9px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--aheart-ai-text-secondary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.aheart-ai-conversations button:hover,
+.aheart-ai-conversations button:focus-visible {
+  background: #f2f4f7;
+  color: var(--aheart-ai-text);
+  outline: none;
+}
+
+.aheart-ai-conversations button.is-active {
+  border-color: #b2ddff;
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+@media (pointer: coarse) {
+  .aheart-ai-conversations button {
+    min-block-size: 44px;
+    min-inline-size: 44px;
+  }
+}

@@ -1,0 +1,62 @@
+:root {
+  --aheart-ai-cyan: #0e7490;
+  --aheart-ai-cyan-strong: #0e7490;
+  --aheart-ai-brand-strong: #0958d9;
+  --aheart-ai-cyan-soft: #ecfeff;
+  --aheart-ai-line: #e4e7ec;
+  --aheart-ai-surface: #ffffff;
+  --aheart-ai-surface-subtle: #f8fafc;
+  --aheart-ai-text: #182230;
+  --aheart-ai-text-secondary: #667085;
+}
+
+.aheart-ai-attachments button {
+  min-block-size: 28px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--aheart-ai-text-secondary);
+  font: 12px/1.4 inherit;
+  cursor: pointer;
+  transition: border-color 120ms ease-out, background-color 120ms ease-out, color 120ms ease-out;
+}
+
+.aheart-ai-attachments button:hover,
+.aheart-ai-attachments button:focus-visible {
+  border-color: #b9c2cf;
+  background: var(--aheart-ai-surface-subtle);
+  color: var(--aheart-ai-text);
+  outline: none;
+}
+
+.aheart-ai-attachments {
+  display: grid;
+  gap: 8px;
+}
+
+.aheart-ai-attachments {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aheart-ai-attachments li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-block-size: 34px;
+  padding: 6px 8px;
+  border: 1px solid var(--aheart-ai-line);
+  border-radius: 5px;
+  background: var(--aheart-ai-surface-subtle);
+  font-size: 12px;
+}
+
+@media (pointer: coarse) {
+  .aheart-ai-attachments button {
+    min-block-size: 44px;
+    min-inline-size: 44px;
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "@aheart-ui/ai",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Vue 3 AI interface components for Aheart UI.",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -17,7 +17,109 @@
     "./style.css": "./es/style.css",
     "./es/*": "./es/*",
     "./lib/*": "./lib/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./actions": {
+      "types": "./es/actions/index.d.ts",
+      "import": "./es/actions/index.js",
+      "require": "./lib/actions/index.js"
+    },
+    "./actions/style.css": "./es/actions/style.css",
+    "./attachments": {
+      "types": "./es/attachments/index.d.ts",
+      "import": "./es/attachments/index.js",
+      "require": "./lib/attachments/index.js"
+    },
+    "./attachments/style.css": "./es/attachments/style.css",
+    "./bubble": {
+      "types": "./es/bubble/index.d.ts",
+      "import": "./es/bubble/index.js",
+      "require": "./lib/bubble/index.js"
+    },
+    "./bubble/style.css": "./es/bubble/style.css",
+    "./conversations": {
+      "types": "./es/conversations/index.d.ts",
+      "import": "./es/conversations/index.js",
+      "require": "./lib/conversations/index.js"
+    },
+    "./conversations/style.css": "./es/conversations/style.css",
+    "./form": {
+      "types": "./es/form/index.d.ts",
+      "import": "./es/form/index.js",
+      "require": "./lib/form/index.js"
+    },
+    "./form/style.css": "./es/form/style.css",
+    "./process": {
+      "types": "./es/process/index.d.ts",
+      "import": "./es/process/index.js",
+      "require": "./lib/process/index.js"
+    },
+    "./process/style.css": "./es/process/style.css",
+    "./prompts": {
+      "types": "./es/prompts/index.d.ts",
+      "import": "./es/prompts/index.js",
+      "require": "./lib/prompts/index.js"
+    },
+    "./prompts/style.css": "./es/prompts/style.css",
+    "./sender": {
+      "types": "./es/sender/index.d.ts",
+      "import": "./es/sender/index.js",
+      "require": "./lib/sender/index.js"
+    },
+    "./sender/style.css": "./es/sender/style.css",
+    "./sources": {
+      "types": "./es/sources/index.d.ts",
+      "import": "./es/sources/index.js",
+      "require": "./lib/sources/index.js"
+    },
+    "./sources/style.css": "./es/sources/style.css",
+    "./thought-chain": {
+      "types": "./es/thought-chain/index.d.ts",
+      "import": "./es/thought-chain/index.js",
+      "require": "./lib/thought-chain/index.js"
+    },
+    "./thought-chain/style.css": "./es/thought-chain/style.css",
+    "./welcome": {
+      "types": "./es/welcome/index.d.ts",
+      "import": "./es/welcome/index.js",
+      "require": "./lib/welcome/index.js"
+    },
+    "./welcome/style.css": "./es/welcome/style.css",
+    "./chat-panel": {
+      "types": "./es/chat-panel/index.d.ts",
+      "import": "./es/chat-panel/index.js",
+      "require": "./lib/chat-panel/index.js"
+    },
+    "./chat-panel/style.css": "./es/chat-panel/style.css",
+    "./agent-workbench": {
+      "types": "./es/agent-workbench/index.d.ts",
+      "import": "./es/agent-workbench/index.js",
+      "require": "./lib/agent-workbench/index.js"
+    },
+    "./agent-workbench/style.css": "./es/agent-workbench/style.css",
+    "./chat": {
+      "types": "./es/chat/index.d.ts",
+      "import": "./es/chat/index.js",
+      "require": "./lib/chat/index.js"
+    },
+    "./chat/style.css": "./es/chat/style.css",
+    "./agent": {
+      "types": "./es/agent/index.d.ts",
+      "import": "./es/agent/index.js",
+      "require": "./lib/agent/index.js"
+    },
+    "./agent/style.css": "./es/agent/style.css",
+    "./workbench": {
+      "types": "./es/agent-workbench/index.d.ts",
+      "import": "./es/agent-workbench/index.js",
+      "require": "./lib/agent-workbench/index.js"
+    },
+    "./workbench/style.css": "./es/agent-workbench/style.css",
+    "./full": {
+      "types": "./es/index.d.ts",
+      "import": "./es/index.js",
+      "require": "./lib/index.js"
+    },
+    "./full.css": "./es/style.css"
   },
   "files": [
     "es",
@@ -57,7 +159,7 @@
     "vue": ">=3.5.0 <4"
   },
   "dependencies": {
-    "@aheart-ui/dnd": "workspace:^"
+    "@aheart-ui/dnd": "workspace:^1.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",

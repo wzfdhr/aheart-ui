@@ -148,7 +148,7 @@
           <ul>
             <li>Form / Table / Picker</li>
             <li>Modal / Drawer / Layer</li>
-            <li>v2 候选：Combobox / Compound（尚未启动）</li>
+            <li>Combobox 与可访问浮层</li>
           </ul>
           <strong>查看组合组件 <span aria-hidden="true">→</span></strong>
         </a>
