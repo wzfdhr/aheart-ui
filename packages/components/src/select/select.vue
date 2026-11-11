@@ -183,13 +183,11 @@ import { computed, defineComponent, nextTick, ref, useAttrs, useSlots, watch, ty
 import { resolveConfigValue, useAheartConfig } from '../config'
 import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import AIcon from '../icon/icon.vue'
-import { useFloatingDismiss } from '../utils/use-floating-dismiss'
-import { useFloatingPosition } from '../utils/use-floating-position'
+import { useFloatingLayer } from '../utils/use-floating-layer'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { useStableId } from '../utils/use-stable-id'
-import { useTeleportReady } from '../utils/use-teleport-ready'
 import { useSelectVirtual } from './use-select-virtual'
 import {
   selectEmits,
@@ -342,21 +340,22 @@ const activeOptionId = computed(() => {
 })
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
-const teleportReady = useTeleportReady()
-const popupContainer = computed(() => {
-  if (props.getPopupContainer && selectorRef.value) return props.getPopupContainer(selectorRef.value)
-  return selectorRef.value?.ownerDocument.body ?? false
-})
-const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
-const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
-const floatingPosition = useFloatingPosition({
+const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
   reference: selectorRef,
   floating: popupRef,
-  open: mergedOpen,
-  placement: () => props.placement,
-  strategy: 'fixed',
-  offset: 4,
-  autoAdjustOverflow: () => props.autoAdjustOverflow
+  getPopupContainer: () => props.getPopupContainer,
+  position: {
+    open: mergedOpen,
+    placement: () => props.placement,
+    strategy: 'fixed',
+    offset: 4,
+    autoAdjustOverflow: () => props.autoAdjustOverflow
+  },
+  dismiss: {
+    open: mergedOpen,
+    ignoreEscape: isComposing,
+    onDismiss: () => closePopup()
+  }
 })
 
 const selectClass = computed(() => [
@@ -561,14 +560,6 @@ const handleFocusOut = (event: FocusEvent) => {
     closePopup()
   })
 }
-
-useFloatingDismiss({
-  open: mergedOpen,
-  trigger: selectorRef,
-  floating: popupRef,
-  ignoreEscape: isComposing,
-  onDismiss: () => closePopup()
-})
 
 watch(filteredOptions, () => {
   if (mergedOpen.value) setInitialActive()

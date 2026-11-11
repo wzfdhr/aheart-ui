@@ -20,6 +20,13 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     id: {
         type: import("vue").PropType<string>;
     };
+    autoAdjustOverflow: {
+        type: import("vue").PropType<boolean>;
+        default: boolean;
+    };
+    getPopupContainer: {
+        type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
+    };
     modelValue: {
         type: import("vue").PropType<import("..").TreeKey | import("..").TreeKey[]>;
     };
@@ -38,15 +45,8 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     maxTagCount: {
         type: import("vue").PropType<number>;
     };
-    autoAdjustOverflow: {
-        type: import("vue").PropType<boolean>;
-        default: boolean;
-    };
     virtual: {
         type: import("vue").PropType<import("..").TreeVirtual>;
-    };
-    getPopupContainer: {
-        type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
     };
     loadData: {
         type: import("vue").PropType<import("..").TreeLoadData>;
@@ -94,6 +94,13 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     id: {
         type: import("vue").PropType<string>;
     };
+    autoAdjustOverflow: {
+        type: import("vue").PropType<boolean>;
+        default: boolean;
+    };
+    getPopupContainer: {
+        type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
+    };
     modelValue: {
         type: import("vue").PropType<import("..").TreeKey | import("..").TreeKey[]>;
     };
@@ -112,15 +119,8 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     maxTagCount: {
         type: import("vue").PropType<number>;
     };
-    autoAdjustOverflow: {
-        type: import("vue").PropType<boolean>;
-        default: boolean;
-    };
     virtual: {
         type: import("vue").PropType<import("..").TreeVirtual>;
-    };
-    getPopupContainer: {
-        type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
     };
     loadData: {
         type: import("vue").PropType<import("..").TreeLoadData>;

@@ -1,3 +1,5 @@
+export { Combobox, ACombobox } from './combobox'
+export type * from './combobox'
 export { default as Button } from './button'
 export { default as Cascader } from './cascader'
 export { default as ConfigProvider } from './config-provider'

@@ -107,10 +107,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly disabled: boolean;
     readonly placement: DropdownPlacement;
     readonly arrow: import("./types").DropdownArrow;
-    readonly defaultOpen: boolean;
     readonly autoAdjustOverflow: boolean;
-    readonly destroyOnHidden: boolean;
     readonly trigger: import("./types").DropdownTrigger[];
+    readonly defaultOpen: boolean;
+    readonly destroyOnHidden: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly destroyPopupOnHide: boolean;

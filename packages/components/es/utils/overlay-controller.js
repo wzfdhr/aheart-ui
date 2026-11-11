@@ -20,6 +20,10 @@ const getRecords = (ownerDocument) => {
 };
 const isEscapeEnabled = (record) => typeof record.escapeEnabled === "function" ? record.escapeEnabled() : record.escapeEnabled !== false;
 const getElement = (getter) => (getter == null ? void 0 : getter()) ?? null;
+const canRestoreOverlayFocus = (ownerDocument, previous, content) => {
+  const active = ownerDocument.activeElement;
+  return !active || active === previous || active === ownerDocument.body || active === ownerDocument.documentElement || (content == null ? void 0 : content.contains(active)) === true;
+};
 const getRecentPointerTarget = (ownerDocument = document, maxAge = 500) => {
   const recent = recentPointerTargets.get(ownerDocument);
   return recent && Date.now() - recent.recordedAt <= maxAge ? recent.target : null;
@@ -181,6 +185,7 @@ const unlockBodyScroll = (ownerDocument = document) => {
   locks.delete(ownerDocument);
 };
 export {
+  canRestoreOverlayFocus,
   getRecentPointerTarget,
   isTargetInOverlayTree,
   isTopmost,

@@ -1,13 +1,11 @@
 import { defineComponent, useSlots, useAttrs, ref, computed, watch, nextTick, openBlock, createElementBlock, mergeProps, createElementVNode, normalizeClass, normalizeStyle, renderSlot, createVNode, unref, createCommentVNode, Fragment, renderList, withModifiers, toDisplayString, createBlock, Teleport, withDirectives, vShow } from "vue";
 import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import _sfc_main$1 from "../icon/icon.vue.js";
-import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
-import { useFloatingPosition } from "../utils/use-floating-position.js";
+import { useFloatingLayer } from "../utils/use-floating-layer.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useStableId } from "../utils/use-stable-id.js";
-import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { useSelectVirtual } from "./use-select-virtual.js";
 import { selectProps, selectEmits } from "./types.js";
 import { useAheartConfig, resolveConfigValue } from "../config/context.js";
@@ -172,23 +170,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return option && mergedOpen.value ? getOptionId(option) : void 0;
     });
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
-    const teleportReady = useTeleportReady();
-    const popupContainer = computed(() => {
-      var _a;
-      if (props.getPopupContainer && selectorRef.value)
-        return props.getPopupContainer(selectorRef.value);
-      return ((_a = selectorRef.value) == null ? void 0 : _a.ownerDocument.body) ?? false;
-    });
-    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition({
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
       reference: selectorRef,
       floating: popupRef,
-      open: mergedOpen,
-      placement: () => props.placement,
-      strategy: "fixed",
-      offset: 4,
-      autoAdjustOverflow: () => props.autoAdjustOverflow
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        open: mergedOpen,
+        placement: () => props.placement,
+        strategy: "fixed",
+        offset: 4,
+        autoAdjustOverflow: () => props.autoAdjustOverflow
+      },
+      dismiss: {
+        open: mergedOpen,
+        ignoreEscape: isComposing,
+        onDismiss: () => closePopup()
+      }
     });
     const selectClass = computed(() => [
       props.className,
@@ -426,13 +423,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         closePopup();
       });
     };
-    useFloatingDismiss({
-      open: mergedOpen,
-      trigger: selectorRef,
-      floating: popupRef,
-      ignoreEscape: isComposing,
-      onDismiss: () => closePopup()
-    });
     watch(filteredOptions, () => {
       if (mergedOpen.value)
         setInitialActive();
@@ -624,8 +614,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         ], 16, _hoisted_1),
         _ctx.loading ? (openBlock(), createElementBlock("span", _hoisted_8, toDisplayString(resolvedLoadingText.value), 1)) : createCommentVNode("", true),
         (openBlock(), createBlock(Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: unref(teleportTo),
+          disabled: !unref(shouldTeleport)
         }, [
           unref(motion).isMounted.value ? withDirectives((openBlock(), createElementBlock("div", {
             key: 0,

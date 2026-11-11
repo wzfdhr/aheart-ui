@@ -1,7 +1,8 @@
-// M1 public entries and their transitive visual dependencies. Runtime imports
+// Public component entries and their transitive visual dependencies. Runtime imports
 // and component CSS stay separate; legacy es/lib paths remain compatible.
 export const componentEntries = [
   { name: 'Button', subpath: 'button', sourceEntry: 'src/button/index.ts', styles: ['button/style.css', 'icon/style.css'] },
+  { name: 'Combobox', subpath: 'combobox', sourceEntry: 'src/combobox/index.ts', styles: ['utils/floating.css', 'combobox/style.css'] },
   { name: 'Modal', subpath: 'modal', sourceEntry: 'src/modal/index.ts', styles: ['button/style.css', 'icon/style.css', 'modal/style.css', 'skeleton/style.css'] },
   { name: 'Select', subpath: 'select', sourceEntry: 'src/select/index.ts', styles: ['icon/style.css', 'utils/floating.css', 'select/style.css'] }
 ]
@@ -40,6 +41,7 @@ export const fullStyleSources = [
     'modal/style.css',
     'drawer/style.css',
     'utils/floating.css',
+    'combobox/style.css',
     'tooltip/style.css',
     'popover/style.css',
     'popconfirm/style.css',

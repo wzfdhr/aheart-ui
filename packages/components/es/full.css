@@ -2885,6 +2885,86 @@ kbd.aheart-typography-text {
     --aheart-floating-motion-y: 0;
   }
 }
+.aheart-combobox {
+  display: inline-block;
+  max-width: 100%;
+  width: 16rem;
+}
+
+.aheart-combobox__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--aheart-control-height);
+  padding: 4px 11px;
+  border: 1px solid var(--aheart-color-border);
+  border-radius: var(--aheart-radius);
+  background: var(--aheart-color-bg);
+  color: var(--aheart-color-text);
+  font: inherit;
+  font-size: var(--aheart-font-size);
+}
+
+.aheart-combobox__input:focus {
+  outline: 2px solid var(--aheart-color-primary);
+  outline-offset: 1px;
+}
+
+.aheart-combobox__input:disabled {
+  background: var(--aheart-color-bg-disabled);
+  color: var(--aheart-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.aheart-combobox__popup {
+  box-sizing: border-box;
+  width: min(16rem, calc(100vw - 16px));
+  max-height: min(15rem, 45vh);
+  overflow: auto;
+  padding: 4px;
+  border-radius: var(--aheart-radius);
+  background: var(--aheart-color-bg-elevated);
+  box-shadow: var(--aheart-shadow);
+  color: var(--aheart-color-text);
+  font-size: var(--aheart-font-size);
+  z-index: 1050;
+  transition: opacity var(--aheart-motion-duration-fast) var(--aheart-motion-ease-out);
+}
+
+.aheart-combobox__popup.is-enter,
+.aheart-combobox__popup.is-leave,
+.aheart-combobox__popup.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.aheart-combobox__option,
+.aheart-combobox__empty {
+  padding: 6px 8px;
+  border-radius: var(--aheart-radius-sm);
+}
+
+.aheart-combobox__option {
+  cursor: pointer;
+}
+
+.aheart-combobox__option[aria-selected="true"] {
+  background: var(--aheart-color-primary-bg);
+  font-weight: 600;
+}
+
+.aheart-combobox__option.is-active,
+.aheart-combobox__option:not([aria-disabled="true"]):hover {
+  background: var(--aheart-color-fill);
+}
+
+.aheart-combobox__option[aria-disabled="true"] {
+  color: var(--aheart-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.aheart-combobox__empty {
+  color: var(--aheart-color-text-secondary);
+}
 .aheart-tooltip {
   position: relative;
   display: inline-flex;

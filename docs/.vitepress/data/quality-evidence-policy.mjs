@@ -12,6 +12,7 @@ export const qg4EvidenceCoverage = {
 }
 
 const dedicatedE2e = {
+  combobox: 'e2e/combobox.spec.ts',
   button: 'e2e/q2-navigation-overlays.spec.ts',
   menu: 'e2e/q2-navigation-overlays.spec.ts',
   steps: 'e2e/q2-navigation-overlays.spec.ts',

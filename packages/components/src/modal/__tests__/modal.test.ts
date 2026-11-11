@@ -786,6 +786,32 @@ describe('Modal', () => {
     outside.remove()
   })
 
+  it('preserves focus assigned by an afterClose callback', async () => {
+    const trigger = document.createElement('button')
+    const destination = document.createElement('input')
+    document.body.append(trigger, destination)
+    trigger.focus()
+    const wrapper = mountModal({
+      attachTo: document.body,
+      props: { open: false, title: 'Focus handoff', closable: { afterClose: () => destination.focus() } }
+    })
+
+    vi.useFakeTimers()
+    try {
+      await wrapper.setProps({ open: true })
+      await wrapper.setProps({ open: false })
+      await vi.advanceTimersByTimeAsync(181)
+      await nextTick()
+      expect(wrapper.emitted('afterClose')).toHaveLength(1)
+      expect(document.activeElement).toBe(destination)
+    } finally {
+      vi.useRealTimers()
+      wrapper.unmount()
+      trigger.remove()
+      destination.remove()
+    }
+  })
+
   it('restores focus to a pointer opener even when the browser does not focus buttons on click', async () => {
     const wrapper = mount(
       defineComponent({

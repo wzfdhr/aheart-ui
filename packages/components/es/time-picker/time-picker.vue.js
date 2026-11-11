@@ -4,13 +4,11 @@ import _sfc_main$1 from "../icon/icon.vue.js";
 import { createTimeOptions, parseTimeValue, formatTimeValue } from "../picker-core/time.js";
 import { measurePickerOptions, nearestPickerOption, estimatePickerOptionHeight } from "../picker-core/time-column-geometry.js";
 import { createPickerTransaction } from "../picker-core/transaction.js";
-import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
-import { useFloatingPosition } from "../utils/use-floating-position.js";
+import { useFloatingLayer } from "../utils/use-floating-layer.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useStableId } from "../utils/use-stable-id.js";
-import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { timePickerProps, timePickerEmits } from "./types.js";
 import { useAheartConfig, zhCN, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = {
@@ -195,22 +193,21 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return isPartsDisabled({ ...draft.value, hour: hour12 + (period === "PM" ? 12 : 0) });
     };
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
-    const teleportReady = useTeleportReady();
-    const popupContainer = computed(() => {
-      if (props.getPopupContainer && triggerRef.value)
-        return props.getPopupContainer(triggerRef.value);
-      return typeof document === "undefined" ? false : document.body;
-    });
-    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition({
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
       reference: triggerRef,
       floating: panelRef,
-      open: () => motion.isMounted.value && motion.phase.value !== "hidden",
-      placement: () => props.placement,
-      strategy: "fixed",
-      offset: 4,
-      autoAdjustOverflow: () => props.autoAdjustOverflow
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        open: () => motion.isMounted.value && motion.phase.value !== "hidden",
+        placement: () => props.placement,
+        strategy: "fixed",
+        offset: 4,
+        autoAdjustOverflow: () => props.autoAdjustOverflow
+      },
+      dismiss: {
+        open: mergedOpen,
+        onDismiss: () => requestOpen(false)
+      }
     });
     const panelClass = computed(() => [
       `aheart-floating--${floatingPosition.placement.value}`,
@@ -431,12 +428,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         confirmValue();
       }
     };
-    useFloatingDismiss({
-      open: mergedOpen,
-      trigger: triggerRef,
-      floating: panelRef,
-      onDismiss: () => requestOpen(false)
-    });
     watch(mergedValue, syncDraft);
     watch(mergedOpen, (open) => {
       if (open)
@@ -512,8 +503,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ])
         ], 512),
         (openBlock(), createBlock(Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: unref(teleportTo),
+          disabled: !unref(shouldTeleport)
         }, [
           unref(motion).isMounted.value ? withDirectives((openBlock(), createElementBlock("div", {
             key: 0,

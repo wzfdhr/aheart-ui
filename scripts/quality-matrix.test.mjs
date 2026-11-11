@@ -14,7 +14,7 @@ test('quality matrix registers every Ready component exactly once with release e
   ])
   const readyKeys = parseReadyComponentKeys(componentMetadata)
 
-  assert.equal(new Set(readyKeys).size, 48, 'the Ready component baseline changed; update the quality matrix intentionally')
+  assert.equal(new Set(readyKeys).size, 49, 'the Ready component baseline changed; update the quality matrix intentionally')
   assert.equal(qualityMatrix.length, readyKeys.length)
   assert.deepEqual(new Set(qualityMatrix.map((record) => record.component)), new Set(readyKeys))
   assert.doesNotThrow(() => validateQualityMatrix(readyKeys))
@@ -211,7 +211,7 @@ test('quality matrix uses the planned mutually exclusive risk mapping', async ()
   const { qualityMatrix } = await import(path.join(root, 'docs/.vitepress/data/quality-matrix.mjs'))
   const expected = {
     R1: [
-      'form', 'select', 'date-picker', 'time-picker', 'upload', 'table', 'tree', 'tree-select', 'cascader',
+      'form', 'combobox', 'select', 'date-picker', 'time-picker', 'upload', 'table', 'tree', 'tree-select', 'cascader',
       'dropdown', 'message', 'modal', 'drawer', 'tooltip', 'popover', 'popconfirm', 'splitter', 'dnd',
       'ai', 'ai-form', 'ai-agent-workbench'
     ],
@@ -231,8 +231,8 @@ test('quality matrix uses the planned mutually exclusive risk mapping', async ()
       new Set(expected[risk])
     )
   }
-  assert.equal(new Set(Object.values(expected).flat()).size, 48)
-  assert.equal(Object.values(expected).flat().length, 48)
+  assert.equal(new Set(Object.values(expected).flat()).size, 49)
+  assert.equal(Object.values(expected).flat().length, 49)
 })
 
 test('R1 records have current component evidence and product task metadata', async () => {

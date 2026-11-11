@@ -184,13 +184,11 @@
 import { computed, nextTick, onBeforeUnmount, ref, useAttrs, watch, type CSSProperties, type ComponentPublicInstance } from 'vue'
 import AIcon from '../icon/icon.vue'
 import type { FloatingPlacement } from '../utils/floating-core'
-import { useFloatingDismiss } from '../utils/use-floating-dismiss'
-import { useFloatingPosition } from '../utils/use-floating-position'
+import { useFloatingLayer } from '../utils/use-floating-layer'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { useControllableState } from '../utils/use-controllable-state'
 import { useStableId } from '../utils/use-stable-id'
-import { useTeleportReady } from '../utils/use-teleport-ready'
 import { usePopupViewportBudget } from '../utils/use-popup-viewport-budget'
 import type { CascaderKey, CascaderLoadContext, CascaderOption, CascaderPath, CascaderValue } from './types'
 import CascaderVirtualList, { type CascaderVirtualListExpose } from './cascader-virtual-list.vue'
@@ -928,22 +926,22 @@ const handleOptionKeydown = (event: KeyboardEvent, option: CascaderOption, colum
 onBeforeUnmount(invalidateLoads)
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
-const teleportReady = useTeleportReady()
-const popupContainer = computed(() => {
-  if (props.getPopupContainer && triggerRef.value) return props.getPopupContainer(triggerRef.value)
-  return triggerRef.value?.ownerDocument.body ?? false
-})
-const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
-const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
-const floatingPosition = useFloatingPosition({
+const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
   reference: triggerRef,
   floating: panelRef,
-  open: () => !props.disabled && motion.isMounted.value && motion.phase.value !== 'hidden',
-  placement: () => props.placement,
-  strategy: 'fixed',
-  offset: 4,
-  autoAdjustOverflow: () => props.autoAdjustOverflow,
-  autoUpdateOptions: { elementResize: false }
+  getPopupContainer: () => props.getPopupContainer,
+  position: {
+    open: () => !props.disabled && motion.isMounted.value && motion.phase.value !== 'hidden',
+    placement: () => props.placement,
+    strategy: 'fixed',
+    offset: 4,
+    autoAdjustOverflow: () => props.autoAdjustOverflow,
+    autoUpdateOptions: { elementResize: false }
+  },
+  dismiss: {
+    open: mergedOpen,
+    onDismiss: () => requestOpen(false)
+  }
 })
 const viewportBudget = usePopupViewportBudget({
   trigger: triggerRef,
@@ -973,12 +971,5 @@ const panelStyle = computed(() => [
     maxBlockSize: `${viewportBudget.value.popupHeight}px`
   } as CSSProperties : undefined
 ])
-
-useFloatingDismiss({
-  open: mergedOpen,
-  trigger: triggerRef,
-  floating: panelRef,
-  onDismiss: () => requestOpen(false)
-})
 
 </script>

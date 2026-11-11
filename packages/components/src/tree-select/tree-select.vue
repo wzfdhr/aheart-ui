@@ -94,13 +94,11 @@ import { treeModelKey, useTreeLoader } from '../tree/use-tree-loader'
 import { deriveTreeCheckState, toggleTreeCheck } from '../tree/tree-check'
 import { createTreeIndex, filterTreeIndex, getVisibleTreeNodes, treeKeyToken } from '../tree/tree-index'
 import type { FloatingPlacement } from '../utils/floating-core'
-import { useFloatingDismiss } from '../utils/use-floating-dismiss'
-import { useFloatingPosition } from '../utils/use-floating-position'
+import { useFloatingLayer } from '../utils/use-floating-layer'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { useControllableState } from '../utils/use-controllable-state'
 import { useStableId } from '../utils/use-stable-id'
-import { useTeleportReady } from '../utils/use-teleport-ready'
 import { usePopupViewportBudget } from '../utils/use-popup-viewport-budget'
 import { normalizeTreeSelectVirtual } from './virtual-options'
 
@@ -333,21 +331,21 @@ const handleTriggerKeydown = (event: KeyboardEvent) => {
 }
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
-const teleportReady = useTeleportReady()
-const popupContainer = computed(() => {
-  if (props.getPopupContainer && triggerRef.value) return props.getPopupContainer(triggerRef.value)
-  return triggerRef.value?.ownerDocument.body ?? false
-})
-const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
-const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
-const floatingPosition = useFloatingPosition({
+const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
   reference: triggerRef,
   floating: panelRef,
-  open: () => motion.isMounted.value && motion.phase.value !== 'hidden',
-  placement: () => props.placement,
-  strategy: 'fixed',
-  offset: 4,
-  autoAdjustOverflow: () => props.autoAdjustOverflow
+  getPopupContainer: () => props.getPopupContainer,
+  position: {
+    open: () => motion.isMounted.value && motion.phase.value !== 'hidden',
+    placement: () => props.placement,
+    strategy: 'fixed',
+    offset: 4,
+    autoAdjustOverflow: () => props.autoAdjustOverflow
+  },
+  dismiss: {
+    open: mergedOpen,
+    onDismiss: () => requestOpen(false)
+  }
 })
 const viewportBudget = usePopupViewportBudget({
   trigger: triggerRef,
@@ -372,12 +370,5 @@ const panelStyle = computed(() => [
   triggerRef.value?.getBoundingClientRect().width ? { width: `${triggerRef.value.getBoundingClientRect().width}px` } : undefined,
   virtualEnabled.value ? { display: 'flex', flexDirection: 'column', minBlockSize: '0', overflow: 'hidden', maxBlockSize: `${viewportBudget.value.popupHeight}px` } as CSSProperties : undefined
 ])
-
-useFloatingDismiss({
-  open: mergedOpen,
-  trigger: triggerRef,
-  floating: panelRef,
-  onDismiss: () => requestOpen(false)
-})
 
 </script>

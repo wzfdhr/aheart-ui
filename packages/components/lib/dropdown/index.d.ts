@@ -176,10 +176,10 @@ export declare const DropdownButton: SFCWithInstall<import("vue").DefineComponen
     readonly arrow: import("./types").DropdownArrow;
     readonly danger: boolean;
     readonly nativeType: "reset" | "submit" | "button";
-    readonly defaultOpen: boolean;
     readonly autoAdjustOverflow: boolean;
-    readonly destroyOnHidden: boolean;
     readonly trigger: import("./types").DropdownTrigger[];
+    readonly defaultOpen: boolean;
+    readonly destroyOnHidden: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly destroyPopupOnHide: boolean;

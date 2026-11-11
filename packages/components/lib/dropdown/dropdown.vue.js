@@ -2,10 +2,8 @@
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
 const vue = require("vue");
 const index = require("../menu/index.js");
-const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
-const useFloatingPosition = require("../utils/use-floating-position.js");
+const useFloatingLayer = require("../utils/use-floating-layer.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
-const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 const context = require("../config/context.js");
 const _hoisted_1 = ["aria-expanded", "aria-disabled"];
@@ -50,26 +48,23 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     });
     const hasOverlayContent = vue.computed(() => hasMenu.value || Boolean(slots.popup || props.popupRender || props.dropdownRender));
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
-    const teleportReady = useTeleportReady.useTeleportReady();
     const shouldRenderOverlay = vue.computed(() => hasOverlayContent.value && motion.isMounted.value);
-    const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
-    const popupContainer = vue.computed(() => {
-      if (props.getPopupContainer && triggerRef.value) {
-        return props.getPopupContainer(triggerRef.value);
-      }
-      return getDefaultPopupContainer();
-    });
-    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition.useFloatingPosition({
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer.useFloatingLayer({
       reference: triggerRef,
       floating: overlayRef,
-      arrow: arrowRef,
-      open: () => shouldRenderOverlay.value && motion.phase.value !== "hidden",
-      placement: () => props.placement,
-      offset: 8,
-      autoAdjustOverflow: () => props.autoAdjustOverflow,
-      arrowSize: 8
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        arrow: arrowRef,
+        open: () => shouldRenderOverlay.value && motion.phase.value !== "hidden",
+        placement: () => props.placement,
+        offset: 8,
+        autoAdjustOverflow: () => props.autoAdjustOverflow,
+        arrowSize: 8
+      },
+      dismiss: {
+        open: mergedOpen,
+        onDismiss: () => setOpen(false, { source: "trigger" })
+      }
     });
     const semanticInfo = vue.computed(() => ({
       open: mergedOpen.value,
@@ -254,12 +249,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
       setOpen(false, { source: "menu", emitOpenChange: false });
     };
-    useFloatingDismiss.useFloatingDismiss({
-      open: mergedOpen,
-      trigger: triggerRef,
-      floating: overlayRef,
-      onDismiss: () => setOpen(false, { source: "trigger" })
-    });
     vue.onBeforeUnmount(clearHoverTimers);
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
@@ -285,8 +274,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           vue.renderSlot(_ctx.$slots, "default")
         ], 46, _hoisted_1),
         (vue.openBlock(), vue.createBlock(vue.Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: vue.unref(teleportTo),
+          disabled: !vue.unref(shouldTeleport)
         }, [
           shouldRenderOverlay.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
             key: 0,

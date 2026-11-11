@@ -10,6 +10,8 @@ export interface OverlayRegistration {
     onEscape?: (event: KeyboardEvent) => void;
     onPointerDownOutside?: (event: PointerEvent) => void;
 }
+/** Restore focus only while it is unassigned or still belongs to the closing layer. */
+export declare const canRestoreOverlayFocus: (ownerDocument: Document, previous?: Element | null, content?: Element | null) => boolean;
 export declare const getRecentPointerTarget: (ownerDocument?: Document, maxAge?: number) => Element | null;
 export declare const refreshOverlayStack: (ownerDocument?: Document) => void;
 /** True when target is in this overlay or in an overlay opened from its content. */

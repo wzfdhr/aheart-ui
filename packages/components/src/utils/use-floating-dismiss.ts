@@ -1,5 +1,5 @@
 import { nextTick, onScopeDispose, toValue, watchEffect, type MaybeRefOrGetter } from 'vue'
-import { registerOverlay } from './overlay-controller'
+import { canRestoreOverlayFocus, registerOverlay } from './overlay-controller'
 
 type ElementSource = MaybeRefOrGetter<HTMLElement | null | undefined>
 
@@ -18,6 +18,7 @@ export function useFloatingDismiss(options: UseFloatingDismissOptions) {
   const overlayId = Symbol('aheart-floating-overlay')
   let unregister: (() => void) | undefined
   let restoreZIndex: (() => void) | undefined
+  let disposed = false
 
   const cleanup = () => {
     unregister?.()
@@ -88,23 +89,25 @@ export function useFloatingDismiss(options: UseFloatingDismissOptions) {
         if (toValue(options.open)) options.onDismiss('outside', event)
       },
       onEscape: (event) => {
+        const previousFocus = ownerDocument.activeElement
         options.onDismiss('escape', event)
 
-        if (toValue(options.restoreFocus) !== false) {
-          void nextTick(() => {
-            if (!toValue(options.open)) {
-              focusTrigger()
-              const ownerWindow = toValue(options.trigger)?.ownerDocument.defaultView
-              ownerWindow?.requestAnimationFrame(() => {
-                if (!toValue(options.open)) focusTrigger()
-              })
-            }
+        if (toValue(options.restoreFocus) === false) return
+        const isClosed = () => !disposed && !toValue(options.open)
+        void nextTick(() => {
+          if (!isClosed() || !canRestoreOverlayFocus(ownerDocument, previousFocus, floatingElement)) return
+          focusTrigger()
+          ownerDocument.defaultView?.requestAnimationFrame(() => {
+            if (isClosed() && canRestoreOverlayFocus(ownerDocument, undefined, floatingElement)) focusTrigger()
           })
-        }
+        })
       }
     })
     onCleanup(cleanup)
   })
 
-  onScopeDispose(cleanup)
+  onScopeDispose(() => {
+    disposed = true
+    cleanup()
+  })
 }

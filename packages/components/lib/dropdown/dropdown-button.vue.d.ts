@@ -176,10 +176,10 @@ declare const _default: import("vue").DefineComponent<import("vue").ExtractPropT
     readonly arrow: import("./types").DropdownArrow;
     readonly danger: boolean;
     readonly nativeType: "reset" | "submit" | "button";
-    readonly defaultOpen: boolean;
     readonly autoAdjustOverflow: boolean;
-    readonly destroyOnHidden: boolean;
     readonly trigger: import("./types").DropdownTrigger[];
+    readonly defaultOpen: boolean;
+    readonly destroyOnHidden: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly destroyPopupOnHide: boolean;

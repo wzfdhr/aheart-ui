@@ -7,6 +7,7 @@ const button_index = require("./button/index.js");
 const index$z = require("./card/index.js");
 const index = require("./cascader/index.js");
 const index$v = require("./checkbox/index.js");
+const combobox_index = require("./combobox/index.js");
 const index$1 = require("./config-provider/index.js");
 const index$A = require("./descriptions/index.js");
 const index$4 = require("./date-picker/index.js");
@@ -47,6 +48,7 @@ const index$6 = require("./upload/index.js");
 const components = [
   button_index.default,
   index.default,
+  combobox_index.Combobox,
   index$1.default,
   index$2.default,
   index$3.default,
@@ -124,6 +126,7 @@ exports.CardMeta = index$z.CardMeta;
 exports.Cascader = index.default;
 exports.Checkbox = index$v.default;
 exports.CheckboxGroup = index$v.CheckboxGroup;
+exports.Combobox = combobox_index.Combobox;
 exports.ConfigProvider = index$1.default;
 exports.Descriptions = index$A.default;
 exports.DatePicker = index$4.default;

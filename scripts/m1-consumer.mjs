@@ -42,17 +42,17 @@ import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { createSSRApp, h } from 'vue'
 import { renderToString } from 'vue/server-renderer'
-import Root, { Button, Modal, Select } from 'aheart-ui'
+import Root, { Button, Combobox, Modal, Select } from 'aheart-ui'
 import Full from 'aheart-ui/full'
 const require = createRequire(import.meta.url)
 assert.equal(Full, Root)
-for (const [entry, expected] of [['button', Button], ['modal', Modal], ['select', Select]]) {
+for (const [entry, expected] of [['button', Button], ['combobox', Combobox], ['modal', Modal], ['select', Select]]) {
   const esm = await import('aheart-ui/' + entry)
   assert.equal(esm.default, expected)
   assert.equal(require('aheart-ui/' + entry).default, require('aheart-ui')[entry[0].toUpperCase() + entry.slice(1)])
   assert.ok(require.resolve('aheart-ui/' + entry + '/style.css').endsWith('/es/' + entry + '/style.css'))
   assert.equal((await import('aheart-ui/es/' + entry + '/index.js')).default, expected)
-  assert.equal(typeof await renderToString(createSSRApp({ render: () => h(esm.default) })), 'string')
+  assert.equal(typeof await renderToString(createSSRApp({ render: () => h(esm.default, entry === 'combobox' ? { options: [] } : {}) })), 'string')
 }
 assert.equal(require('aheart-ui/full').default, require('aheart-ui').default)
 assert.equal(typeof window, 'undefined')
@@ -97,8 +97,13 @@ export default defineConfig({ build: { minify: true }, plugins: [{
     if (mode.styles.length) assert.ok(cssBytes > 0, `${mode.name} CSS was pruned`)
     else assert.equal(cssBytes, 0, `${mode.name} runtime introduced implicit CSS`)
     results.builds[mode.name] = { jsGzip, cssBytes, parsedModules: graph.parsed.length }
-    if (['button', 'modal', 'select'].includes(mode.name)) {
-      const allowed = { button: ['button', 'icon'], modal: ['modal', 'button', 'icon', 'skeleton'], select: ['select', 'icon'] }[mode.name]
+    const allowed = {
+      button: ['button', 'icon'],
+      combobox: ['combobox'],
+      modal: ['modal', 'button', 'icon', 'skeleton'],
+      select: ['select', 'icon']
+    }[mode.name]
+    if (allowed) {
       const unrelated = graph.parsed.filter(id => {
         if (/\/@aheart-ui\/(ai|dnd)\//.test(id)) return true
         const match = /\/node_modules\/aheart-ui\/es\/([^/]+)\/(.+)/.exec(id)

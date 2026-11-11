@@ -178,10 +178,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly okText: string;
     readonly cancelText: string;
     readonly arrow: import("./types").PopconfirmArrow;
-    readonly defaultOpen: boolean;
     readonly autoAdjustOverflow: boolean;
-    readonly destroyOnHidden: boolean;
     readonly trigger: import("../utils/floating-core").FloatingTriggerProp;
+    readonly defaultOpen: boolean;
+    readonly destroyOnHidden: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly destroyTooltipOnHide: boolean;

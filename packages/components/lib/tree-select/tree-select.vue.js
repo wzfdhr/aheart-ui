@@ -8,13 +8,11 @@ const treeFocusBridge = require("../tree/tree-focus-bridge.js");
 const useTreeLoader = require("../tree/use-tree-loader.js");
 const treeCheck = require("../tree/tree-check.js");
 const treeIndex = require("../tree/tree-index.js");
-const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
-const useFloatingPosition = require("../utils/use-floating-position.js");
+const useFloatingLayer = require("../utils/use-floating-layer.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
 const useControllableState = require("../utils/use-controllable-state.js");
 const useStableId = require("../utils/use-stable-id.js");
-const useTeleportReady = require("../utils/use-teleport-ready.js");
 const usePopupViewportBudget = require("../utils/use-popup-viewport-budget.js");
 const virtualOptions = require("./virtual-options.js");
 const _hoisted_1 = ["id", "tabindex", "aria-expanded", "aria-disabled", "aria-labelledby", "aria-activedescendant", "aria-describedby", "aria-invalid"];
@@ -283,23 +281,21 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       }
     };
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
-    const teleportReady = useTeleportReady.useTeleportReady();
-    const popupContainer = vue.computed(() => {
-      var _a;
-      if (props.getPopupContainer && triggerRef.value)
-        return props.getPopupContainer(triggerRef.value);
-      return ((_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.body) ?? false;
-    });
-    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition.useFloatingPosition({
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer.useFloatingLayer({
       reference: triggerRef,
       floating: panelRef,
-      open: () => motion.isMounted.value && motion.phase.value !== "hidden",
-      placement: () => props.placement,
-      strategy: "fixed",
-      offset: 4,
-      autoAdjustOverflow: () => props.autoAdjustOverflow
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        open: () => motion.isMounted.value && motion.phase.value !== "hidden",
+        placement: () => props.placement,
+        strategy: "fixed",
+        offset: 4,
+        autoAdjustOverflow: () => props.autoAdjustOverflow
+      },
+      dismiss: {
+        open: mergedOpen,
+        onDismiss: () => requestOpen(false)
+      }
     });
     const viewportBudget = usePopupViewportBudget.usePopupViewportBudget({
       trigger: triggerRef,
@@ -332,12 +328,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ((_a = triggerRef.value) == null ? void 0 : _a.getBoundingClientRect().width) ? { width: `${triggerRef.value.getBoundingClientRect().width}px` } : void 0,
         virtualEnabled.value ? { display: "flex", flexDirection: "column", minBlockSize: "0", overflow: "hidden", maxBlockSize: `${viewportBudget.value.popupHeight}px` } : void 0
       ];
-    });
-    useFloatingDismiss.useFloatingDismiss({
-      open: mergedOpen,
-      trigger: triggerRef,
-      floating: panelRef,
-      onDismiss: () => requestOpen(false)
     });
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("div", {
@@ -410,8 +400,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           })
         ], 40, _hoisted_1),
         (vue.openBlock(), vue.createBlock(vue.Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: vue.unref(teleportTo),
+          disabled: !vue.unref(shouldTeleport)
         }, [
           vue.unref(motion).isMounted.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
             key: 0,

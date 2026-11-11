@@ -54,6 +54,39 @@ describe('useFloatingDismiss', () => {
     scope.stop()
   })
 
+  it('does not pull focus back after the user has left the restored trigger', async () => {
+    const open = ref(true)
+    const trigger = document.createElement('button')
+    const popup = document.createElement('div')
+    const nextControl = document.createElement('input')
+    document.body.append(trigger, popup, nextControl)
+    popup.tabIndex = 0
+    popup.focus()
+
+    const frames: FrameRequestCallback[] = []
+    const requestFrame = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => frames.push(callback))
+    const scope = effectScope()
+    try {
+      scope.run(() => useFloatingDismiss({
+        open,
+        trigger,
+        floating: popup,
+        onDismiss: () => { open.value = false }
+      }))
+
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      await nextTick()
+      expect(document.activeElement).toBe(trigger)
+
+      nextControl.focus()
+      for (const callback of frames) callback(0)
+      expect(document.activeElement).toBe(nextControl)
+    } finally {
+      scope.stop()
+      requestFrame.mockRestore()
+    }
+  })
+
   it('restores focus to an interactive descendant when the trigger wrapper is not focusable', async () => {
     const open = ref(true)
     const trigger = document.createElement('span')

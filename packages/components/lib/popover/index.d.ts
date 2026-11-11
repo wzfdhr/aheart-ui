@@ -66,10 +66,10 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
         readonly open: boolean;
         readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly arrow: import("./types").PopoverArrow;
-        readonly defaultOpen: boolean;
         readonly autoAdjustOverflow: boolean;
-        readonly destroyOnHidden: boolean;
         readonly trigger: import("..").FloatingTriggerProp;
+        readonly defaultOpen: boolean;
+        readonly destroyOnHidden: boolean;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly destroyTooltipOnHide: boolean;
@@ -145,10 +145,10 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
         readonly open: boolean;
         readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
         readonly arrow: import("./types").PopoverArrow;
-        readonly defaultOpen: boolean;
         readonly autoAdjustOverflow: boolean;
-        readonly destroyOnHidden: boolean;
         readonly trigger: import("..").FloatingTriggerProp;
+        readonly defaultOpen: boolean;
+        readonly destroyOnHidden: boolean;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly destroyTooltipOnHide: boolean;
@@ -224,10 +224,10 @@ declare const Popover: import("../utils/install").SFCWithInstall<{
     readonly open: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly arrow: import("./types").PopoverArrow;
-    readonly defaultOpen: boolean;
     readonly autoAdjustOverflow: boolean;
-    readonly destroyOnHidden: boolean;
     readonly trigger: import("..").FloatingTriggerProp;
+    readonly defaultOpen: boolean;
+    readonly destroyOnHidden: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly destroyTooltipOnHide: boolean;

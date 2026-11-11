@@ -7,6 +7,10 @@ export interface UseRovingFocusOptions<T extends HTMLElement = HTMLElement> {
     loop?: boolean | MaybeRefOrGetter<boolean>;
     preventDefault?: boolean | MaybeRefOrGetter<boolean>;
 }
+/** Shared traversal for DOM focus and aria-activedescendant controls. */
+export declare function getNextEnabledKey(entries: readonly {
+    key: string;
+}[], currentKey: string | undefined, key: string, loop?: boolean): string | undefined;
 export declare function useRovingFocus<T extends HTMLElement = HTMLElement>(options: UseRovingFocusOptions<T>): {
     getNextKey: (currentKey: string | undefined, key: string) => string | undefined;
     focus: (key: string, preventScroll?: boolean) => boolean;

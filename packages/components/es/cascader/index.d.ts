@@ -21,6 +21,13 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
         type: import("vue").PropType<import("./types").CascaderOption[]>;
         default: () => never[];
     };
+    autoAdjustOverflow: {
+        type: import("vue").PropType<boolean>;
+        default: boolean;
+    };
+    getPopupContainer: {
+        type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
+    };
     modelValue: {
         type: import("vue").PropType<import("./types").CascaderPath | import("./types").CascaderPath[]>;
     };
@@ -39,15 +46,8 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     maxTagCount: {
         type: import("vue").PropType<number>;
     };
-    autoAdjustOverflow: {
-        type: import("vue").PropType<boolean>;
-        default: boolean;
-    };
     virtual: {
         type: import("vue").PropType<import("./types").CascaderVirtual>;
-    };
-    getPopupContainer: {
-        type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
     };
     loadData: {
         type: import("vue").PropType<(option: import("./types").CascaderOption, context: import("./types").CascaderLoadContext) => Promise<import("./types").CascaderOption[]>>;
@@ -79,6 +79,13 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
         type: import("vue").PropType<import("./types").CascaderOption[]>;
         default: () => never[];
     };
+    autoAdjustOverflow: {
+        type: import("vue").PropType<boolean>;
+        default: boolean;
+    };
+    getPopupContainer: {
+        type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
+    };
     modelValue: {
         type: import("vue").PropType<import("./types").CascaderPath | import("./types").CascaderPath[]>;
     };
@@ -97,15 +104,8 @@ declare const _default: import("../utils/install").SFCWithInstall<import("vue").
     maxTagCount: {
         type: import("vue").PropType<number>;
     };
-    autoAdjustOverflow: {
-        type: import("vue").PropType<boolean>;
-        default: boolean;
-    };
     virtual: {
         type: import("vue").PropType<import("./types").CascaderVirtual>;
-    };
-    getPopupContainer: {
-        type: import("vue").PropType<(triggerNode: HTMLElement) => HTMLElement>;
     };
     loadData: {
         type: import("vue").PropType<(option: import("./types").CascaderOption, context: import("./types").CascaderLoadContext) => Promise<import("./types").CascaderOption[]>>;
