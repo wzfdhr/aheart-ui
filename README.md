@@ -64,12 +64,21 @@ import '@aheart-ui/dnd/style.css'
 import '@aheart-ui/ai/style.css'
 ```
 
+## 在 Codex 中使用
+
+在你的 Vue 项目根目录运行下面的命令，需要 Node.js 22.20 或更新版本：
+
+```sh
+npx skills add https://labradorca.github.io/aheart-ui/ai/aheart-ui/SKILL.md --skill aheart-ui -a codex
+```
+
+用 Codex 打开同一个项目，在对话中发送 `$aheart-ui 帮我用当前安装的组件版本实现可筛选、可分页的用户列表`。手动安装和完整示例见 [AI 接入指南](docs/guide/ai-integration.md)。
+
 ## 文档
 
 - [组件总览](docs/components/overview.md)
 - [安装指南](docs/guide/installation.md)
 - [使用指南](docs/guide/usage.md)
-- [AI 接入](docs/guide/ai-integration.md)
 - [主题 Token](docs/guide/theme.md)
 - [发布指南](docs/guide/releasing.md)
 
