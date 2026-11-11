@@ -45,3 +45,4 @@ Local、npm pack 已通过。PR、Merged、Main CI、Pages 和 UA 待完成。�
 - [首轮 PR CI](https://github.com/Labradorca/aheart-ui/actions/runs/42971165437) 的全量浏览器任务通过 793 项，Splitter 桌面截图一项失败。M2 与 M3 在同一 Chromium 的局部对照中，面板数值、分隔线位置和截图尺寸一致。变化来自叠在长截图顶部的 VitePress 固定导航。
 - Splitter 截图在捕获时隐藏文档固定导航，比较阈值保持原值。按实际浏览器捕获重采 macOS 三张和 [Linux 三张](https://github.com/Labradorca/aheart-ui/actions/runs/42975622634) 基线。逐像素比对确认六张截图的差异均位于顶部 66 像素内，其余像素一致。
 - [第二轮 PR CI](https://github.com/Labradorca/aheart-ui/actions/runs/42976065403) 暴露 DND 全包分支覆盖率 79.84% 与桌面 WebKit 启动预览时的 pnpm 下载超时。DND 测试改经新子入口运行并补充根插件、`useSortable` 拖放及卸载回归。本地 82 项通过，分支覆盖率 81.08%，沿用 80% 阈值。Playwright 直接运行已安装的 VitePress，在禁止 Corepack 联网时复跑桌面 WebKit QG5，12 项通过，1 项按原条件跳过。
+- [第三轮 PR CI](https://github.com/Labradorca/aheart-ui/actions/runs/42976862214) 的覆盖率、五个 QG5 分片和消费端均通过。同步预览命令的契约断言和三条现有视觉用例的跳过登记行号后，205 项本地脚本和全部 41 条跳过登记校验通过。耗时的 D4 集成脚本已在该轮远程执行通过。
