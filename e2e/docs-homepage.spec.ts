@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+import { getComponentCatalogs } from '../docs/.vitepress/data/components'
 
 test.describe('GitHub Pages homepage', () => {
   test('presents the current product positioning and primary routes', async ({ page }) => {
@@ -7,7 +8,10 @@ test.describe('GitHub Pages homepage', () => {
 
     await expect(page.getByRole('heading', { level: 1 })).toContainText('把复杂工作流')
     await expect(page.getByRole('heading', { level: 1 })).toContainText('做成可靠的产品界面')
-    await expect(page.getByText('44', { exact: true })).toBeVisible()
+    const { core, composed } = getComponentCatalogs('zh')
+    const componentCount = String(core.length + composed.length)
+    const metrics = page.getByRole('region', { name: '项目能力概览' })
+    await expect(metrics.getByText(componentCount, { exact: true })).toBeVisible()
     await expect(page.getByLabel('AI Agent 产品工作台预览')).toBeVisible()
 
     const installation = page.getByRole('link', { name: /开始使用/ })
