@@ -3,11 +3,12 @@ import { readFileSync } from 'node:fs'
 import { createSSRApp, defineComponent, h, nextTick, ref } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import Draggable from '../draggable.vue'
-import DropZone from '../drop-zone.vue'
-import DragOverlay from '../drag-overlay.vue'
+import { Draggable, useDraggable } from '../draggable'
+import { DropZone, useDroppable } from '../droppable'
+import { DragOverlay } from '../drag-overlay'
 import { currentDragData } from '../drag-state'
-import SortableList from '../sortable-list.vue'
+import * as root from '../index'
+import { SortableItem, SortableList, useSortable } from '../sortable'
 import { registerSortableAutoScroll } from '../sortable-auto-scroll'
 import * as sortableRegistry from '../sortable-registry'
 
@@ -43,6 +44,96 @@ vi.mock('@atlaskit/pragmatic-drag-and-drop/reorder', () => ({
 beforeEach(() => {
   vi.clearAllMocks()
   cleanupFns.length = 0
+})
+
+describe('public DND entries', () => {
+  it('shares components and composables with the root entry', () => {
+    const scoped = { Draggable, DropZone, DragOverlay, SortableItem, SortableList, useDraggable, useDroppable, useSortable }
+    for (const name of Object.keys(scoped) as Array<keyof typeof scoped>) {
+      expect(scoped[name]).toBe(root[name])
+    }
+    const app = createSSRApp({}).use(root.default)
+    expect(app.component('ADraggable')).toBe(Draggable)
+    expect(app.component('ADropZone')).toBe(DropZone)
+    expect(app.component('ADragOverlay')).toBe(DragOverlay)
+    expect(app.component('ASortableItem')).toBe(SortableItem)
+    expect(app.component('ASortableList')).toBe(SortableList)
+  })
+
+  it('registers a sortable element as both a drag source and a drop target', async () => {
+    const data = ref({ type: 'task', id: 'one' })
+    const disabled = ref(false)
+    const onDragStart = vi.fn()
+    const onDrop = vi.fn()
+    const wrapper = mount(defineComponent({
+      setup() {
+        const element = ref<HTMLElement>()
+        const { isDragging } = useSortable(element, {
+          data, disabled, accept: 'task', dropData: { type: 'slot' }, onDragStart, onDrop
+        })
+        return () => h('div', { ref: element }, isDragging.value ? 'dragging' : 'idle')
+      }
+    }))
+    await nextTick()
+
+    const source = adapter.draggable.mock.calls[0][0]
+    const target = adapter.dropTargetForElements.mock.calls[0][0]
+    expect(source.element).toBe(wrapper.element)
+    expect(target.element).toBe(wrapper.element)
+    expect(target.getData()).toEqual({ type: 'slot' })
+    expect(target.canDrop({ source: { data: { type: 'note' } } })).toBe(false)
+    data.value = { type: 'task', id: 'two' }
+    expect(source.getInitialData()).toEqual(data.value)
+    expect(target.canDrop({ source: { data: data.value } })).toBe(true)
+    disabled.value = true
+    expect(source.canDrag()).toBe(false)
+    expect(target.canDrop({ source: { data: data.value } })).toBe(false)
+    disabled.value = false
+    expect(source.canDrag()).toBe(true)
+
+    source.onDragStart()
+    await nextTick()
+    expect(wrapper.text()).toBe('dragging')
+    expect(onDragStart).toHaveBeenCalledOnce()
+    target.onDrop({ source: { data: data.value } })
+    expect(onDrop).toHaveBeenCalledWith(data.value)
+    source.onDrop()
+    await nextTick()
+    expect(wrapper.text()).toBe('idle')
+
+    wrapper.unmount()
+    expect(cleanupFns).toHaveLength(2)
+    for (const cleanup of cleanupFns) expect(cleanup).toHaveBeenCalledOnce()
+  })
+
+  it('accepts unspecified drag types and clears an active sortable drag on unmount', async () => {
+    const data = { id: 'untyped' }
+    const onDrop = vi.fn()
+    const wrapper = mount(defineComponent({
+      setup() {
+        const element = ref<HTMLElement>()
+        useSortable(element, { data, onDrop })
+        return () => h('div', { ref: element })
+      }
+    }))
+    await nextTick()
+
+    const source = adapter.draggable.mock.calls[0][0]
+    const target = adapter.dropTargetForElements.mock.calls[0][0]
+    expect(source.canDrag()).toBe(true)
+    expect(target.getData()).toEqual({})
+    expect(target.canDrop({ source: { data } })).toBe(true)
+    target.onDrop({ source: { data }, location: { current: { dropTargets: [] } } })
+    expect(onDrop).not.toHaveBeenCalled()
+    target.onDrop({ source: { data }, location: { current: { dropTargets: [{ element: wrapper.element }] } } })
+    expect(onDrop).toHaveBeenCalledWith(data)
+
+    source.onDragStart()
+    expect(currentDragData.value).toEqual(data)
+    wrapper.unmount()
+    expect(currentDragData.value).toBeUndefined()
+    for (const cleanup of cleanupFns) expect(cleanup).toHaveBeenCalledOnce()
+  })
 })
 
 const touchPointer = (type: string, pointerId: number, clientX: number, clientY: number) => {
