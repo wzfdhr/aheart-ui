@@ -7,7 +7,7 @@ test('publishes the installable skill and the component index with usable docume
   const guidePath = await guideLink.getAttribute('href')
   await page.goto(guidePath!)
   await expect(page.getByRole('heading', { level: 1, name: /^AI 接入/ })).toBeVisible()
-  await expect(page.getByText('npx skills add Labradorca/aheart-ui --skill aheart-ui -a codex')).toBeVisible()
+  await expect(page.getByText('npx skills add https://labradorca.github.io/aheart-ui/ai/aheart-ui/SKILL.md --skill aheart-ui -a codex')).toBeVisible()
 
   const indexPath = await page.getByRole('link', { name: 'search-index.json' }).getAttribute('href')
   const indexUrl = new URL(indexPath!, page.url())

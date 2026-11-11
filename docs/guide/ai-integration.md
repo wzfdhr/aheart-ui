@@ -16,7 +16,7 @@ import { withBase } from 'vitepress'
 使用 Node.js 22.20 或更新版本，在你的 Vue 项目目录运行：
 
 ```sh
-npx skills add Labradorca/aheart-ui --skill aheart-ui -a codex
+npx skills add https://labradorca.github.io/aheart-ui/ai/aheart-ui/SKILL.md --skill aheart-ui -a codex
 ```
 
 也可以<a :href="withBase('/ai/aheart-ui/SKILL.md')" download>下载 SKILL.md</a>，放到项目的 `.agents/skills/aheart-ui/SKILL.md`。
