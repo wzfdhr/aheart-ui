@@ -1,0 +1,33 @@
+:root {
+  --aheart-ai-cyan: #0e7490;
+  --aheart-ai-cyan-strong: #0e7490;
+  --aheart-ai-brand-strong: #0958d9;
+  --aheart-ai-cyan-soft: #ecfeff;
+  --aheart-ai-line: #e4e7ec;
+  --aheart-ai-surface: #ffffff;
+  --aheart-ai-surface-subtle: #f8fafc;
+  --aheart-ai-text: #182230;
+  --aheart-ai-text-secondary: #667085;
+}
+
+.aheart-ai-welcome {
+  display: grid;
+  gap: 6px;
+  max-inline-size: 620px;
+}
+
+.aheart-ai-welcome__title,
+.aheart-ai-welcome__description {
+  margin: 0;
+}
+
+.aheart-ai-welcome__title {
+  color: var(--aheart-ai-text);
+  font-size: 24px;
+  line-height: 1.35;
+}
+
+.aheart-ai-welcome__description {
+  color: var(--aheart-ai-text-secondary);
+  line-height: 1.65;
+}

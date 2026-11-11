@@ -226,7 +226,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Button as AButton } from 'aheart-ui'
-import { SortableList as ASortableList } from '@aheart-ui/dnd'
+import { SortableList as ASortableList } from '@aheart-ui/dnd/sortable'
 import { getSafeUrl } from './safe-markdown'
 import type { AIAgentArtifact, AIAgentTask, AIAgentTaskStatus } from './types'
 

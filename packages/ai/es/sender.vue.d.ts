@@ -1,4 +1,4 @@
-declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
+declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     modelValue?: string | undefined;
     placeholder?: string | undefined;
     disabled?: boolean | undefined;
@@ -8,11 +8,11 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     placeholder: string;
     disabled: boolean;
     loading: boolean;
-}>>, {}, {}, {}, {}, import("@vue/runtime-core").ComponentOptionsMixin, import("@vue/runtime-core").ComponentOptionsMixin, {
+}>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     submit: (content: string) => void;
     stop: () => void;
     "update:modelValue": (value: string) => void;
-}, string, import("@vue/runtime-core").PublicProps, Readonly<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     modelValue?: string | undefined;
     placeholder?: string | undefined;
     disabled?: boolean | undefined;
@@ -31,7 +31,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     loading: boolean;
     placeholder: string;
     modelValue: string;
-}, {}, {}, {}, string, import("@vue/runtime-core").ComponentProvideOptions, true, {}, any>;
+}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;
 type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;
 type __VLS_TypePropsToRuntimeProps<T> = {

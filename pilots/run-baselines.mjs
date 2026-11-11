@@ -16,10 +16,17 @@ const browserEngine = arg('--browser') || 'chromium'
 assert.ok(['chromium', 'firefox', 'webkit'].includes(browserEngine), '--browser must be chromium, firefox or webkit')
 const strictTypesPolicy = arg('--strict-types') || 'pass'
 assert.ok(['pass', 'known-card-error'].includes(strictTypesPolicy), '--strict-types must be pass or known-card-error')
-const coreTarball = arg('--core-tarball') ? await realpath(arg('--core-tarball')) : undefined
-const candidateManifest = coreTarball ? JSON.parse((await run('tar', ['-xOf', coreTarball, 'package/package.json'])).stdout) : undefined
-if (candidateManifest) assert.equal(candidateManifest.name, 'aheart-ui', '--core-tarball must contain aheart-ui')
-const candidate = coreTarball ? { path: coreTarball, version: candidateManifest.version, sha256: createHash('sha256').update(await readFile(coreTarball)).digest('hex') } : undefined
+const candidatePackages = new Map()
+for (const [option, name] of [['--core-tarball', 'aheart-ui'], ['--ai-tarball', '@aheart-ui/ai'], ['--dnd-tarball', '@aheart-ui/dnd']]) {
+  const filename = arg(option)
+  if (!filename) continue
+  const packagePath = await realpath(filename)
+  const manifest = JSON.parse((await run('tar', ['-xOf', packagePath, 'package/package.json'])).stdout)
+  assert.equal(manifest.name, name, `${option} must contain ${name}`)
+  candidatePackages.set(name, { path: packagePath, version: manifest.version, sha256: createHash('sha256').update(await readFile(packagePath)).digest('hex') })
+}
+const candidate = candidatePackages.get('aheart-ui')
+const splitWorkbench = entryMode === 'subpath' && candidatePackages.has('@aheart-ui/ai') && candidatePackages.has('@aheart-ui/dnd')
 const runRoot = path.resolve(arg('--work-dir') || path.join(root, '.pilot-runs'))
 await mkdir(runRoot, { recursive: true })
 const out = path.resolve(arg('--out') || path.join(runRoot, `aheart-pilot-evidence-${Date.now()}`))
@@ -34,6 +41,7 @@ const names = arg('--only') ? arg('--only').split(',') : available
 assert.ok(names.length > 0 && names.every(name => available.includes(name)), 'Unknown pilot')
 const summary = { status: 'failed', generatedAt: new Date().toISOString(), sourceSha: (await run('git', ['rev-parse', 'HEAD'], { cwd: root })).stdout.trim(), node: process.version, workspace, evidence: out, origin: 'Newly created validation applications; not pre-existing business adoption', pilots: [], userAcceptance: 'not-run', electron: 'not-run (desktop browser baseline only)' }
 summary.packageSource = candidate ? { kind: 'local-core-tarball', ...candidate } : { kind: 'public-registry' }
+if (candidatePackages.size > 1 || (candidatePackages.size && !candidate)) summary.candidatePackages = Object.fromEntries(candidatePackages)
 summary.strictTypesPolicy = strictTypesPolicy
 summary.entryMode = entryMode
 summary.browserEngine = browserEngine
@@ -79,10 +87,30 @@ try {
         await mkdir(path.join(directory, 'consumed-source'))
         for (const file of ['app.js', 'main.js', 'types.ts']) await cp(path.join(project, file), path.join(directory, 'consumed-source', file))
       }
+      if (name === 'ai-review-gate' && splitWorkbench) {
+        record.entryStrategy = 'public-workbench-and-sortable-subpaths'
+        for (const file of ['app.js', 'types.ts']) {
+          const target = path.join(project, file)
+          const source = await readFile(target, 'utf8')
+          await writeFile(target, source.replace("from '@aheart-ui/ai'", "from '@aheart-ui/ai/workbench'")
+            .replace("from '@aheart-ui/dnd'", "from '@aheart-ui/dnd/sortable'"))
+        }
+        const target = path.join(project, 'main.js')
+        const source = await readFile(target, 'utf8')
+        await writeFile(target, source.replace("'@aheart-ui/ai/style.css'", "'@aheart-ui/ai/workbench/style.css'")
+          .replace("'@aheart-ui/dnd/style.css'", "'@aheart-ui/dnd/sortable/style.css'"))
+        await mkdir(path.join(directory, 'consumed-source'))
+        for (const file of ['app.js', 'main.js', 'types.ts']) await cp(path.join(project, file), path.join(directory, 'consumed-source', file))
+      }
       const manifest = JSON.parse(await readFile(path.join(project, 'package.json'), 'utf8'))
-      if (candidate) {
-        manifest.dependencies['aheart-ui'] = candidate.version
-        await writeFile(path.join(project, 'package.json'), JSON.stringify({ ...manifest, dependencies: { ...manifest.dependencies, 'aheart-ui': `file:${coreTarball}` } }, null, 2) + '\n')
+      const overrides = [...candidatePackages].filter(([pkg]) => Object.hasOwn(manifest.dependencies, pkg))
+      if (overrides.length > 0) {
+        const dependencies = { ...manifest.dependencies }
+        for (const [pkg, tarball] of overrides) {
+          manifest.dependencies[pkg] = tarball.version
+          dependencies[pkg] = `file:${tarball.path}`
+        }
+        await writeFile(path.join(project, 'package.json'), JSON.stringify({ ...manifest, dependencies }, null, 2) + '\n')
         await capture(record, 'candidate-lock', 'npm', ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org/'], project, directory)
       }
       await capture(record, 'install', 'npm', ['ci', '--include=dev', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org/'], project, directory)
@@ -93,7 +121,7 @@ try {
         const actual = JSON.parse(await readFile(path.join(installed, 'package.json'), 'utf8')).version
         assert.equal(actual, expected)
         record.packages[pkg] = { version: actual, symlink: false }
-        if (pkg === 'aheart-ui' && candidate) record.packages[pkg].tarball = candidate
+        if (candidatePackages.has(pkg)) record.packages[pkg].tarball = candidatePackages.get(pkg)
       }
       const lock = await readFile(path.join(project, 'package-lock.json'))
       record.lockSha256 = createHash('sha256').update(lock).digest('hex')

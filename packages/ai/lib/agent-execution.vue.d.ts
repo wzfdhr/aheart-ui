@@ -1,5 +1,5 @@
 import type { AIAgentArtifact, AIAgentTask } from './types';
-declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").DefineComponent<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     tasks?: AIAgentTask[] | undefined;
     artifacts?: AIAgentArtifact[] | undefined;
     activeArtifact?: string | undefined;
@@ -20,7 +20,7 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     actionDisabled: () => false;
     operationMessages: () => {};
     validateCandidate: () => undefined;
-}>>, {}, {}, {}, {}, import("@vue/runtime-core").ComponentOptionsMixin, import("@vue/runtime-core").ComponentOptionsMixin, {
+}>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     retry: (task: AIAgentTask) => void;
     approve: (task: AIAgentTask) => void;
     reject: (task: AIAgentTask) => void;
@@ -29,7 +29,7 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     "move-task": (id: string, direction: "up" | "down") => void;
     "move-task-reject": (reason: string) => void;
     "select-artifact": (artifact: AIAgentArtifact) => void;
-}, string, import("@vue/runtime-core").PublicProps, Readonly<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     tasks?: AIAgentTask[] | undefined;
     artifacts?: AIAgentArtifact[] | undefined;
     activeArtifact?: string | undefined;
@@ -69,7 +69,7 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     actionDisabled: (task: AIAgentTask, action: string) => boolean;
     operationMessages: Record<string, string>;
     validateCandidate: (tasks: AIAgentTask[]) => string | undefined;
-}, {}, {}, {}, string, import("@vue/runtime-core").ComponentProvideOptions, true, {}, any>, {
+}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     task?(_: {
         task: AIAgentTask;
         index: number;

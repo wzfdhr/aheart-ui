@@ -1,0 +1,1 @@
+.aheart-dnd-overlay { position: fixed; z-index: 1000; inset-inline-end: 16px; inset-block-end: 16px; max-inline-size: min(320px, calc(100vw - 32px)); padding: 8px 12px; border: 1px solid currentColor; border-radius: 4px; background: #fff; box-shadow: 0 6px 16px rgb(0 0 0 / 18%); pointer-events: none; }

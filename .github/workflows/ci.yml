@@ -181,8 +181,8 @@ jobs:
           pnpm --dir packages/dnd pack --json --pack-destination "$pack_dir" > "$pack_dir/dnd-pack.json"
           pnpm --dir packages/ai pack --json --pack-destination "$pack_dir" > "$pack_dir/ai-pack.json"
           components_tarball="$pack_dir/aheart-ui-1.2.0.tgz"
-          dnd_tarball="$pack_dir/aheart-ui-dnd-1.0.0.tgz"
-          ai_tarball="$pack_dir/aheart-ui-ai-1.0.0.tgz"
+          dnd_tarball="$(node -p 'require(process.argv[1]).filename' "$pack_dir/dnd-pack.json")"
+          ai_tarball="$(node -p 'require(process.argv[1]).filename' "$pack_dir/ai-pack.json")"
           node scripts/root-entry-consumer.mjs --tarball "$components_tarball" --out "$root_out"
           node scripts/form-list-consumer.mjs --tarball "$components_tarball" --out "$form_out"
           node docs/superpowers/experiments/d8-consumer/run.mjs --out "$d8_out" --components-tarball "$components_tarball" --dnd-tarball "$dnd_tarball" --ai-tarball "$ai_tarball"
@@ -190,6 +190,15 @@ jobs:
           cp "$root_out/results.json" test-results/d9-consumers/root-results.json
           cp "$form_out/results.json" test-results/d9-consumers/form-results.json
           cp "$d8_out/results.json" test-results/d9-consumers/d8-results.json
+      - name: M3 scoped entries, CSS and resolver
+        run: pnpm check:m3-consumer
+      - name: M3 packed consumer and Workbench pilot
+        run: |
+          node pilots/run-baselines.mjs --entry-mode subpath --only clean-consumer,ai-review-gate \
+            --core-tarball test-results/release-tarballs/aheart-ui-1.2.0.tgz \
+            --ai-tarball test-results/release-tarballs/aheart-ui-ai-1.1.0.tgz \
+            --dnd-tarball test-results/release-tarballs/aheart-ui-dnd-1.1.0.tgz \
+            --out test-results/m3-pilots
       - name: M1 public entries, CSS and module graph
         run: pnpm check:m1-consumer
       - name: M1 split and compatibility pilot paths
@@ -204,7 +213,13 @@ jobs:
         with:
           name: consumer-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
+            test-results/release-tarballs/*.tgz
             test-results/m1-consumer/
+            test-results/m3-consumer/*.log
+            test-results/m3-consumer/results.json
+            test-results/m3-pilots/results.json
+            test-results/m3-pilots/*/results.json
+            test-results/m3-pilots/*/module-graph.json
             test-results/m1-pilots/
             test-results/d9-consumers/*-results.json
             test-results/d9-consumers/strict/results.json

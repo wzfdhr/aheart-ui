@@ -1,5 +1,5 @@
 import { type AIFormAsyncValidator } from './form-schema';
-declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
+declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     modelValue?: Record<string, unknown> | undefined;
     schema: unknown;
     disabled?: boolean | undefined;
@@ -22,7 +22,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
         name: string;
         errors: string[];
     }[]) => void;
-}, {}, {}, {}, import("@vue/runtime-core").ComponentOptionsMixin, import("@vue/runtime-core").ComponentOptionsMixin, {
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     submit: (value: Record<string, unknown>) => void;
     "update:modelValue": (value: Record<string, unknown>) => void;
     "schema-error": (errors: string[]) => void;
@@ -30,7 +30,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
         key: string;
         message: string;
     }[]) => void;
-}, string, import("@vue/runtime-core").PublicProps, Readonly<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     modelValue?: Record<string, unknown> | undefined;
     schema: unknown;
     disabled?: boolean | undefined;
@@ -60,7 +60,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     submitText: string;
     submitError: string;
     validators: Record<string, AIFormAsyncValidator>;
-}, {}, {}, {}, string, import("@vue/runtime-core").ComponentProvideOptions, true, {}, any>;
+}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;
 type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;
 type __VLS_TypePropsToRuntimeProps<T> = {

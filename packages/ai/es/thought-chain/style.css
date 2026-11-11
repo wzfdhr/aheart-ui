@@ -1,0 +1,77 @@
+:root {
+  --aheart-ai-cyan: #0e7490;
+  --aheart-ai-cyan-strong: #0e7490;
+  --aheart-ai-brand-strong: #0958d9;
+  --aheart-ai-cyan-soft: #ecfeff;
+  --aheart-ai-line: #e4e7ec;
+  --aheart-ai-surface: #ffffff;
+  --aheart-ai-surface-subtle: #f8fafc;
+  --aheart-ai-text: #182230;
+  --aheart-ai-text-secondary: #667085;
+}
+
+.aheart-ai-process h3 {
+  margin: 0;
+}
+
+.aheart-ai-process small {
+  display: block;
+  color: var(--aheart-ai-text-secondary);
+  font-size: 12px;
+}
+
+.aheart-ai-process {
+  display: grid;
+  gap: 8px;
+}
+
+.aheart-ai-process ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aheart-ai-process h3 {
+  font-size: 12px;
+  color: var(--aheart-ai-text-secondary);
+}
+
+.aheart-ai-process ol {
+  display: grid;
+  gap: 6px;
+}
+
+.aheart-ai-process li {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding-inline-start: 16px;
+}
+
+.aheart-ai-process li::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 7px;
+  inset-inline-start: 2px;
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  background: #98a2b3;
+}
+
+.aheart-ai-process li.is-running::before {
+  background: var(--aheart-ai-cyan);
+  box-shadow: 0 0 0 3px #cffafe;
+}
+
+.aheart-ai-process li.is-complete::before {
+  background: #12b76a;
+}
+
+.aheart-ai-process li.is-stopped::before {
+  background: #98a2b3;
+}
+
+.aheart-ai-process li.is-error {
+  color: var(--aheart-color-danger, #d92d20);
+}

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AIForm as AAIForm } from '@aheart-ui/ai/agent'
 import { ref } from 'vue'
 import type { AIFormSchemaV1 } from '@aheart-ui/ai'
 

@@ -21,6 +21,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^5.0.3
         version: 5.0.3(vite@5.0.12)(vue@3.5.38(typescript@5.3.3))
+      postcss:
+        specifier: 8.5.18
+        version: 8.5.18
       typescript:
         specifier: ^5.3.3
         version: 5.3.3
@@ -55,7 +58,7 @@ importers:
   packages/ai:
     dependencies:
       '@aheart-ui/dnd':
-        specifier: workspace:^
+        specifier: workspace:^1.1.0
         version: link:../dnd
       aheart-ui:
         specifier: workspace:^1.1.0
