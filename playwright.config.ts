@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const port = process.env.AHEART_E2E_PORT ?? '5173'
+const docsBase = process.env.AHEART_DOCS_BASE || '/'
 const comboboxOnly = /combobox\.spec\.ts/
 const qg2Only = /dnd-splitter\.spec\.ts/
 const qg5Only = /cross-browser-production\.spec\.ts/
@@ -44,7 +45,7 @@ export default defineConfig({
   ],
   webServer: {
     command: `corepack pnpm docs:build && corepack pnpm --dir docs preview --host 127.0.0.1 --port ${port}`,
-    url: `http://127.0.0.1:${port}`,
+    url: `http://127.0.0.1:${port}${docsBase}`,
     reuseExistingServer: false,
     timeout: 120_000
   }

@@ -69,6 +69,7 @@ import '@aheart-ui/ai/style.css'
 - [组件总览](docs/components/overview.md)
 - [安装指南](docs/guide/installation.md)
 - [使用指南](docs/guide/usage.md)
+- [AI 接入](docs/guide/ai-integration.md)
 - [主题 Token](docs/guide/theme.md)
 - [发布指南](docs/guide/releasing.md)
 
