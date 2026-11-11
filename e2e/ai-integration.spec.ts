@@ -2,8 +2,7 @@ import { expect, test } from '@playwright/test'
 import { getComponentCategories } from '../docs/.vitepress/data/components'
 
 test('publishes the installable skill and the component index with usable documentation links', async ({ page, request }) => {
-  const base = process.env.AHEART_DOCS_BASE || '/'
-  await page.goto(`${base}guide/usage.html`)
+  await page.goto('/guide/usage.html')
   const guideLink = page.locator('#VPSidebarNav').getByRole('link', { name: 'AI 接入', exact: true, includeHidden: true })
   const guidePath = await guideLink.getAttribute('href')
   await page.goto(guidePath!)

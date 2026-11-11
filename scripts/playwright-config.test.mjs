@@ -18,7 +18,7 @@ test('uses AHEART_E2E_PORT with 5173 as the default everywhere', () => {
   assert.match(configSource, /AHEART_E2E_PORT/)
   assert.match(configSource, /\?\?\s*'5173'/)
   assert.match(configSource, /baseURL:\s*`http:\/\/127\.0\.0\.1:\$\{port\}`/)
-  assert.match(configSource, /url:\s*`http:\/\/127\.0\.0\.1:\$\{port\}\$\{docsBase\}`/)
+  assert.match(configSource, /url:\s*`http:\/\/127\.0\.0\.1:\$\{port\}`/)
   assert.match(configSource, /command:[\s\S]*--port \$\{port\}/)
 })
 
