@@ -1,6 +1,6 @@
 import { defineComponent as fa, computed as w, openBlock as r, createElementBlock as l, createElementVNode as o, toDisplayString as n, createCommentVNode as i, Fragment as N, createVNode as S, unref as k, withCtx as y, createTextVNode as m, renderSlot as x, normalizeClass as D, normalizeStyle as ga, createBlock as ia, renderList as wa } from "vue";
 import { Button as C } from "aheart-ui";
-import { SortableList as ma } from "@aheart-ui/dnd";
+import { SortableList as ma } from "@aheart-ui/dnd/sortable";
 import { getSafeUrl as da } from "./safe-markdown.js";
 const Ca = { class: "aheart-ai-workbench__execution-content" }, $a = {
   key: 0,

@@ -1,0 +1,5 @@
+/* The fixed documentation navigation overlaps screenshots of tall demos. */
+.VPNav,
+.VPLocalNav {
+  visibility: hidden !important;
+}

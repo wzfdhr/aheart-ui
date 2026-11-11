@@ -1,0 +1,88 @@
+:root {
+  --aheart-ai-cyan: #0e7490;
+  --aheart-ai-cyan-strong: #0e7490;
+  --aheart-ai-brand-strong: #0958d9;
+  --aheart-ai-cyan-soft: #ecfeff;
+  --aheart-ai-line: #e4e7ec;
+  --aheart-ai-surface: #ffffff;
+  --aheart-ai-surface-subtle: #f8fafc;
+  --aheart-ai-text: #182230;
+  --aheart-ai-text-secondary: #667085;
+}
+
+.aheart-ai-sender {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid #b9c2cf;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+  transition: border-color 120ms ease-out, box-shadow 120ms ease-out;
+}
+
+.aheart-ai-sender:focus-within {
+  border-color: var(--aheart-color-primary, #1677ff);
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.12);
+}
+
+.aheart-ai-sender textarea {
+  inline-size: 100%;
+  min-block-size: 56px;
+  max-block-size: 160px;
+  resize: vertical;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--aheart-ai-text);
+  font: inherit;
+  line-height: 1.55;
+  outline: none;
+}
+
+.aheart-ai-sender button {
+  min-inline-size: 72px;
+  min-block-size: 36px;
+  padding: 7px 14px;
+  border: 1px solid var(--aheart-color-primary, #1677ff);
+  border-radius: 5px;
+  background: var(--aheart-color-primary, #1677ff);
+  color: #fff;
+  font: 500 14px/1 inherit;
+  cursor: pointer;
+  transition: background-color 120ms ease-out, border-color 120ms ease-out;
+}
+
+.aheart-ai-sender button:hover:not(:disabled),
+.aheart-ai-sender button:focus-visible {
+  border-color: #0958d9;
+  background: #0958d9;
+  outline: none;
+}
+
+.aheart-ai-sender button:disabled {
+  border-color: #d0d5dd;
+  background: #eaecf0;
+  color: #98a2b3;
+  cursor: not-allowed;
+}
+
+@media (max-width: 760px) {
+
+  .aheart-ai-sender {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .aheart-ai-sender button {
+    inline-size: 100%;
+  }
+}
+
+@media (pointer: coarse) {
+  .aheart-ai-sender button {
+    min-block-size: 44px;
+    min-inline-size: 44px;
+  }
+}

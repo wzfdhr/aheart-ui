@@ -1,5 +1,6 @@
 {
   "extends": "../../tsconfig.json",
+  "compilerOptions": { "resolveJsonModule": true },
   "include": [
     "src/**/*.ts",
     "src/**/*.vue"

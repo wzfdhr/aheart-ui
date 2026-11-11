@@ -1,6 +1,6 @@
 import { defineComponent as Be, ref as R, getCurrentInstance as Ve, useId as De, computed as I, onMounted as He, nextTick as Le, onBeforeUnmount as Ie, watch as ee, onBeforeUpdate as Pe, h as te, openBlock as h, createElementBlock as g, createElementVNode as u, toDisplayString as $, createCommentVNode as C, normalizeClass as Ne, createVNode as m, unref as y, withCtx as k, createTextVNode as P, createBlock as ae, Teleport as $e, mergeProps as Fe, renderSlot as _, createSlots as Je, withDirectives as oe, Fragment as Ze, renderList as qe, vShow as se } from "vue";
 import { Splitter as We, SplitterPanel as ne, Button as N, Tabs as Ge, Drawer as Xe } from "aheart-ui";
-import { SortableList as Ye } from "@aheart-ui/dnd";
+import { SortableList as Ye } from "@aheart-ui/dnd/sortable";
 import Ce from "./attachments.vue.js";
 import Qe from "./chat-panel.vue.js";
 import xe from "./conversations.vue.js";

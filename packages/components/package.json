@@ -50,7 +50,17 @@
     "./lib/picker-core/*": null,
     "./es/*": "./es/*",
     "./lib/*": "./lib/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./constant": {
+      "types": "./es/constant/index.d.ts",
+      "import": "./es/constant/index.js",
+      "require": "./lib/constant/index.js"
+    },
+    "./resolver": {
+      "types": "./es/resolver/index.d.ts",
+      "import": "./es/resolver/index.js",
+      "require": "./lib/resolver/index.js"
+    }
   },
   "scripts": {
     "build": "vite build",

@@ -1,4 +1,4 @@
-import { computed, shallowRef } from "vue";
+import { shallowRef, computed } from "vue";
 const activeDragData = shallowRef();
 const activeByDocument = /* @__PURE__ */ new WeakMap();
 const globalDocument = () => typeof globalThis !== "undefined" && "document" in globalThis ? globalThis.document : void 0;

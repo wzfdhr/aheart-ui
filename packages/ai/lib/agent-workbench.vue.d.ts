@@ -1,6 +1,6 @@
 import type { AIAgentActionHandler, AIAgentArtifact, AIAgentContextItem, AIAgentOperationRequest, AIAgentTask, AIAttachment, AIConversation, AIMessage, AIPrompt, AISource, AITransport, AITransportV2 } from './types';
 type WorkbenchPanelSize = number | `${number}%` | 'auto';
-declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").DefineComponent<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
+declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     title?: string | undefined;
     description?: string | undefined;
     panelSizes?: WorkbenchPanelSize[] | undefined;
@@ -39,7 +39,7 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     reorderable: boolean;
     tasksRevision: undefined;
     scopeKey: undefined;
-}>>, {}, {}, {}, {}, import("@vue/runtime-core").ComponentOptionsMixin, import("@vue/runtime-core").ComponentOptionsMixin, {
+}>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     error: (message: string) => void;
     retry: (task: AIAgentTask) => void;
     approve: (task: AIAgentTask) => void;
@@ -62,7 +62,7 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     "operation-success": (request: AIAgentOperationRequest) => void;
     "operation-error": (request: AIAgentOperationRequest, message: string) => void;
     "task-move-reject": (reason: string) => void;
-}, string, import("@vue/runtime-core").PublicProps, Readonly<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     title?: string | undefined;
     description?: string | undefined;
     panelSizes?: WorkbenchPanelSize[] | undefined;
@@ -143,7 +143,7 @@ declare const _default: __VLS_WithTemplateSlots<import("@vue/runtime-core").Defi
     activeConversation: string;
     panelSizes: WorkbenchPanelSize[];
     contextItems: AIAgentContextItem[];
-}, {}, {}, {}, string, import("@vue/runtime-core").ComponentProvideOptions, true, {}, any>, {
+}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>, {
     sources?(_: {
         sources: AISource[];
     }): any;

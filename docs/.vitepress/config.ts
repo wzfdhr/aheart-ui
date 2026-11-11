@@ -66,7 +66,7 @@ export default defineConfig({
             ]
           },
           { text: '工程质量', link: '/guide/quality-matrix' },
-          { text: 'v2（暂停）', link: '/roadmap/v2' }
+          { text: '路线图', link: '/roadmap/v2' }
         ],
         sidebar: {
           '/guide/': [
@@ -78,6 +78,7 @@ export default defineConfig({
                 { text: '使用', link: '/guide/usage' },
                 { text: 'AI 接入', link: '/guide/ai-integration' },
                 { text: '1.2 按需候选', link: '/guide/on-demand' },
+                { text: 'M3 按需迁移', link: '/guide/m3-migration' },
                 { text: '主题 Token', link: '/guide/theme' },
                 { text: '质量矩阵', link: '/guide/quality-matrix' },
                 { text: 'QG5 证据', link: '/guide/qg5-evidence' },
@@ -95,7 +96,7 @@ export default defineConfig({
           '/motion/': getProductAreaSidebar('motion'),
           '/dnd/': dndSidebar,
           '/icons/': getProductAreaSidebar('icons'),
-          '/roadmap/': [{ text: 'v2（暂停）', link: '/roadmap/v2' }]
+          '/roadmap/': [{ text: '路线图', link: '/roadmap/v2' }]
         },
         socialLinks: [
           { icon: { svg: githubSvg }, ariaLabel: 'GitHub', link: githubLink }

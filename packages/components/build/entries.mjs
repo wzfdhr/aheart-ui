@@ -1,15 +1,14 @@
+import { getComponentEntries } from '../../build/package-entries.mjs'
+
 // Public component entries and their transitive visual dependencies. Runtime imports
 // and component CSS stay separate; legacy es/lib paths remain compatible.
-export const componentEntries = [
-  { name: 'Button', subpath: 'button', sourceEntry: 'src/button/index.ts', styles: ['button/style.css', 'icon/style.css'] },
-  { name: 'Combobox', subpath: 'combobox', sourceEntry: 'src/combobox/index.ts', styles: ['utils/floating.css', 'combobox/style.css'] },
-  { name: 'Modal', subpath: 'modal', sourceEntry: 'src/modal/index.ts', styles: ['button/style.css', 'icon/style.css', 'modal/style.css', 'skeleton/style.css'] },
-  { name: 'Select', subpath: 'select', sourceEntry: 'src/select/index.ts', styles: ['icon/style.css', 'utils/floating.css', 'select/style.css'] }
-]
+export const componentEntries = getComponentEntries('base')
 
 export const publicRuntimeExports = Object.fromEntries([
   ...componentEntries.map(({ subpath }) => [subpath, `${subpath}/index`]),
-  ['full', 'full']
+  ['full', 'full'],
+  ['constant', 'constant/index'],
+  ['resolver', 'resolver/index']
 ].map(([subpath, output]) => [`./${subpath}`, {
   types: `./es/${output}.d.ts`, import: `./es/${output}.js`, require: `./lib/${output}.js`
 }]))

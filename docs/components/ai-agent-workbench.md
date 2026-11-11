@@ -14,7 +14,9 @@ import type {
   AIMessage,
   AIAgentOperationResult
 } from '@aheart-ui/ai'
-import { AIAgentWorkbench, AIBubble, AIChatPanel, AIForm } from '@aheart-ui/ai'
+import { AIAgentWorkbench } from '@aheart-ui/ai/workbench'
+import { AIBubble, AIChatPanel } from '@aheart-ui/ai/chat'
+import { AIForm } from '@aheart-ui/ai/agent'
 
 const d8Mode = ref<string | null>(null)
 const d8ClientReady = ref(false)

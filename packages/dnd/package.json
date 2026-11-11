@@ -1,6 +1,6 @@
 {
   "name": "@aheart-ui/dnd",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Vue 3 drag and drop components for Aheart UI.",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -17,7 +17,37 @@
     "./style.css": "./es/style.css",
     "./es/*": "./es/*",
     "./lib/*": "./lib/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./draggable": {
+      "types": "./es/draggable/index.d.ts",
+      "import": "./es/draggable/index.js",
+      "require": "./lib/draggable/index.js"
+    },
+    "./draggable/style.css": "./es/draggable/style.css",
+    "./droppable": {
+      "types": "./es/droppable/index.d.ts",
+      "import": "./es/droppable/index.js",
+      "require": "./lib/droppable/index.js"
+    },
+    "./droppable/style.css": "./es/droppable/style.css",
+    "./drag-overlay": {
+      "types": "./es/drag-overlay/index.d.ts",
+      "import": "./es/drag-overlay/index.js",
+      "require": "./lib/drag-overlay/index.js"
+    },
+    "./drag-overlay/style.css": "./es/drag-overlay/style.css",
+    "./sortable": {
+      "types": "./es/sortable/index.d.ts",
+      "import": "./es/sortable/index.js",
+      "require": "./lib/sortable/index.js"
+    },
+    "./sortable/style.css": "./es/sortable/style.css",
+    "./full": {
+      "types": "./es/index.d.ts",
+      "import": "./es/index.js",
+      "require": "./lib/index.js"
+    },
+    "./full.css": "./es/style.css"
   },
   "files": [
     "es",

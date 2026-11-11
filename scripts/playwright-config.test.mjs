@@ -7,9 +7,10 @@ const configSource = readFileSync(new URL('../playwright.config.ts', import.meta
 test('builds the docs and serves the production preview on the requested port', () => {
   const command = configSource.match(/webServer:\s*\{[\s\S]*?command:\s*`([^`]+)`/)?.[1]
 
-  assert.match(command, /docs:build/)
-  assert.match(command, /docs preview/)
-  assert.doesNotMatch(command, /docs dev/)
+  assert.match(configSource, /const vitepress = 'node node_modules\/vitepress\/bin\/vitepress\.js'/)
+  assert.match(configSource, /cwd:\s*join\(__dirname, 'docs'\)/)
+  assert.match(command, /\$\{vitepress\} build \. && \$\{vitepress\} preview \./)
+  assert.doesNotMatch(command, /\b(?:corepack|pnpm|dev)\b/)
   assert.match(command, /--host 127\.0\.0\.1/)
   assert.match(command, /--port \$\{port\}/)
 })

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { SortableItem as ASortableItem, SortableList as ASortableList } from '@aheart-ui/dnd/sortable'
 import { createApp, h, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { Draggable as D7Draggable, DropZone as D7DropZone, SortableList as D7SortableList } from '@aheart-ui/dnd'
 

@@ -1,5 +1,5 @@
 import type { AIAttachment, AIConversation, AIMessage, AIPrompt, AITransport, AITransportV2 } from './types';
-declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
+declare const _default: import("vue").DefineComponent<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     messages?: AIMessage[] | undefined;
     defaultMessages?: AIMessage[] | undefined;
     transport: AITransport | AITransportV2;
@@ -24,7 +24,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     welcomeDescription: string;
     disabled: boolean;
     maxReconnectAttempts: number;
-}>>, {}, {}, {}, {}, import("@vue/runtime-core").ComponentOptionsMixin, import("@vue/runtime-core").ComponentOptionsMixin, {
+}>>, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {
     error: (error: string) => void;
     send: (content: string) => void;
     retry: (message: AIMessage) => void;
@@ -37,7 +37,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     "update:attachments": (attachments: AIAttachment[]) => void;
     "stream-status": (status: string) => void;
     "stream-reject": (reason: string) => void;
-}, string, import("@vue/runtime-core").PublicProps, Readonly<import("@vue/runtime-core").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
+}, string, import("vue").PublicProps, Readonly<import("vue").ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<{
     messages?: AIMessage[] | undefined;
     defaultMessages?: AIMessage[] | undefined;
     transport: AITransport | AITransportV2;
@@ -87,7 +87,7 @@ declare const _default: import("@vue/runtime-core").DefineComponent<import("@vue
     welcomeTitle: string;
     welcomeDescription: string;
     maxReconnectAttempts: number;
-}, {}, {}, {}, string, import("@vue/runtime-core").ComponentProvideOptions, true, {}, any>;
+}, {}, {}, {}, string, import("vue").ComponentProvideOptions, true, {}, any>;
 export default _default;
 type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;
 type __VLS_TypePropsToRuntimeProps<T> = {

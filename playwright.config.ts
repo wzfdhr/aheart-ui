@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
+import { join } from 'node:path'
 
 const port = process.env.AHEART_E2E_PORT ?? '5173'
+const vitepress = 'node node_modules/vitepress/bin/vitepress.js'
 const comboboxOnly = /combobox\.spec\.ts/
 const qg2Only = /dnd-splitter\.spec\.ts/
 const qg5Only = /cross-browser-production\.spec\.ts/
@@ -43,7 +45,8 @@ export default defineConfig({
     { name: 'mobile-webkit', testMatch: crossBrowserTests, use: { ...devices['iPhone 13'], browserName: 'webkit' } }
   ],
   webServer: {
-    command: `corepack pnpm docs:build && corepack pnpm --dir docs preview --host 127.0.0.1 --port ${port}`,
+    cwd: join(__dirname, 'docs'),
+    command: `${vitepress} build . && ${vitepress} preview . --host 127.0.0.1 --port ${port}`,
     url: `http://127.0.0.1:${port}`,
     reuseExistingServer: false,
     timeout: 120_000
