@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
+import { serveAiAssets, writeAiAssets } from './ai-assets'
 import { getComponentCatalogs, getComponentSidebar, getCoreComponentSidebar } from './data/components'
 import { getProductAreaSidebar } from './data/product-areas'
 
@@ -24,12 +25,14 @@ export default defineConfig({
   description: '面向 Vue 3 AI 产品与专业后台的组件体系',
   srcExclude: ['superpowers/**', 'en/**'],
   lastUpdated: true,
+  buildEnd: ({ outDir }) => writeAiAssets(outDir),
   head: [
     ['meta', { name: 'theme-color', content: '#1677ff' }],
     ['meta', { property: 'og:title', content: 'Aheart UI' }],
     ['meta', { property: 'og:description', content: '从基础组件到 Agent 工作台，构建可靠的 Vue 3 产品界面' }]
   ],
   vite: {
+    plugins: [serveAiAssets()],
     ssr: {
       noExternal: ['@aheart-ui/ai', '@aheart-ui/dnd', '@atlaskit/pragmatic-drag-and-drop']
     }
@@ -58,7 +61,8 @@ export default defineConfig({
             items: [
               { text: 'Motion', link: '/motion/overview' },
               { text: 'DND', link: '/dnd/overview' },
-              { text: 'Icons', link: '/icons/overview' }
+              { text: 'Icons', link: '/icons/overview' },
+              { text: 'AI 接入', link: '/guide/ai-integration' }
             ]
           },
           { text: '工程质量', link: '/guide/quality-matrix' },
@@ -72,6 +76,7 @@ export default defineConfig({
                 { text: '介绍', link: '/guide/introduction' },
                 { text: '安装', link: '/guide/installation' },
                 { text: '使用', link: '/guide/usage' },
+                { text: 'AI 接入', link: '/guide/ai-integration' },
                 { text: '1.2 按需候选', link: '/guide/on-demand' },
                 { text: 'M3 按需迁移', link: '/guide/m3-migration' },
                 { text: '主题 Token', link: '/guide/theme' },

@@ -513,8 +513,8 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         name: 'Table',
         zhName: '表格',
         description: {
-          zh: '展示可扫描和可操作的表格数据。',
-          en: 'Display scannable and actionable tabular data.'
+          zh: '展示表格数据，支持筛选、排序、分页和用于批量操作的行选择。',
+          en: 'Display tabular data with filtering, sorting, pagination, and row selection for bulk actions.'
         },
         status: 'Ready',
         link: { zh: zhLink('table'), en: '/en/components/table' }
