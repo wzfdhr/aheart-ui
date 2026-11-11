@@ -10,6 +10,12 @@ type Fixture = {
 
 const fixtures: Fixture[] = [
   {
+    name: 'Combobox',
+    path: '/components/combobox',
+    trigger: '.aheart-combobox__input',
+    panel: '.aheart-combobox__popup'
+  },
+  {
     name: 'Select',
     path: '/components/select',
     trigger: '.aheart-select__selector',

@@ -193,9 +193,9 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly order: boolean;
     readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly format: string;
+    readonly autoAdjustOverflow: boolean;
     readonly defaultOpen: boolean;
     readonly allowClear: boolean;
-    readonly autoAdjustOverflow: boolean;
     readonly needConfirm: boolean;
     readonly valueFormat: string;
     readonly readOnly: boolean;

@@ -3,14 +3,12 @@ import _sfc_main$1 from "../icon/icon.vue.js";
 import { createTimeOptions, formatTimeValue, parseTimeValue, timePartsToSeconds } from "../picker-core/time.js";
 import { measurePickerOptions, nearestPickerOption, estimatePickerOptionHeight } from "../picker-core/time-column-geometry.js";
 import { createPickerTransaction } from "../picker-core/transaction.js";
-import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
-import { useFloatingPosition } from "../utils/use-floating-position.js";
+import { useFloatingLayer } from "../utils/use-floating-layer.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
 import { useFormControl, mergeAriaIds, formAriaInvalid } from "../form/control-context.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useStableId } from "../utils/use-stable-id.js";
-import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { timeRangePickerProps, timeRangePickerEmits } from "./types.js";
 import { useAheartConfig, zhCN, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = {
@@ -443,11 +441,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         updateActiveDraft(next);
     };
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
-    const teleportReady = useTeleportReady();
-    const popupContainer = computed(() => props.getPopupContainer && triggerRef.value ? props.getPopupContainer(triggerRef.value) : typeof document === "undefined" ? false : document.body);
-    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition({ reference: triggerRef, floating: panelRef, open: () => motion.isMounted.value && motion.phase.value !== "hidden", placement: () => props.placement, strategy: "fixed", offset: 4, autoAdjustOverflow: () => props.autoAdjustOverflow });
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
+      reference: triggerRef,
+      floating: panelRef,
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        open: () => motion.isMounted.value && motion.phase.value !== "hidden",
+        placement: () => props.placement,
+        strategy: "fixed",
+        offset: 4,
+        autoAdjustOverflow: () => props.autoAdjustOverflow
+      },
+      dismiss: {
+        open: mergedOpen,
+        onDismiss: () => requestOpen(false)
+      }
+    });
     const panelClass = computed(() => {
       var _a;
       return [`aheart-floating--${floatingPosition.placement.value}`, `is-${motion.phase.value}`, { "has-presets": (_a = props.presets) == null ? void 0 : _a.length }];
@@ -477,7 +486,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         void nextTick(scrollSelectedOptionsIntoView);
       }
     }, { immediate: true });
-    useFloatingDismiss({ open: mergedOpen, trigger: triggerRef, floating: panelRef, onDismiss: () => requestOpen(false) });
     const activatePart = (part) => {
       activePart.value = part;
       activeColumn.value = "hour";
@@ -679,8 +687,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ])
         ], 544),
         (openBlock(), createBlock(Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: unref(teleportTo),
+          disabled: !unref(shouldTeleport)
         }, [
           unref(motion).isMounted.value ? withDirectives((openBlock(), createElementBlock("div", {
             key: 0,

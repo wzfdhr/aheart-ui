@@ -9,6 +9,7 @@ type ComponentContract = {
 
 const contracts: Record<string, ComponentContract> = {
   form: { route: '/components/form', selector: '.aheart-demo-panel .aheart-form' },
+  combobox: { route: '/components/combobox', selector: '.aheart-demo-panel .aheart-combobox' },
   select: { route: '/components/select', selector: '.aheart-demo-panel .aheart-select' },
   'date-picker': { route: '/components/date-picker', selector: '.vp-doc .aheart-date-picker' },
   'time-picker': { route: '/components/time-picker', selector: '.aheart-demo-panel .aheart-time-picker' },

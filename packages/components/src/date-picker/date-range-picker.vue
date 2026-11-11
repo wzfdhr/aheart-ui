@@ -168,13 +168,11 @@ import { advanceRangeSelection, normalizeRangeValue } from '../picker-core/selec
 import { createPickerTransaction } from '../picker-core/transaction'
 import { getPickerAvailableBlockSize, getPickerStableAvailableBlockSize } from '../picker-core/viewport'
 import type { RangePickerPart, RangePickerValue } from '../picker-core/types'
-import { useFloatingDismiss } from '../utils/use-floating-dismiss'
-import { useFloatingPosition } from '../utils/use-floating-position'
+import { useFloatingLayer } from '../utils/use-floating-layer'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { useStableId } from '../utils/use-stable-id'
-import { useTeleportReady } from '../utils/use-teleport-ready'
 import { dateRangePickerEmits, dateRangePickerProps, type DatePickerCellRenderInfo } from './types'
 
 defineOptions({ name: 'ADateRangePicker' })
@@ -416,23 +414,23 @@ const activeCellId = computed(() => {
 })
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
-const teleportReady = useTeleportReady()
-const popupContainer = computed(() => {
-  if (!triggerRef.value) return false
-  if (props.getPopupContainer) return props.getPopupContainer(triggerRef.value)
-  return typeof document === 'undefined' ? false : document.body
-})
-const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
-const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
-const floatingPosition = useFloatingPosition({
+const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
   reference: triggerRef,
   floating: panelRef,
-  open: () => motion.isMounted.value && motion.phase.value !== 'hidden',
-  placement: () => props.placement,
-  strategy: 'fixed',
-  offset: 4,
-  autoAdjustOverflow: () => props.autoAdjustOverflow,
-  autoUpdateOptions: { ancestorScroll: false, elementResize: typeof globalThis.ResizeObserver !== 'undefined', layoutShift: true, animationFrame: false }
+  getPopupContainer: () => props.getPopupContainer,
+  position: {
+    open: () => motion.isMounted.value && motion.phase.value !== 'hidden',
+    placement: () => props.placement,
+    strategy: 'fixed',
+    offset: 4,
+    autoAdjustOverflow: () => props.autoAdjustOverflow,
+    autoUpdateOptions: { ancestorScroll: false, elementResize: typeof globalThis.ResizeObserver !== 'undefined', layoutShift: true, animationFrame: false }
+  },
+  dismiss: {
+    open: mergedOpen,
+    onDismiss: (reason) => requestOpen(false, reason === 'escape'),
+    restoreFocus: false
+  }
 })
 const viewportAvailableBlockSize = ref<number>()
 const updateViewportAvailableBlockSize = () => {
@@ -527,7 +525,6 @@ watch(mergedValue, () => { if (mergedOpen.value) syncDraft() }, { deep: true })
 watch(() => props.pickerValue, () => {
   if (props.pickerValue) panelDates.value = initialPanelValues()
 }, { deep: true })
-useFloatingDismiss({ open: mergedOpen, trigger: triggerRef, floating: panelRef, onDismiss: (reason) => requestOpen(false, reason === 'escape'), restoreFocus: false })
 
 const activatePart = (part: RangePickerPart) => {
   activePart.value = part

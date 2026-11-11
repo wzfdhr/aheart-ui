@@ -10,6 +10,24 @@ export interface UseRovingFocusOptions<T extends HTMLElement = HTMLElement> {
   preventDefault?: boolean | MaybeRefOrGetter<boolean>
 }
 
+/** Shared traversal for DOM focus and aria-activedescendant controls. */
+export function getNextEnabledKey(
+  entries: readonly { key: string }[],
+  currentKey: string | undefined,
+  key: string,
+  loop = true
+) {
+  if (!entries.length) return undefined
+  if (key === 'Home') return entries[0].key
+  if (key === 'End') return entries[entries.length - 1].key
+  const forward = key === 'ArrowRight' || key === 'ArrowDown'
+  const index = entries.findIndex((item) => item.key === currentKey)
+  if (index < 0) return forward ? entries[0].key : entries[entries.length - 1].key
+  const next = index + (forward ? 1 : -1)
+  if (next >= 0 && next < entries.length) return entries[next].key
+  return loop ? entries[(next + entries.length) % entries.length].key : undefined
+}
+
 export function useRovingFocus<T extends HTMLElement = HTMLElement>(options: UseRovingFocusOptions<T>) {
   const collection = () => toValue(options.collection)
   const orientation = () => toValue(options.orientation) ?? 'both'
@@ -23,16 +41,8 @@ export function useRovingFocus<T extends HTMLElement = HTMLElement>(options: Use
   }
 
   const getNextKey = (currentKey: string | undefined, key: string) => {
-    const entries = collection().getEnabledItems()
-    if (!entries.length || (key !== 'Home' && key !== 'End' && !isDirection(key))) return undefined
-    if (key === 'Home') return entries[0].key
-    if (key === 'End') return entries[entries.length - 1].key
-    const forward = key === 'ArrowRight' || key === 'ArrowDown'
-    const index = entries.findIndex((item) => item.key === currentKey)
-    if (index < 0) return forward ? entries[0].key : entries[entries.length - 1].key
-    const next = index + (forward ? 1 : -1)
-    if (next >= 0 && next < entries.length) return entries[next].key
-    return loops() ? entries[(next + entries.length) % entries.length].key : undefined
+    if (key !== 'Home' && key !== 'End' && !isDirection(key)) return undefined
+    return getNextEnabledKey(collection().getEnabledItems(), currentKey, key, loops())
   }
 
   const focus = (key: string, preventScroll = true) => {

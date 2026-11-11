@@ -1,3 +1,4 @@
+import { Combobox, Combobox as Combobox2 } from "./combobox/index.js";
 import { default as default2 } from "./button/index.js";
 import { default as default3 } from "./cascader/index.js";
 import { default as default4 } from "./config-provider/index.js";
@@ -49,6 +50,7 @@ import { message } from "./message/service.js";
 import { enUS, zhCN } from "./config/context.js";
 import { fromFloatingUIPlacement, getFloatingArrowStaticSide, toFloatingUIPlacement, useFloatingPosition } from "./utils/use-floating-position.js";
 export {
+  Combobox as ACombobox,
   DropdownButton as ADropdownButton,
   FormItem as AFormItem,
   FormList as AFormList,
@@ -65,6 +67,7 @@ export {
   default36 as Checkbox,
   CheckboxGroup,
   Col,
+  Combobox2 as Combobox,
   default4 as ConfigProvider,
   default7 as DatePicker,
   DateRangePicker,

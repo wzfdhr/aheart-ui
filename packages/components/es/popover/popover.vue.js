@@ -1,10 +1,8 @@
 import { defineComponent, useSlots, ref, computed, watch, onBeforeUnmount, openBlock, createElementBlock, normalizeClass, normalizeStyle, createElementVNode, unref, renderSlot, createBlock, Teleport, withDirectives, createCommentVNode, createVNode, vShow } from "vue";
 import { normalizeFloatingTriggers, getFloatingPopupStyle } from "../utils/floating-core.js";
 import "../utils/floating.css.js";
-import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
-import { useFloatingPosition } from "../utils/use-floating-position.js";
+import { useFloatingLayer } from "../utils/use-floating-layer.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
-import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { useStableId } from "../utils/use-stable-id.js";
 import { useTriggerAria } from "../utils/use-trigger-aria.js";
 import { popoverProps, popoverEmits } from "./types.js";
@@ -58,30 +56,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const visible = computed(() => hasPopupContent.value && mergedOpen.value);
     const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
     const motion = useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
-    const teleportReady = useTeleportReady();
     const shouldRenderPopup = computed(() => hasPopupContent.value && motion.isMounted.value);
-    const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
-    const popupContainer = computed(() => {
-      if (props.getPopupContainer && triggerRef.value) {
-        return props.getPopupContainer(triggerRef.value);
-      }
-      return getDefaultPopupContainer();
-    });
-    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition({
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
       reference: triggerRef,
       floating: popupRef,
-      arrow: arrowRef,
-      open: () => shouldRenderPopup.value && motion.phase.value !== "hidden",
-      placement: () => props.placement,
-      offset: 8,
-      alignOffset: () => {
-        var _a;
-        return (_a = props.align) == null ? void 0 : _a.offset;
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        arrow: arrowRef,
+        open: () => shouldRenderPopup.value && motion.phase.value !== "hidden",
+        placement: () => props.placement,
+        offset: 8,
+        alignOffset: () => {
+          var _a;
+          return (_a = props.align) == null ? void 0 : _a.offset;
+        },
+        autoAdjustOverflow: () => props.autoAdjustOverflow,
+        arrowSize: 8
       },
-      autoAdjustOverflow: () => props.autoAdjustOverflow,
-      arrowSize: 8
+      dismiss: {
+        open: visible,
+        onDismiss: () => requestOpen(false)
+      }
     });
     const semanticInfo = computed(() => ({
       open: visible.value,
@@ -239,12 +234,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         requestOpen(true);
       }
     };
-    useFloatingDismiss({
-      open: visible,
-      trigger: triggerRef,
-      floating: popupRef,
-      onDismiss: () => requestOpen(false)
-    });
     onBeforeUnmount(() => {
       clearHoverTimers();
     });
@@ -274,8 +263,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           renderSlot(_ctx.$slots, "default")
         ], 46, _hoisted_1),
         (openBlock(), createBlock(Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: unref(teleportTo),
+          disabled: !unref(shouldTeleport)
         }, [
           shouldRenderPopup.value ? withDirectives((openBlock(), createElementBlock("span", {
             key: 0,

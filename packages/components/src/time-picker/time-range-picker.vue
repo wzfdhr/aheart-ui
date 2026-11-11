@@ -61,14 +61,12 @@ import { createTimeOptions, formatTimeValue, parseTimeValue, timePartsToSeconds,
 import { estimatePickerOptionHeight, measurePickerOptions, nearestPickerOption } from '../picker-core/time-column-geometry'
 import { createPickerTransaction } from '../picker-core/transaction'
 import type { PickerDisabledTimeConfig, RangePickerPart, RangePickerValue } from '../picker-core/types'
-import { useFloatingDismiss } from '../utils/use-floating-dismiss'
-import { useFloatingPosition } from '../utils/use-floating-position'
+import { useFloatingLayer } from '../utils/use-floating-layer'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { useControllableState } from '../utils/use-controllable-state'
 import { formAriaInvalid, mergeAriaIds, useFormControl } from '../form/control-context'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { useStableId } from '../utils/use-stable-id'
-import { useTeleportReady } from '../utils/use-teleport-ready'
 import { timeRangePickerEmits, timeRangePickerProps } from './types'
 
 defineOptions({ name: 'ATimeRangePicker' })
@@ -384,11 +382,22 @@ const selectNow = () => {
 }
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
-const teleportReady = useTeleportReady()
-const popupContainer = computed(() => props.getPopupContainer && triggerRef.value ? props.getPopupContainer(triggerRef.value) : typeof document === 'undefined' ? false : document.body)
-const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
-const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
-const floatingPosition = useFloatingPosition({ reference: triggerRef, floating: panelRef, open: () => motion.isMounted.value && motion.phase.value !== 'hidden', placement: () => props.placement, strategy: 'fixed', offset: 4, autoAdjustOverflow: () => props.autoAdjustOverflow })
+const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
+  reference: triggerRef,
+  floating: panelRef,
+  getPopupContainer: () => props.getPopupContainer,
+  position: {
+    open: () => motion.isMounted.value && motion.phase.value !== 'hidden',
+    placement: () => props.placement,
+    strategy: 'fixed',
+    offset: 4,
+    autoAdjustOverflow: () => props.autoAdjustOverflow
+  },
+  dismiss: {
+    open: mergedOpen,
+    onDismiss: () => requestOpen(false)
+  }
+})
 const panelClass = computed(() => [`aheart-floating--${floatingPosition.placement.value}`, `is-${motion.phase.value}`, { 'has-presets': props.presets?.length }])
 const panelStyle = computed(() => floatingPosition.popupStyle.value)
 const requestOpen = (open: boolean) => {
@@ -409,7 +418,6 @@ watch(mergedOpen, (open) => {
     void nextTick(scrollSelectedOptionsIntoView)
   }
 }, { immediate: true })
-useFloatingDismiss({ open: mergedOpen, trigger: triggerRef, floating: panelRef, onDismiss: () => requestOpen(false) })
 const activatePart = (part: RangePickerPart) => { activePart.value = part; activeColumn.value = 'hour'; requestOpen(true); void nextTick(scrollSelectedOptionsIntoView) }
 const handlePartTabKeydown = (part: RangePickerPart, event: KeyboardEvent) => {
   if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return

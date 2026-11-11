@@ -126,13 +126,11 @@ import AIcon from '../icon/icon.vue'
 import { createTimeOptions, formatTimeValue, parseTimeValue, type PickerTimeParts } from '../picker-core/time'
 import { estimatePickerOptionHeight, measurePickerOptions, nearestPickerOption } from '../picker-core/time-column-geometry'
 import { createPickerTransaction } from '../picker-core/transaction'
-import { useFloatingDismiss } from '../utils/use-floating-dismiss'
-import { useFloatingPosition } from '../utils/use-floating-position'
+import { useFloatingLayer } from '../utils/use-floating-layer'
 import { useMotionPresence } from '../utils/use-motion-presence'
 import { useControllableState } from '../utils/use-controllable-state'
 import { usePropPresence } from '../utils/use-prop-presence'
 import { useStableId } from '../utils/use-stable-id'
-import { useTeleportReady } from '../utils/use-teleport-ready'
 import { timePickerEmits, timePickerProps, type DisabledTimeConfig } from './types'
 
 defineOptions({ name: 'ATimePicker' })
@@ -287,21 +285,21 @@ const isPeriodDisabled = (period: 'AM' | 'PM') => {
 }
 
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 })
-const teleportReady = useTeleportReady()
-const popupContainer = computed(() => {
-  if (props.getPopupContainer && triggerRef.value) return props.getPopupContainer(triggerRef.value)
-  return typeof document === 'undefined' ? false : document.body
-})
-const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
-const teleportTo = computed(() => popupContainer.value === false ? 'body' : popupContainer.value)
-const floatingPosition = useFloatingPosition({
+const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
   reference: triggerRef,
   floating: panelRef,
-  open: () => motion.isMounted.value && motion.phase.value !== 'hidden',
-  placement: () => props.placement,
-  strategy: 'fixed',
-  offset: 4,
-  autoAdjustOverflow: () => props.autoAdjustOverflow
+  getPopupContainer: () => props.getPopupContainer,
+  position: {
+    open: () => motion.isMounted.value && motion.phase.value !== 'hidden',
+    placement: () => props.placement,
+    strategy: 'fixed',
+    offset: 4,
+    autoAdjustOverflow: () => props.autoAdjustOverflow
+  },
+  dismiss: {
+    open: mergedOpen,
+    onDismiss: () => requestOpen(false)
+  }
 })
 const panelClass = computed(() => [
   `aheart-floating--${floatingPosition.placement.value}`,
@@ -498,13 +496,6 @@ const handleKeydown = (event: KeyboardEvent) => {
     confirmValue()
   }
 }
-
-useFloatingDismiss({
-  open: mergedOpen,
-  trigger: triggerRef,
-  floating: panelRef,
-  onDismiss: () => requestOpen(false)
-})
 
 watch(mergedValue, syncDraft)
 watch(mergedOpen, (open) => {

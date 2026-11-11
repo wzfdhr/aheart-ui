@@ -19,6 +19,11 @@
       "import": "./es/button/index.js",
       "require": "./lib/button/index.js"
     },
+    "./combobox": {
+      "types": "./es/combobox/index.d.ts",
+      "import": "./es/combobox/index.js",
+      "require": "./lib/combobox/index.js"
+    },
     "./modal": {
       "types": "./es/modal/index.d.ts",
       "import": "./es/modal/index.js",
@@ -37,6 +42,7 @@
     "./theme.css": "./es/theme.css",
     "./full.css": "./es/full.css",
     "./button/style.css": "./es/button/style.css",
+    "./combobox/style.css": "./es/combobox/style.css",
     "./modal/style.css": "./es/modal/style.css",
     "./select/style.css": "./es/select/style.css",
     "./style.css": "./es/style.css",

@@ -5,6 +5,7 @@ import Button from "./button/index.js";
 import Card, { CardGrid, CardMeta } from "./card/index.js";
 import Cascader from "./cascader/index.js";
 import Checkbox, { CheckboxGroup } from "./checkbox/index.js";
+import { Combobox } from "./combobox/index.js";
 import ConfigProvider from "./config-provider/index.js";
 import Descriptions from "./descriptions/index.js";
 import DatePicker, { DateRangePicker } from "./date-picker/index.js";
@@ -47,6 +48,7 @@ import Upload from "./upload/index.js";
 const components = [
   Button,
   Cascader,
+  Combobox,
   ConfigProvider,
   Space,
   Divider,
@@ -131,6 +133,7 @@ export {
   Checkbox,
   CheckboxGroup,
   Col,
+  Combobox,
   ConfigProvider,
   DatePicker,
   DateRangePicker,

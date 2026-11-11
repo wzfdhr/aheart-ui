@@ -3,13 +3,11 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const controlContext = require("../form/control-context.js");
 const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
-const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
-const useFloatingPosition = require("../utils/use-floating-position.js");
+const useFloatingLayer = require("../utils/use-floating-layer.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const useControllableState = require("../utils/use-controllable-state.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
 const useStableId = require("../utils/use-stable-id.js");
-const useTeleportReady = require("../utils/use-teleport-ready.js");
 const useSelectVirtual = require("./use-select-virtual.js");
 const types = require("./types.js");
 const context = require("../config/context.js");
@@ -174,23 +172,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
       return option && mergedOpen.value ? getOptionId(option) : void 0;
     });
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
-    const teleportReady = useTeleportReady.useTeleportReady();
-    const popupContainer = vue.computed(() => {
-      var _a;
-      if (props.getPopupContainer && selectorRef.value)
-        return props.getPopupContainer(selectorRef.value);
-      return ((_a = selectorRef.value) == null ? void 0 : _a.ownerDocument.body) ?? false;
-    });
-    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition.useFloatingPosition({
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer.useFloatingLayer({
       reference: selectorRef,
       floating: popupRef,
-      open: mergedOpen,
-      placement: () => props.placement,
-      strategy: "fixed",
-      offset: 4,
-      autoAdjustOverflow: () => props.autoAdjustOverflow
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        open: mergedOpen,
+        placement: () => props.placement,
+        strategy: "fixed",
+        offset: 4,
+        autoAdjustOverflow: () => props.autoAdjustOverflow
+      },
+      dismiss: {
+        open: mergedOpen,
+        ignoreEscape: isComposing,
+        onDismiss: () => closePopup()
+      }
     });
     const selectClass = vue.computed(() => [
       props.className,
@@ -428,13 +425,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         closePopup();
       });
     };
-    useFloatingDismiss.useFloatingDismiss({
-      open: mergedOpen,
-      trigger: selectorRef,
-      floating: popupRef,
-      ignoreEscape: isComposing,
-      onDismiss: () => closePopup()
-    });
     vue.watch(filteredOptions, () => {
       if (mergedOpen.value)
         setInitialActive();
@@ -626,8 +616,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         ], 16, _hoisted_1),
         _ctx.loading ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_8, vue.toDisplayString(resolvedLoadingText.value), 1)) : vue.createCommentVNode("", true),
         (vue.openBlock(), vue.createBlock(vue.Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: vue.unref(teleportTo),
+          disabled: !vue.unref(shouldTeleport)
         }, [
           vue.unref(motion).isMounted.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
             key: 0,

@@ -408,6 +408,17 @@ const categoryDefinitions: ComponentCategoryDefinition[] = [
         link: { zh: zhLink('switch'), en: '/en/components/switch' }
       },
       {
+        key: 'combobox',
+        name: 'Combobox',
+        zhName: '输入选择框',
+        description: {
+          zh: '输入文字筛选候选项并选择一个值。',
+          en: 'Filter suggestions by typing and choose a single value.'
+        },
+        status: 'Ready',
+        link: { zh: zhLink('combobox') }
+      },
+      {
         key: 'select',
         name: 'Select',
         zhName: '选择器',
@@ -753,7 +764,7 @@ const componentDomainDefinitions: ComponentDomainDefinition[] = [
     description: { zh: '录入、选择、校验并提交业务数据。', en: 'Enter, select, validate, and submit business data.' },
     taskGroup: { zh: '采集与选择', en: 'Collection and selection' },
     componentKeys: [
-      'input', 'textarea', 'input-number', 'select', 'checkbox', 'radio', 'switch', 'date-picker', 'time-picker',
+      'input', 'textarea', 'input-number', 'combobox', 'select', 'checkbox', 'radio', 'switch', 'date-picker', 'time-picker',
       'cascader', 'tree-select', 'upload', 'form'
     ]
   },

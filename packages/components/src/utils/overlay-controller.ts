@@ -42,6 +42,13 @@ const isEscapeEnabled = (record: OverlayRecord) =>
 
 const getElement = (getter: (() => Element | null | undefined) | undefined) => getter?.() ?? null
 
+/** Restore focus only while it is unassigned or still belongs to the closing layer. */
+export const canRestoreOverlayFocus = (ownerDocument: Document, previous?: Element | null, content?: Element | null) => {
+  const active = ownerDocument.activeElement
+  return !active || active === previous || active === ownerDocument.body || active === ownerDocument.documentElement ||
+    content?.contains(active) === true
+}
+
 export const getRecentPointerTarget = (ownerDocument: Document = document, maxAge = 500) => {
   const recent = recentPointerTargets.get(ownerDocument)
   return recent && Date.now() - recent.recordedAt <= maxAge ? recent.target : null

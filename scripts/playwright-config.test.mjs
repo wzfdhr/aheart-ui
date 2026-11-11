@@ -41,9 +41,10 @@ test('runs the QG5 production suite in Firefox, desktop WebKit, and mobile WebKi
     assert.match(configSource, new RegExp(String.raw`\{\s*name:\s*'${project}'\s*,\s*use:`))
   }
 
+  assert.ok(configSource.includes('const comboboxOnly = /combobox\\.spec\\.ts/'))
   assert.match(configSource, /const d7DndOnly = \/d7-dnd\\.spec\\.ts\//)
   assert.match(configSource, /const d8AiOnly = \/d8-ai\\.spec\\.ts\//)
-  assert.match(configSource, /const crossBrowserTests = \[qg2Only, qg5Only, qg5R1Only, formEngineOnly, formListOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d4TreeVirtualOnly, d4TreeSelectVirtualOnly, d4CascaderVirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly\]/)
+  assert.match(configSource, /const crossBrowserTests = \[comboboxOnly, qg2Only, qg5Only, qg5R1Only, formEngineOnly, formListOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d4TreeVirtualOnly, d4TreeSelectVirtualOnly, d4CascaderVirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly\]/)
   assert.ok(configSource.includes('const d5TableOnly = /d5-table-pagination\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d5TableBOnly = /d5-table-b\\.spec\\.ts/'))
   assert.ok(configSource.includes('const d5TableCOnly = /d5-table-c\\.spec\\.ts/'))

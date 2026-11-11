@@ -68,10 +68,8 @@
 import { computed, defineComponent, onBeforeUnmount, ref, useSlots, watch, type PropType } from 'vue'
 import { getFloatingPopupStyle, normalizeFloatingTriggers, type FloatingPlacement } from '../utils/floating-core'
 import '../utils/floating.css'
-import { useFloatingDismiss } from '../utils/use-floating-dismiss'
-import { useFloatingPosition } from '../utils/use-floating-position'
+import { useFloatingLayer } from '../utils/use-floating-layer'
 import { useMotionPresence } from '../utils/use-motion-presence'
-import { useTeleportReady } from '../utils/use-teleport-ready'
 import { useStableId } from '../utils/use-stable-id'
 import { useTriggerAria } from '../utils/use-trigger-aria'
 import {
@@ -130,28 +128,24 @@ const hasPopupContent = computed(() => hasTitle.value || hasContent.value)
 const visible = computed(() => hasPopupContent.value && mergedOpen.value)
 const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.destroyTooltipOnHide)
 const motion = useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 })
-const teleportReady = useTeleportReady()
 const shouldRenderPopup = computed(() => hasPopupContent.value && motion.isMounted.value)
-const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
-const popupContainer = computed(() => {
-  if (props.getPopupContainer && triggerRef.value) {
-    return props.getPopupContainer(triggerRef.value)
-  }
-
-  return getDefaultPopupContainer()
-})
-const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
-const teleportTo = computed(() => (popupContainer.value === false ? 'body' : popupContainer.value))
-const floatingPosition = useFloatingPosition({
+const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
   reference: triggerRef,
   floating: popupRef,
-  arrow: arrowRef,
-  open: () => shouldRenderPopup.value && motion.phase.value !== 'hidden',
-  placement: () => props.placement,
-  offset: 8,
-  alignOffset: () => props.align?.offset,
-  autoAdjustOverflow: () => props.autoAdjustOverflow,
-  arrowSize: 8
+  getPopupContainer: () => props.getPopupContainer,
+  position: {
+    arrow: arrowRef,
+    open: () => shouldRenderPopup.value && motion.phase.value !== 'hidden',
+    placement: () => props.placement,
+    offset: 8,
+    alignOffset: () => props.align?.offset,
+    autoAdjustOverflow: () => props.autoAdjustOverflow,
+    arrowSize: 8
+  },
+  dismiss: {
+    open: visible,
+    onDismiss: () => requestOpen(false)
+  }
 })
 const semanticInfo = computed<PopoverSemanticInfo>(() => ({
   open: visible.value,
@@ -328,13 +322,6 @@ const handleContextmenu = (event: MouseEvent) => {
     requestOpen(true)
   }
 }
-
-useFloatingDismiss({
-  open: visible,
-  trigger: triggerRef,
-  floating: popupRef,
-  onDismiss: () => requestOpen(false)
-})
 
 onBeforeUnmount(() => {
   clearHoverTimers()

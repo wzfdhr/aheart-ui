@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const port = process.env.AHEART_E2E_PORT ?? '5173'
+const comboboxOnly = /combobox\.spec\.ts/
 const qg2Only = /dnd-splitter\.spec\.ts/
 const qg5Only = /cross-browser-production\.spec\.ts/
 const qg5R1Only = /cross-browser-r1\.spec\.ts/
@@ -18,7 +19,7 @@ const d5TableCOnly = /d5-table-c\.spec\.ts/
 const d6PickerUploadOnly = /d6-picker-upload\.spec\.ts/
 const d7DndOnly = /d7-dnd\.spec\.ts/
 const d8AiOnly = /d8-ai\.spec\.ts/
-const crossBrowserTests = [qg2Only, qg5Only, qg5R1Only, formEngineOnly, formListOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d4TreeVirtualOnly, d4TreeSelectVirtualOnly, d4CascaderVirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly]
+const crossBrowserTests = [comboboxOnly, qg2Only, qg5Only, qg5R1Only, formEngineOnly, formListOnly, d4IframeOnly, d4SelectionOnly, d4VirtualOnly, d4TreeVirtualOnly, d4TreeSelectVirtualOnly, d4CascaderVirtualOnly, d5TableOnly, d5TableBOnly, d5TableCOnly, d6PickerUploadOnly, d7DndOnly, d8AiOnly]
 const skipQG5 = process.env.AHEART_E2E_SKIP_QG5 === '1'
 const firefoxLaunchOptions = { firefoxUserPrefs: { 'network.proxy.type': 0 } }
 

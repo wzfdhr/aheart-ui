@@ -67,3 +67,21 @@ export type M1ExportTypes = [
 app.use(FullPlugin).use(SubpathButton).use(SubpathModal).use(SubpathSelect)
 const m1Props: [Partial<ButtonProps>, Partial<ModalProps>, Partial<SelectProps>] = [{}, {}, {}]
 void m1Props
+
+// Combobox's root aliases and logical entry share the same typed single-value API.
+import { Combobox, ACombobox } from 'aheart-ui'
+import SubpathCombobox, { Combobox as NamedCombobox, type ComboboxProps } from 'aheart-ui/combobox'
+export type ComboboxExportTypes = [
+  Assert<Equal<typeof Combobox, typeof ACombobox>>,
+  Assert<Equal<typeof Combobox, typeof SubpathCombobox>>,
+  Assert<Equal<typeof Combobox, typeof NamedCombobox>>
+]
+app.use(SubpathCombobox)
+const comboboxProps: ComboboxProps = { options: [{ label: 'One', value: 1 }], modelValue: 1 }
+const publicComboboxProps: InstanceType<typeof Combobox>['$props'] = {
+  ...comboboxProps,
+  'onUpdate:modelValue': (value) => { const selected: string | number | undefined = value; void selected }
+}
+// @ts-expect-error Combobox accepts one primitive selection.
+const invalidCombobox: ComboboxProps = { options: [], modelValue: [1] }
+void [publicComboboxProps, invalidCombobox]

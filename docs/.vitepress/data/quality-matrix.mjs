@@ -11,13 +11,13 @@ const componentKeys = [
   'button', 'config-provider', 'icon', 'typography', 'space', 'divider', 'splitter', 'flex', 'grid',
   'tabs', 'breadcrumb', 'dropdown', 'menu', 'steps', 'input', 'date-picker', 'time-picker', 'upload',
   'tree', 'tree-select', 'cascader', 'dnd', 'textarea', 'input-number', 'checkbox', 'radio', 'switch',
-  'select', 'form', 'tag', 'badge', 'card', 'empty', 'descriptions', 'table', 'pagination', 'alert',
+  'combobox', 'select', 'form', 'tag', 'badge', 'card', 'empty', 'descriptions', 'table', 'pagination', 'alert',
   'message', 'modal', 'drawer', 'tooltip', 'popover', 'popconfirm', 'spin', 'skeleton', 'ai', 'ai-form',
   'ai-agent-workbench'
 ]
 
 const r1 = new Set([
-  'form', 'select', 'date-picker', 'time-picker', 'upload', 'table', 'tree', 'tree-select', 'cascader',
+  'form', 'combobox', 'select', 'date-picker', 'time-picker', 'upload', 'table', 'tree', 'tree-select', 'cascader',
   'dropdown', 'message', 'modal', 'drawer', 'tooltip', 'popover', 'popconfirm', 'splitter', 'dnd',
   'ai', 'ai-form', 'ai-agent-workbench'
 ])
@@ -31,7 +31,7 @@ const taskGroups = [
   ['布局与操作', ['button', 'space', 'flex', 'grid', 'divider']],
   ['路径与进度', ['menu', 'tabs', 'breadcrumb', 'steps', 'dropdown']],
   ['采集与选择', [
-    'input', 'textarea', 'input-number', 'select', 'checkbox', 'radio', 'switch', 'date-picker', 'time-picker',
+    'input', 'textarea', 'input-number', 'combobox', 'select', 'checkbox', 'radio', 'switch', 'date-picker', 'time-picker',
     'cascader', 'tree-select', 'upload', 'form'
   ]],
   ['呈现与状态', ['table', 'pagination', 'tree', 'descriptions', 'card', 'tag', 'badge', 'empty', 'spin', 'skeleton', 'alert']],
@@ -69,6 +69,7 @@ const acceptanceByComponent = {
   checkbox: '单项与分组选择后值同步；全选、半选、禁用和受控拒绝状态正确。',
   radio: '点击或键盘选择单项后组值唯一；禁用选项不可选且焦点状态清晰。',
   switch: '点击与空格切换后别名值正确；加载、禁用和受控拒绝不产生乐观漂移。',
+  combobox: '输入文字筛选候选项后可单选；方向键跳过禁用项，Enter 选中，Escape 和 Tab 关闭并保持原生焦点。',
   select: '搜索并选择选项后标签和值一致；多选移除、清除、加载和键盘关闭可完成。',
   form: '填写嵌套字段并提交后依赖及异步校验正确；服务端字段错误可修正重试，卸载与重置结果可观察。',
   tag: '标签内容、颜色与可关闭状态正确呈现；关闭失败或禁用时不意外移除。',
@@ -133,7 +134,9 @@ const evidenceFor = (component) => ({
   unit: [file(component === 'dnd' ? 'packages/dnd/src/__tests__/dnd.test.ts' : aiUnit[component] ?? `packages/components/src/${component}/__tests__/${component}.test.ts`)],
   e2e: e2eEvidenceFor(component),
   ssr: [ssrFor(component) ? file(ssrFor(component)) : deferred('QG6', 'QG6 建立消费端 SSR 契约；当前明确记录为延期，不将 SSR 覆盖误标为不适用。')],
-  a11y: qg4EvidenceFor(component, 'a11y'),
+  a11y: component === 'combobox'
+    ? [planned('QG4', 'Combobox 正式 QG4 归档待补齐；基础 axe 与键盘回归已由 combobox.spec.ts 覆盖。')]
+    : qg4EvidenceFor(component, 'a11y'),
   visual: qg4EvidenceFor(component, 'visual'),
   owner: '质量工程组'
 })

@@ -1,12 +1,10 @@
 import { defineComponent, ref, computed, watch, useAttrs, onBeforeUnmount, nextTick, openBlock, createElementBlock, normalizeClass, createElementVNode, Fragment, renderList, toDisplayString, withModifiers, createVNode, createCommentVNode, createBlock, Teleport, unref, withDirectives, normalizeStyle, vModelText, withCtx, vShow } from "vue";
 import _sfc_main$1 from "../icon/icon.vue.js";
-import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
-import { useFloatingPosition } from "../utils/use-floating-position.js";
+import { useFloatingLayer } from "../utils/use-floating-layer.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
 import { useStableId } from "../utils/use-stable-id.js";
-import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { usePopupViewportBudget } from "../utils/use-popup-viewport-budget.js";
 import _sfc_main$2 from "./cascader-virtual-list.vue.js";
 import { normalizeCascaderVirtual } from "./virtual-options.js";
@@ -890,24 +888,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     onBeforeUnmount(invalidateLoads);
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
-    const teleportReady = useTeleportReady();
-    const popupContainer = computed(() => {
-      var _a;
-      if (props.getPopupContainer && triggerRef.value)
-        return props.getPopupContainer(triggerRef.value);
-      return ((_a = triggerRef.value) == null ? void 0 : _a.ownerDocument.body) ?? false;
-    });
-    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition({
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
       reference: triggerRef,
       floating: panelRef,
-      open: () => !props.disabled && motion.isMounted.value && motion.phase.value !== "hidden",
-      placement: () => props.placement,
-      strategy: "fixed",
-      offset: 4,
-      autoAdjustOverflow: () => props.autoAdjustOverflow,
-      autoUpdateOptions: { elementResize: false }
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        open: () => !props.disabled && motion.isMounted.value && motion.phase.value !== "hidden",
+        placement: () => props.placement,
+        strategy: "fixed",
+        offset: 4,
+        autoAdjustOverflow: () => props.autoAdjustOverflow,
+        autoUpdateOptions: { elementResize: false }
+      },
+      dismiss: {
+        open: mergedOpen,
+        onDismiss: () => requestOpen(false)
+      }
     });
     const viewportBudget = usePopupViewportBudget({
       trigger: triggerRef,
@@ -941,12 +937,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         maxBlockSize: `${viewportBudget.value.popupHeight}px`
       } : void 0
     ]);
-    useFloatingDismiss({
-      open: mergedOpen,
-      trigger: triggerRef,
-      floating: panelRef,
-      onDismiss: () => requestOpen(false)
-    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         ref_key: "rootRef",
@@ -1015,8 +1005,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           })
         ], 40, _hoisted_1),
         (openBlock(), createBlock(Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: unref(teleportTo),
+          disabled: !unref(shouldTeleport)
         }, [
           unref(motion).isMounted.value ? withDirectives((openBlock(), createElementBlock("div", {
             key: 0,

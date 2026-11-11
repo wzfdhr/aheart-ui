@@ -3,10 +3,8 @@ Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toString
 const vue = require("vue");
 const floatingCore = require("../utils/floating-core.js");
 require("../utils/floating.css.js");
-const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
-const useFloatingPosition = require("../utils/use-floating-position.js");
+const useFloatingLayer = require("../utils/use-floating-layer.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
-const useTeleportReady = require("../utils/use-teleport-ready.js");
 const useStableId = require("../utils/use-stable-id.js");
 const useTriggerAria = require("../utils/use-trigger-aria.js");
 const types = require("./types.js");
@@ -53,30 +51,27 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
     const visible = vue.computed(() => hasTitle.value && mergedOpen.value);
     const shouldDestroyOnHidden = vue.computed(() => props.destroyOnHidden || props.destroyTooltipOnHide);
     const motion = useMotionPresence.useMotionPresence(visible, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 });
-    const teleportReady = useTeleportReady.useTeleportReady();
     const shouldRenderPopup = vue.computed(() => hasTitle.value && motion.isMounted.value);
-    const getDefaultPopupContainer = () => typeof document === "undefined" ? false : document.body;
-    const popupContainer = vue.computed(() => {
-      if (props.getPopupContainer && triggerRef.value) {
-        return props.getPopupContainer(triggerRef.value);
-      }
-      return getDefaultPopupContainer();
-    });
-    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition.useFloatingPosition({
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer.useFloatingLayer({
       reference: triggerRef,
       floating: popupRef,
-      arrow: arrowRef,
-      open: () => shouldRenderPopup.value && motion.phase.value !== "hidden",
-      placement: () => props.placement,
-      offset: 8,
-      alignOffset: () => {
-        var _a;
-        return (_a = props.align) == null ? void 0 : _a.offset;
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        arrow: arrowRef,
+        open: () => shouldRenderPopup.value && motion.phase.value !== "hidden",
+        placement: () => props.placement,
+        offset: 8,
+        alignOffset: () => {
+          var _a;
+          return (_a = props.align) == null ? void 0 : _a.offset;
+        },
+        autoAdjustOverflow: () => props.autoAdjustOverflow,
+        arrowSize: 8
       },
-      autoAdjustOverflow: () => props.autoAdjustOverflow,
-      arrowSize: 8
+      dismiss: {
+        open: visible,
+        onDismiss: () => requestOpen(false)
+      }
     });
     const semanticInfo = vue.computed(() => ({
       open: visible.value,
@@ -216,12 +211,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         requestOpen(true);
       }
     };
-    useFloatingDismiss.useFloatingDismiss({
-      open: visible,
-      trigger: triggerRef,
-      floating: popupRef,
-      onDismiss: () => requestOpen(false)
-    });
     vue.onBeforeUnmount(clearTimers);
     return (_ctx, _cache) => {
       return vue.openBlock(), vue.createElementBlock("span", {
@@ -248,8 +237,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           vue.renderSlot(_ctx.$slots, "default")
         ], 46, _hoisted_1),
         (vue.openBlock(), vue.createBlock(vue.Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: vue.unref(teleportTo),
+          disabled: !vue.unref(shouldTeleport)
         }, [
           shouldRenderPopup.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("span", {
             key: 0,

@@ -2,8 +2,7 @@ import { defineComponent, useSlots, getCurrentInstance, computed, ref, inject, p
 import Skeleton from "../skeleton/index.js";
 import { usePointerDrag } from "../utils/use-pointer-drag.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
-import { useTeleportReady } from "../utils/use-teleport-ready.js";
-import { getRecentPointerTarget, prepareOverlayDocument, isTopmost, registerOverlay, lockBodyScroll, refreshOverlayStack, unregisterOverlay, unlockBodyScroll } from "../utils/overlay-controller.js";
+import { useDialogLayer } from "../utils/use-dialog-layer.js";
 import { drawerProps, drawerEmits } from "./types.js";
 const _hoisted_1 = ["aria-hidden"];
 const _hoisted_2 = ["aria-label", "aria-labelledby"];
@@ -61,52 +60,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       '[tabindex]:not([tabindex="-1"])'
     ].join(",");
     const dialogLabel = computed(() => typeof props.title === "string" || typeof props.title === "number" ? String(props.title) : void 0);
-    const triggerElement = ref(null);
     const panelRef = ref(null);
-    const leaveFocusElement = ref(null);
     const titleId = `aheart-drawer-title-${(instance == null ? void 0 : instance.uid) ?? "dialog"}`;
     let pendingCloseCompletion = false;
-    let overlayRegistered = false;
     const drawerId = Symbol("ADrawer");
-    let overlayDocument = null;
-    const effectiveZIndex = ref(props.zIndex);
     const resizedSize = ref();
     const resizeStart = ref(null);
-    const getDrawerDocument = () => {
-      var _a, _b;
-      const target = teleportTarget.value;
-      return ((_a = panelRef.value) == null ? void 0 : _a.ownerDocument) ?? ((_b = triggerElement.value) == null ? void 0 : _b.ownerDocument) ?? (typeof target === "object" && target ? target.ownerDocument : document);
-    };
-    const isDrawerTopmost = () => isTopmost(drawerId, overlayDocument ?? getDrawerDocument());
-    const registerDrawerOverlay = () => {
-      if (overlayRegistered)
-        return;
-      const ownerDocument = getDrawerDocument();
-      registerOverlay({
-        id: drawerId,
-        document: ownerDocument,
-        getTrigger: () => triggerElement.value,
-        getContent: () => panelRef.value,
-        escapeEnabled: () => props.open && props.keyboard,
-        getBaseZIndex: () => props.zIndex,
-        onZIndexChange: (zIndex) => {
-          effectiveZIndex.value = zIndex;
-        },
-        onEscape: close
-      });
-      lockBodyScroll(ownerDocument);
-      overlayDocument = ownerDocument;
-      overlayRegistered = true;
-    };
-    const unregisterDrawerOverlay = () => {
-      if (!overlayRegistered)
-        return;
-      const ownerDocument = overlayDocument ?? getDrawerDocument();
-      unregisterOverlay(drawerId, ownerDocument);
-      unlockBodyScroll(ownerDocument);
-      overlayDocument = null;
-      overlayRegistered = false;
-    };
     const parentPushContext = inject(DRAWER_PUSH_CONTEXT, null);
     const openChildDrawers = ref(/* @__PURE__ */ new Map());
     const setChildOpen = (id, open) => {
@@ -137,17 +96,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       }
       return negative ? `calc(0px - ${distance})` : distance;
     };
-    const getDefaultContainer = () => typeof document === "undefined" ? false : document.body;
-    const resolvedContainer = computed(() => props.getContainer ?? getDefaultContainer());
-    const teleportTarget = computed(() => {
-      const container = resolvedContainer.value;
-      if (typeof window === "undefined" && typeof container === "function")
-        return false;
-      return typeof container === "function" ? container() : container;
+    const layer = useDialogLayer({
+      id: drawerId,
+      content: panelRef,
+      getContainer: () => props.getContainer,
+      getZIndex: () => props.zIndex,
+      escapeEnabled: () => props.open && props.keyboard,
+      onEscape: () => close()
     });
-    const teleportReady = useTeleportReady();
-    const shouldTeleport = computed(() => teleportReady.value && teleportTarget.value !== false);
-    const teleportTo = computed(() => teleportTarget.value === false ? "body" : teleportTarget.value);
+    const { effectiveZIndex, shouldTeleport, teleportTo } = layer;
     const isVertical = computed(() => props.placement === "top" || props.placement === "bottom");
     const hasOpenChildDrawer = computed(() => openChildDrawers.value.size > 0);
     const pushConfig = computed(() => typeof props.push === "object" && props.push !== null ? props.push : void 0);
@@ -333,53 +290,36 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     watch(
       () => props.open,
       (open, previousOpen) => {
-        var _a, _b;
         if (open && !previousOpen) {
           pendingCloseCompletion = false;
-          leaveFocusElement.value = null;
           if (motion.phase.value === "hidden")
-            captureTriggerElement();
-          registerDrawerOverlay();
+            layer.captureTrigger();
+          layer.register();
           emit("afterOpenChange", true);
         }
         if (!open) {
           pendingCloseCompletion = true;
-          const ownerDocument = overlayDocument ?? getDrawerDocument();
-          const activeElement = ownerDocument.activeElement;
-          const HTMLElementConstructor = (_a = ownerDocument.defaultView) == null ? void 0 : _a.HTMLElement;
-          leaveFocusElement.value = HTMLElementConstructor && activeElement instanceof HTMLElementConstructor && ((_b = panelRef.value) == null ? void 0 : _b.contains(activeElement)) ? activeElement : null;
-          void nextTick(() => {
-            if (motion.phase.value === "leave" && leaveFocusElement.value && ownerDocument.contains(leaveFocusElement.value)) {
-              leaveFocusElement.value.focus();
-            }
-          });
+          layer.captureFocusBeforeClose(() => motion.phase.value === "leave");
         }
       },
       { flush: "sync" }
     );
     watch(
-      () => props.zIndex,
-      (zIndex) => {
-        if (overlayRegistered)
-          refreshOverlayStack(overlayDocument ?? getDrawerDocument());
-        else
-          effectiveZIndex.value = zIndex;
-      }
-    );
-    watch(
       () => motion.phase.value,
       (phase) => {
         if (phase === "entered" && props.open) {
-          if (isDrawerTopmost())
+          if (layer.isTopmost())
             void nextTick(() => focusPanel());
           return;
         }
         if (phase === "hidden" && !props.open && pendingCloseCompletion) {
-          unregisterDrawerOverlay();
+          layer.unregister();
           pendingCloseCompletion = false;
           emit("afterOpenChange", false);
-          void nextTick(() => restoreTriggerFocus());
-          leaveFocusElement.value = null;
+          void nextTick(() => {
+            if (!props.open)
+              layer.restoreTriggerFocus(shouldFocusTriggerAfterClose.value);
+          });
         }
       }
     );
@@ -392,10 +332,9 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     );
     onBeforeMount(() => {
       if (props.open)
-        registerDrawerOverlay();
+        layer.register();
     });
     onBeforeUnmount(() => {
-      unregisterDrawerOverlay();
       parentPushContext == null ? void 0 : parentPushContext.setChildOpen(drawerId, false);
     });
     const resolveSemanticConfig = (config, part) => {
@@ -404,20 +343,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const semanticClass = (part) => resolveSemanticConfig(props.classNames, part);
     const semanticStyle = (part) => resolveSemanticConfig(props.styles, part);
-    const captureTriggerElement = () => {
-      var _a;
-      const ownerDocument = getDrawerDocument();
-      const HTMLElementConstructor = (_a = ownerDocument.defaultView) == null ? void 0 : _a.HTMLElement;
-      const pointerTarget = getRecentPointerTarget(ownerDocument);
-      triggerElement.value = HTMLElementConstructor && pointerTarget instanceof HTMLElementConstructor ? pointerTarget : HTMLElementConstructor && ownerDocument.activeElement instanceof HTMLElementConstructor ? ownerDocument.activeElement : null;
-    };
-    const restoreTriggerFocus = () => {
-      const target = triggerElement.value;
-      if (!shouldFocusTriggerAfterClose.value || !target || !target.ownerDocument.contains(target)) {
-        return;
-      }
-      target.focus();
-    };
     const isFocusableElementAvailable = (element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true" && element.tabIndex >= 0 && !(element.tagName === "INPUT" && element.type === "hidden");
     const getFocusableElements = () => {
       const panel = panelRef.value;
@@ -427,7 +352,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return Array.from(panel.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isFocusableElementAvailable);
     };
     const focusPanel = () => {
-      if (!props.open || !isDrawerTopmost()) {
+      if (!props.open || !layer.isTopmost()) {
         return;
       }
       const panel = panelRef.value;
@@ -435,15 +360,15 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       target == null ? void 0 : target.focus();
     };
     onMounted(() => {
-      prepareOverlayDocument(getDrawerDocument());
+      layer.prepare();
       if (!props.open) {
         return;
       }
-      captureTriggerElement();
+      layer.captureTrigger();
       focusPanel();
     });
     const handleTrapTab = (event) => {
-      if (!props.open || !isDrawerTopmost() || !shouldTrapFocus.value || event.key !== "Tab") {
+      if (!props.open || !layer.isTopmost() || !shouldTrapFocus.value || event.key !== "Tab") {
         return;
       }
       const panel = panelRef.value;
@@ -545,8 +470,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     const handleKeydown = (event) => {
       handleTrapTab(event);
-      const ownerDocument = overlayDocument ?? getDrawerDocument();
-      if (!event.composedPath().includes(ownerDocument) && props.open && props.keyboard && event.key === "Escape" && isDrawerTopmost()) {
+      const ownerDocument = layer.getActiveDocument();
+      if (!event.composedPath().includes(ownerDocument) && props.open && props.keyboard && event.key === "Escape" && layer.isTopmost()) {
         event.preventDefault();
         event.stopPropagation();
         close();
@@ -554,8 +479,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
     return (_ctx, _cache) => {
       return openBlock(), createBlock(Teleport, {
-        to: teleportTo.value,
-        disabled: !shouldTeleport.value
+        to: unref(teleportTo),
+        disabled: !unref(shouldTeleport)
       }, [
         unref(shouldRender) ? withDirectives((openBlock(), createElementBlock("div", {
           key: 0,

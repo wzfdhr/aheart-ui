@@ -6,6 +6,7 @@ function useFloatingDismiss(options) {
   const overlayId = Symbol("aheart-floating-overlay");
   let unregister;
   let restoreZIndex;
+  let disposed = false;
   const cleanup = () => {
     unregister == null ? void 0 : unregister();
     unregister = void 0;
@@ -66,24 +67,28 @@ function useFloatingDismiss(options) {
           options.onDismiss("outside", event);
       },
       onEscape: (event) => {
+        const previousFocus = ownerDocument.activeElement;
         options.onDismiss("escape", event);
-        if (vue.toValue(options.restoreFocus) !== false) {
-          void vue.nextTick(() => {
-            var _a2;
-            if (!vue.toValue(options.open)) {
+        if (vue.toValue(options.restoreFocus) === false)
+          return;
+        const isClosed = () => !disposed && !vue.toValue(options.open);
+        void vue.nextTick(() => {
+          var _a2;
+          if (!isClosed() || !overlayController.canRestoreOverlayFocus(ownerDocument, previousFocus, floatingElement))
+            return;
+          focusTrigger();
+          (_a2 = ownerDocument.defaultView) == null ? void 0 : _a2.requestAnimationFrame(() => {
+            if (isClosed() && overlayController.canRestoreOverlayFocus(ownerDocument, void 0, floatingElement))
               focusTrigger();
-              const ownerWindow = (_a2 = vue.toValue(options.trigger)) == null ? void 0 : _a2.ownerDocument.defaultView;
-              ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame(() => {
-                if (!vue.toValue(options.open))
-                  focusTrigger();
-              });
-            }
           });
-        }
+        });
       }
     });
     onCleanup(cleanup);
   });
-  vue.onScopeDispose(cleanup);
+  vue.onScopeDispose(() => {
+    disposed = true;
+    cleanup();
+  });
 }
 exports.useFloatingDismiss = useFloatingDismiss;

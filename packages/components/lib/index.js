@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperties(exports, { __esModule: { value: true }, [Symbol.toStringTag]: { value: "Module" } });
+const combobox_index = require("./combobox/index.js");
 const button_index = require("./button/index.js");
 const index = require("./cascader/index.js");
 const index$1 = require("./config-provider/index.js");
@@ -50,6 +51,8 @@ const plugin = require("./plugin.js");
 const service = require("./message/service.js");
 const context = require("./config/context.js");
 const useFloatingPosition = require("./utils/use-floating-position.js");
+exports.ACombobox = combobox_index.Combobox;
+exports.Combobox = combobox_index.Combobox;
 exports.Button = button_index.default;
 exports.Cascader = index.default;
 exports.ConfigProvider = index$1.default;

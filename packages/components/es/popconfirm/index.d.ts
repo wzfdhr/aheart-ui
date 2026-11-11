@@ -99,10 +99,10 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly okText: string;
         readonly cancelText: string;
         readonly arrow: import("./types").PopconfirmArrow;
-        readonly defaultOpen: boolean;
         readonly autoAdjustOverflow: boolean;
-        readonly destroyOnHidden: boolean;
         readonly trigger: import("..").FloatingTriggerProp;
+        readonly defaultOpen: boolean;
+        readonly destroyOnHidden: boolean;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly destroyTooltipOnHide: boolean;
@@ -210,10 +210,10 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
         readonly okText: string;
         readonly cancelText: string;
         readonly arrow: import("./types").PopconfirmArrow;
-        readonly defaultOpen: boolean;
         readonly autoAdjustOverflow: boolean;
-        readonly destroyOnHidden: boolean;
         readonly trigger: import("..").FloatingTriggerProp;
+        readonly defaultOpen: boolean;
+        readonly destroyOnHidden: boolean;
         readonly mouseEnterDelay: number;
         readonly mouseLeaveDelay: number;
         readonly destroyTooltipOnHide: boolean;
@@ -324,10 +324,10 @@ declare const Popconfirm: import("../utils/install").SFCWithInstall<{
     readonly okText: string;
     readonly cancelText: string;
     readonly arrow: import("./types").PopconfirmArrow;
-    readonly defaultOpen: boolean;
     readonly autoAdjustOverflow: boolean;
-    readonly destroyOnHidden: boolean;
     readonly trigger: import("..").FloatingTriggerProp;
+    readonly defaultOpen: boolean;
+    readonly destroyOnHidden: boolean;
     readonly mouseEnterDelay: number;
     readonly mouseLeaveDelay: number;
     readonly destroyTooltipOnHide: boolean;

@@ -1,4 +1,20 @@
 import { toValue } from "vue";
+function getNextEnabledKey(entries, currentKey, key, loop = true) {
+  if (!entries.length)
+    return void 0;
+  if (key === "Home")
+    return entries[0].key;
+  if (key === "End")
+    return entries[entries.length - 1].key;
+  const forward = key === "ArrowRight" || key === "ArrowDown";
+  const index = entries.findIndex((item) => item.key === currentKey);
+  if (index < 0)
+    return forward ? entries[0].key : entries[entries.length - 1].key;
+  const next = index + (forward ? 1 : -1);
+  if (next >= 0 && next < entries.length)
+    return entries[next].key;
+  return loop ? entries[(next + entries.length) % entries.length].key : void 0;
+}
 function useRovingFocus(options) {
   const collection = () => toValue(options.collection);
   const orientation = () => toValue(options.orientation) ?? "both";
@@ -12,21 +28,9 @@ function useRovingFocus(options) {
     return key.startsWith("Arrow");
   };
   const getNextKey = (currentKey, key) => {
-    const entries = collection().getEnabledItems();
-    if (!entries.length || key !== "Home" && key !== "End" && !isDirection(key))
+    if (key !== "Home" && key !== "End" && !isDirection(key))
       return void 0;
-    if (key === "Home")
-      return entries[0].key;
-    if (key === "End")
-      return entries[entries.length - 1].key;
-    const forward = key === "ArrowRight" || key === "ArrowDown";
-    const index = entries.findIndex((item) => item.key === currentKey);
-    if (index < 0)
-      return forward ? entries[0].key : entries[entries.length - 1].key;
-    const next = index + (forward ? 1 : -1);
-    if (next >= 0 && next < entries.length)
-      return entries[next].key;
-    return loops() ? entries[(next + entries.length) % entries.length].key : void 0;
+    return getNextEnabledKey(collection().getEnabledItems(), currentKey, key, loops());
   };
   const focus = (key, preventScroll = true) => {
     const item = collection().getItem(key);
@@ -46,5 +50,6 @@ function useRovingFocus(options) {
   return { getNextKey, focus, onKeydown };
 }
 export {
+  getNextEnabledKey,
   useRovingFocus
 };

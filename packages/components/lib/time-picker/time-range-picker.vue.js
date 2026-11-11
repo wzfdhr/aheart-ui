@@ -5,14 +5,12 @@ const icon_vue_vue_type_script_setup_true_lang = require("../icon/icon.vue.js");
 const time = require("../picker-core/time.js");
 const timeColumnGeometry = require("../picker-core/time-column-geometry.js");
 const transaction = require("../picker-core/transaction.js");
-const useFloatingDismiss = require("../utils/use-floating-dismiss.js");
-const useFloatingPosition = require("../utils/use-floating-position.js");
+const useFloatingLayer = require("../utils/use-floating-layer.js");
 const useMotionPresence = require("../utils/use-motion-presence.js");
 const useControllableState = require("../utils/use-controllable-state.js");
 const controlContext = require("../form/control-context.js");
 const usePropPresence = require("../utils/use-prop-presence.js");
 const useStableId = require("../utils/use-stable-id.js");
-const useTeleportReady = require("../utils/use-teleport-ready.js");
 const types = require("./types.js");
 const context = require("../config/context.js");
 const _hoisted_1 = {
@@ -445,11 +443,22 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         updateActiveDraft(next);
     };
     const motion = useMotionPresence.useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
-    const teleportReady = useTeleportReady.useTeleportReady();
-    const popupContainer = vue.computed(() => props.getPopupContainer && triggerRef.value ? props.getPopupContainer(triggerRef.value) : typeof document === "undefined" ? false : document.body);
-    const shouldTeleport = vue.computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = vue.computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition.useFloatingPosition({ reference: triggerRef, floating: panelRef, open: () => motion.isMounted.value && motion.phase.value !== "hidden", placement: () => props.placement, strategy: "fixed", offset: 4, autoAdjustOverflow: () => props.autoAdjustOverflow });
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer.useFloatingLayer({
+      reference: triggerRef,
+      floating: panelRef,
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        open: () => motion.isMounted.value && motion.phase.value !== "hidden",
+        placement: () => props.placement,
+        strategy: "fixed",
+        offset: 4,
+        autoAdjustOverflow: () => props.autoAdjustOverflow
+      },
+      dismiss: {
+        open: mergedOpen,
+        onDismiss: () => requestOpen(false)
+      }
+    });
     const panelClass = vue.computed(() => {
       var _a;
       return [`aheart-floating--${floatingPosition.placement.value}`, `is-${motion.phase.value}`, { "has-presets": (_a = props.presets) == null ? void 0 : _a.length }];
@@ -479,7 +488,6 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
         void vue.nextTick(scrollSelectedOptionsIntoView);
       }
     }, { immediate: true });
-    useFloatingDismiss.useFloatingDismiss({ open: mergedOpen, trigger: triggerRef, floating: panelRef, onDismiss: () => requestOpen(false) });
     const activatePart = (part) => {
       activePart.value = part;
       activeColumn.value = "hour";
@@ -681,8 +689,8 @@ const _sfc_main = /* @__PURE__ */ vue.defineComponent({
           ])
         ], 544),
         (vue.openBlock(), vue.createBlock(vue.Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: vue.unref(teleportTo),
+          disabled: !vue.unref(shouldTeleport)
         }, [
           vue.unref(motion).isMounted.value ? vue.withDirectives((vue.openBlock(), vue.createElementBlock("div", {
             key: 0,

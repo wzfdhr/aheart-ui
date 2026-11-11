@@ -7,13 +7,11 @@ import { createPickerDate, pickerDayjsLocale } from "../picker-core/dayjs.js";
 import { normalizeMultipleValues } from "../picker-core/selection.js";
 import { createPickerTransaction } from "../picker-core/transaction.js";
 import { getPickerAvailableBlockSize, getPickerStableAvailableBlockSize } from "../picker-core/viewport.js";
-import { useFloatingDismiss } from "../utils/use-floating-dismiss.js";
-import { useFloatingPosition } from "../utils/use-floating-position.js";
+import { useFloatingLayer } from "../utils/use-floating-layer.js";
 import { useMotionPresence } from "../utils/use-motion-presence.js";
 import { useControllableState } from "../utils/use-controllable-state.js";
 import { usePropPresence } from "../utils/use-prop-presence.js";
 import { useStableId } from "../utils/use-stable-id.js";
-import { useTeleportReady } from "../utils/use-teleport-ready.js";
 import { datePickerProps, datePickerEmits } from "./types.js";
 import { useAheartConfig, zhCN, resolveConfigValue } from "../config/context.js";
 const _hoisted_1 = {
@@ -265,25 +263,23 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       return (_a2 = activeCell.value) == null ? void 0 : _a2.id;
     });
     const motion = useMotionPresence(mergedOpen, { destroyOnHidden: true, duration: 120 });
-    const teleportReady = useTeleportReady();
-    const popupContainer = computed(() => {
-      if (!triggerRef.value)
-        return false;
-      if (props.getPopupContainer && triggerRef.value)
-        return props.getPopupContainer(triggerRef.value);
-      return typeof document === "undefined" ? false : document.body;
-    });
-    const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false);
-    const teleportTo = computed(() => popupContainer.value === false ? "body" : popupContainer.value);
-    const floatingPosition = useFloatingPosition({
+    const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
       reference: triggerRef,
       floating: panelRef,
-      open: () => motion.isMounted.value && motion.phase.value !== "hidden",
-      placement: () => props.placement,
-      strategy: "fixed",
-      offset: 4,
-      autoAdjustOverflow: () => props.autoAdjustOverflow,
-      autoUpdateOptions: { ancestorScroll: false, elementResize: typeof globalThis.ResizeObserver !== "undefined", layoutShift: true, animationFrame: false }
+      getPopupContainer: () => props.getPopupContainer,
+      position: {
+        open: () => motion.isMounted.value && motion.phase.value !== "hidden",
+        placement: () => props.placement,
+        strategy: "fixed",
+        offset: 4,
+        autoAdjustOverflow: () => props.autoAdjustOverflow,
+        autoUpdateOptions: { ancestorScroll: false, elementResize: typeof globalThis.ResizeObserver !== "undefined", layoutShift: true, animationFrame: false }
+      },
+      dismiss: {
+        open: mergedOpen,
+        onDismiss: (reason) => requestOpen(false, reason === "escape"),
+        restoreFocus: false
+      }
     });
     const viewportAvailableBlockSize = ref();
     const updateViewportAvailableBlockSize = () => {
@@ -413,13 +409,6 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         }
       }
     }, { immediate: true });
-    useFloatingDismiss({
-      open: mergedOpen,
-      trigger: triggerRef,
-      floating: panelRef,
-      onDismiss: (reason) => requestOpen(false, reason === "escape"),
-      restoreFocus: false
-    });
     const commitValue = (value, close = true) => {
       const normalized = Array.isArray(value) ? normalizeMultipleValues(value) : value;
       pickerTransaction.apply(normalized);
@@ -833,8 +822,8 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           ])
         ], 544),
         (openBlock(), createBlock(Teleport, {
-          to: teleportTo.value,
-          disabled: !shouldTeleport.value
+          to: unref(teleportTo),
+          disabled: !unref(shouldTeleport)
         }, [
           unref(motion).isMounted.value ? withDirectives((openBlock(), createElementBlock("div", {
             key: 0,

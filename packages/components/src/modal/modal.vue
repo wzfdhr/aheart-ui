@@ -78,7 +78,7 @@ import AButton from '../button'
 import { useAheartConfig } from '../config'
 import ASkeleton from '../skeleton'
 import { useMotionPresence } from '../utils/use-motion-presence'
-import { useTeleportReady } from '../utils/use-teleport-ready'
+import { useDialogLayer } from '../utils/use-dialog-layer'
 import {
   modalEmits,
   modalProps,
@@ -93,16 +93,6 @@ import {
   type ModalSemanticPart,
   type ModalWidth
 } from './types'
-import {
-  getRecentPointerTarget,
-  isTopmost,
-  lockBodyScroll,
-  prepareOverlayDocument,
-  refreshOverlayStack,
-  registerOverlay,
-  unlockBodyScroll,
-  unregisterOverlay
-} from '../utils/overlay-controller'
 
 defineOptions({
   name: 'AModal'
@@ -131,52 +121,10 @@ const FOCUSABLE_SELECTOR = [
 ].join(',')
 const modalWidthBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'] as const
 
-const triggerElement = ref<HTMLElement | null>(null)
 const dialogRef = ref<HTMLElement | null>(null)
-const leaveFocusElement = ref<HTMLElement | null>(null)
 const modalStackId = Symbol('aheart-modal')
 const titleId = `aheart-modal-title-${instance?.uid ?? 'dialog'}`
 let pendingCloseCompletion = false
-let overlayRegistered = false
-let overlayDocument: Document | null = null
-const effectiveZIndex = ref(props.zIndex)
-
-const getModalDocument = () => {
-  const target = teleportTarget.value
-  return dialogRef.value?.ownerDocument ??
-    triggerElement.value?.ownerDocument ??
-    (typeof target === 'object' && target ? target.ownerDocument : document)
-}
-const isModalTopmost = () => isTopmost(modalStackId, overlayDocument ?? getModalDocument())
-
-const registerModalOverlay = () => {
-  if (overlayRegistered) return
-  const ownerDocument = getModalDocument()
-  registerOverlay({
-    id: modalStackId,
-    document: ownerDocument,
-    getTrigger: () => triggerElement.value,
-    getContent: () => dialogRef.value,
-    escapeEnabled: () => props.open && props.keyboard,
-    getBaseZIndex: () => props.zIndex,
-    onZIndexChange: (zIndex) => {
-      effectiveZIndex.value = zIndex
-    },
-    onEscape: close
-  })
-  lockBodyScroll(ownerDocument)
-  overlayDocument = ownerDocument
-  overlayRegistered = true
-}
-
-const unregisterModalOverlay = () => {
-  if (!overlayRegistered) return
-  const ownerDocument = overlayDocument ?? getModalDocument()
-  unregisterOverlay(modalStackId, ownerDocument)
-  unlockBodyScroll(ownerDocument)
-  overlayDocument = null
-  overlayRegistered = false
-}
 
 const AModalRenderNode = defineComponent({
   name: 'AModalRenderNode',
@@ -224,17 +172,15 @@ const hasRenderable = (value: unknown) => {
 const normalizeSize = (size: number | string) => (typeof size === 'number' ? `${size}px` : size)
 const isResponsiveWidth = (value: ModalWidth): value is ModalResponsiveWidth =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
-const getDefaultContainer = () => (typeof document === 'undefined' ? false : document.body)
-const resolvedContainer = computed(() => props.getContainer ?? getDefaultContainer())
-const teleportTarget = computed(() => {
-  const container = resolvedContainer.value
-
-  if (typeof window === 'undefined' && typeof container === 'function') return false
-  return typeof container === 'function' ? container() : container
+const layer = useDialogLayer({
+  id: modalStackId,
+  content: dialogRef,
+  getContainer: () => props.getContainer,
+  getZIndex: () => props.zIndex,
+  escapeEnabled: () => props.open && props.keyboard,
+  onEscape: () => close()
 })
-const teleportReady = useTeleportReady()
-const shouldTeleport = computed(() => teleportReady.value && teleportTarget.value !== false)
-const teleportTo = computed(() => (teleportTarget.value === false ? 'body' : teleportTarget.value))
+const { effectiveZIndex, shouldTeleport, teleportTo } = layer
 const fixedDialogWidth = computed(() => {
   const width = props.width
 
@@ -399,43 +345,23 @@ watch(
   (open, previousOpen) => {
     if (open && !previousOpen) {
       pendingCloseCompletion = false
-      leaveFocusElement.value = null
-      if (motion.phase.value === 'hidden') captureTriggerElement()
-      registerModalOverlay()
+      if (motion.phase.value === 'hidden') layer.captureTrigger()
+      layer.register()
       emit('afterOpenChange', true)
     }
 
     if (!open) {
       pendingCloseCompletion = true
-      const ownerDocument = overlayDocument ?? getModalDocument()
-      const activeElement = ownerDocument.activeElement
-      const HTMLElementConstructor = ownerDocument.defaultView?.HTMLElement
-      leaveFocusElement.value =
-        HTMLElementConstructor && activeElement instanceof HTMLElementConstructor && dialogRef.value?.contains(activeElement)
-          ? activeElement as HTMLElement
-          : null
-      void nextTick(() => {
-        if (motion.phase.value === 'leave' && leaveFocusElement.value && ownerDocument.contains(leaveFocusElement.value)) {
-          leaveFocusElement.value.focus()
-        }
-      })
+      layer.captureFocusBeforeClose(() => motion.phase.value === 'leave')
     }
   },
   { flush: 'sync' }
 )
 
 watch(
-  () => props.zIndex,
-  (zIndex) => {
-    if (overlayRegistered) refreshOverlayStack(overlayDocument ?? getModalDocument())
-    else effectiveZIndex.value = zIndex
-  }
-)
-
-watch(
   () => props.open,
   (open) => {
-    if (open && isModalTopmost()) focusDialog()
+    if (open && layer.isTopmost()) focusDialog()
   },
   { flush: 'post' }
 )
@@ -443,19 +369,20 @@ watch(
 watch(
   () => motion.phase.value,
   (phase) => {
-    if (phase === 'entered' && props.open && isModalTopmost()) {
+    if (phase === 'entered' && props.open && layer.isTopmost()) {
       void nextTick(() => focusDialog())
       return
     }
 
     if (phase === 'hidden' && !props.open && pendingCloseCompletion) {
-      unregisterModalOverlay()
+      layer.unregister()
       pendingCloseCompletion = false
       emit('afterOpenChange', false)
       emit('afterClose')
       closableConfig.value?.afterClose?.()
-      void nextTick(() => restoreTriggerFocus())
-      leaveFocusElement.value = null
+      void nextTick(() => {
+        if (!props.open) layer.restoreTriggerFocus(shouldFocusTriggerAfterClose.value)
+      })
     }
   }
 )
@@ -482,27 +409,6 @@ const semanticStyles = (...parts: ModalSemanticPart[]): CSSProperties | undefine
   )
 
   return Object.keys(merged).length > 0 ? merged : undefined
-}
-
-const captureTriggerElement = () => {
-  const ownerDocument = getModalDocument()
-  const HTMLElementConstructor = ownerDocument.defaultView?.HTMLElement
-  const pointerTarget = getRecentPointerTarget(ownerDocument)
-  triggerElement.value = HTMLElementConstructor && pointerTarget instanceof HTMLElementConstructor
-    ? pointerTarget
-    : HTMLElementConstructor && ownerDocument.activeElement instanceof HTMLElementConstructor
-      ? ownerDocument.activeElement as HTMLElement
-      : null
-}
-
-const restoreTriggerFocus = () => {
-  const target = triggerElement.value
-
-  if (!shouldFocusTriggerAfterClose.value || !target || !target.ownerDocument.contains(target)) {
-    return
-  }
-
-  target.focus()
 }
 
 const isEditableHost = (element: HTMLElement) => {
@@ -575,21 +481,18 @@ const focusDialog = () => {
 }
 
 onBeforeMount(() => {
-  if (props.open) registerModalOverlay()
+  if (props.open) layer.register()
 })
 
 onMounted(() => {
-  prepareOverlayDocument(getModalDocument())
+  layer.prepare()
 
-  if (!props.open || !isModalTopmost()) {
+  if (!props.open || !layer.isTopmost()) {
     return
   }
 
-  captureTriggerElement()
+  layer.captureTrigger()
   focusDialog()
-})
-onBeforeUnmount(() => {
-  unregisterModalOverlay()
 })
 
 let pendingTabCheck: number | undefined
@@ -603,7 +506,7 @@ watch(() => props.open, open => { if (!open) clearPendingTabCheck() }, { flush: 
 onBeforeUnmount(clearPendingTabCheck)
 
 const handleTrapTab = (event: KeyboardEvent) => {
-  if (!props.open || !isModalTopmost() || !shouldTrapFocus.value || event.key !== 'Tab') return
+  if (!props.open || !layer.isTopmost() || !shouldTrapFocus.value || event.key !== 'Tab') return
   clearPendingTabCheck()
   if (event.defaultPrevented) return
   const dialog = dialogRef.value
@@ -639,7 +542,7 @@ const handleTrapTab = (event: KeyboardEvent) => {
   pendingTabCheck = view.setTimeout(() => {
     pendingTabCheck = undefined
     pendingTabWindow = null
-    if (!props.open || !shouldTrapFocus.value || !isModalTopmost() || dialogRef.value !== dialog || !dialog.isConnected || view.closed) return
+    if (!props.open || !shouldTrapFocus.value || !layer.isTopmost() || dialogRef.value !== dialog || !dialog.isConnected || view.closed) return
     if (!dialog.contains(dialog.ownerDocument.activeElement)) recover()
   }, 0)
 }
@@ -682,13 +585,13 @@ const handleKeydown = (event: KeyboardEvent) => {
 
   // The document capture listener owns normal browser events. Keep a local
   // fallback for detached/custom-document hosts where the event never reaches it.
-  const ownerDocument = overlayDocument ?? getModalDocument()
+  const ownerDocument = layer.getActiveDocument()
   if (
     !event.composedPath().includes(ownerDocument) &&
     props.open &&
     props.keyboard &&
     event.key === 'Escape' &&
-    isModalTopmost()
+    layer.isTopmost()
   ) {
     event.preventDefault()
     event.stopPropagation()

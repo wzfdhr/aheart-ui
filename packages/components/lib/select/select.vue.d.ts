@@ -200,10 +200,10 @@ declare const _default: __VLS_WithTemplateSlots<import("vue").DefineComponent<im
     readonly placement: "left" | "right" | "bottom" | "top" | "topLeft" | "topRight" | "bottomLeft" | "bottomRight" | "leftTop" | "leftBottom" | "rightTop" | "rightBottom";
     readonly loading: boolean;
     readonly bordered: boolean;
+    readonly autoAdjustOverflow: boolean;
     readonly showSearch: boolean;
     readonly defaultOpen: boolean;
     readonly allowClear: import("./types").SelectAllowClear;
-    readonly autoAdjustOverflow: boolean;
     readonly virtual: import("./types").SelectVirtual;
     readonly popupMatchSelectWidth: number | boolean;
     readonly optionFilterProp: string;

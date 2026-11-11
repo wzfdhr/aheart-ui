@@ -1,9 +1,10 @@
 import { watchEffect, toValue, onScopeDispose, nextTick } from "vue";
-import { registerOverlay } from "./overlay-controller.js";
+import { registerOverlay, canRestoreOverlayFocus } from "./overlay-controller.js";
 function useFloatingDismiss(options) {
   const overlayId = Symbol("aheart-floating-overlay");
   let unregister;
   let restoreZIndex;
+  let disposed = false;
   const cleanup = () => {
     unregister == null ? void 0 : unregister();
     unregister = void 0;
@@ -64,25 +65,29 @@ function useFloatingDismiss(options) {
           options.onDismiss("outside", event);
       },
       onEscape: (event) => {
+        const previousFocus = ownerDocument.activeElement;
         options.onDismiss("escape", event);
-        if (toValue(options.restoreFocus) !== false) {
-          void nextTick(() => {
-            var _a2;
-            if (!toValue(options.open)) {
+        if (toValue(options.restoreFocus) === false)
+          return;
+        const isClosed = () => !disposed && !toValue(options.open);
+        void nextTick(() => {
+          var _a2;
+          if (!isClosed() || !canRestoreOverlayFocus(ownerDocument, previousFocus, floatingElement))
+            return;
+          focusTrigger();
+          (_a2 = ownerDocument.defaultView) == null ? void 0 : _a2.requestAnimationFrame(() => {
+            if (isClosed() && canRestoreOverlayFocus(ownerDocument, void 0, floatingElement))
               focusTrigger();
-              const ownerWindow = (_a2 = toValue(options.trigger)) == null ? void 0 : _a2.ownerDocument.defaultView;
-              ownerWindow == null ? void 0 : ownerWindow.requestAnimationFrame(() => {
-                if (!toValue(options.open))
-                  focusTrigger();
-              });
-            }
           });
-        }
+        });
       }
     });
     onCleanup(cleanup);
   });
-  onScopeDispose(cleanup);
+  onScopeDispose(() => {
+    disposed = true;
+    cleanup();
+  });
 }
 export {
   useFloatingDismiss

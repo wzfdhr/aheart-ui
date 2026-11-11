@@ -54,10 +54,8 @@
 import { computed, defineComponent, h, nextTick, onBeforeUnmount, ref, useSlots, watch, type VNodeChild } from 'vue'
 import { resolveConfigValue, useAheartConfig } from '../config'
 import AMenu, { type MenuClickInfo } from '../menu'
-import { useFloatingDismiss } from '../utils/use-floating-dismiss'
-import { useFloatingPosition } from '../utils/use-floating-position'
+import { useFloatingLayer } from '../utils/use-floating-layer'
 import { useMotionPresence } from '../utils/use-motion-presence'
-import { useTeleportReady } from '../utils/use-teleport-ready'
 import {
   dropdownEmits,
   dropdownProps,
@@ -103,27 +101,23 @@ const shouldDestroyOnHidden = computed(() => props.destroyOnHidden || props.dest
 const hasMenu = computed(() => Boolean(props.menu?.items?.length))
 const hasOverlayContent = computed(() => hasMenu.value || Boolean(slots.popup || props.popupRender || props.dropdownRender))
 const motion = useMotionPresence(mergedOpen, { destroyOnHidden: shouldDestroyOnHidden, duration: 120 })
-const teleportReady = useTeleportReady()
 const shouldRenderOverlay = computed(() => hasOverlayContent.value && motion.isMounted.value)
-const getDefaultPopupContainer = () => (typeof document === 'undefined' ? false : document.body)
-const popupContainer = computed(() => {
-  if (props.getPopupContainer && triggerRef.value) {
-    return props.getPopupContainer(triggerRef.value)
-  }
-
-  return getDefaultPopupContainer()
-})
-const shouldTeleport = computed(() => teleportReady.value && popupContainer.value !== false)
-const teleportTo = computed(() => (popupContainer.value === false ? 'body' : popupContainer.value))
-const floatingPosition = useFloatingPosition({
+const { shouldTeleport, teleportTo, floatingPosition } = useFloatingLayer({
   reference: triggerRef,
   floating: overlayRef,
-  arrow: arrowRef,
-  open: () => shouldRenderOverlay.value && motion.phase.value !== 'hidden',
-  placement: () => props.placement,
-  offset: 8,
-  autoAdjustOverflow: () => props.autoAdjustOverflow,
-  arrowSize: 8
+  getPopupContainer: () => props.getPopupContainer,
+  position: {
+    arrow: arrowRef,
+    open: () => shouldRenderOverlay.value && motion.phase.value !== 'hidden',
+    placement: () => props.placement,
+    offset: 8,
+    autoAdjustOverflow: () => props.autoAdjustOverflow,
+    arrowSize: 8
+  },
+  dismiss: {
+    open: mergedOpen,
+    onDismiss: () => setOpen(false, { source: 'trigger' })
+  }
 })
 
 const semanticInfo = computed<DropdownSemanticInfo>(() => ({
@@ -340,13 +334,6 @@ const handleMenuClick = (info: MenuClickInfo) => {
 
   setOpen(false, { source: 'menu', emitOpenChange: false })
 }
-
-useFloatingDismiss({
-  open: mergedOpen,
-  trigger: triggerRef,
-  floating: overlayRef,
-  onDismiss: () => setOpen(false, { source: 'trigger' })
-})
 
 onBeforeUnmount(clearHoverTimers)
 </script>
