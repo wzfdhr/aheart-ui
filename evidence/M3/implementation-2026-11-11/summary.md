@@ -39,3 +39,8 @@ Local、npm pack 已通过。PR、Merged、Main CI、Pages 和 UA 待完成。�
 - 扩展独立安装探针至 13 个构建。Draggable、DropZone、DragOverlay 及 Sortable 各自验证模块图和样式。用真实 Vite Resolver 验证 Workbench 自动引入 Sortable 样式。
 - 严格消费端增加 Chat、Agent、Workbench、Sortable 与 Resolver 的公开类型断言。PR 的 consumer-evidence artifact 同时保留候选 tarball，便于在独立应用中验收。
 - 提交前类型检查、生产文档构建、27 项定向脚本及 `git diff --check` 通过。严格消费端复验覆盖 Vue 3.5.38 和 3.5.44。AI/DND、首页和文档导航浏览器复验 65 项通过，7 项按原有条件跳过。
+
+## PR #44 视觉回归修复
+
+- [首轮 PR CI](https://github.com/Labradorca/aheart-ui/actions/runs/42971165437) 的全量浏览器任务通过 793 项，Splitter 桌面截图一项失败。M2 与 M3 在同一 Chromium 的局部对照中，面板数值、分隔线位置和截图尺寸一致。变化来自叠在长截图顶部的 VitePress 固定导航。
+- Splitter 截图在捕获时隐藏文档固定导航，比较阈值保持原值。按实际浏览器捕获重采 macOS 三张和 [Linux 三张](https://github.com/Labradorca/aheart-ui/actions/runs/42975622634) 基线。逐像素比对确认六张截图的差异均位于顶部 66 像素内，其余像素一致。

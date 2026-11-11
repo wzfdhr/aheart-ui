@@ -1,10 +1,18 @@
 import { expect, test, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import { execFileSync } from 'node:child_process'
+import { join } from 'node:path'
 import { qg4EvidenceCoverage } from '../docs/.vitepress/data/quality-evidence-policy.mjs'
 
 const a11yComponents = qg4EvidenceCoverage.a11y
 const components = qg4EvidenceCoverage.visual
+const hideDocsNavigation = join(__dirname, 'fixtures/visual-hide-docs-navigation.css')
+
+const surfaceScreenshotOptions = (component: string) => ({
+  animations: 'disabled' as const,
+  ...(component === 'splitter' ? { stylePath: hideDocsNavigation } : {}),
+  ...(component === 'ai-agent-workbench' ? { maxDiffPixels: 16 } : {})
+})
 
 const gotoComponent = async (page: Page, component: string) => {
   await page.goto(`/components/${component}`)
@@ -367,10 +375,7 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     for (const component of components) {
       await gotoComponent(page, component)
       const surface = await getComponentSurface(page, component)
-      await expect(surface).toHaveScreenshot(`${component}-desktop-1440x900.png`, {
-        animations: 'disabled',
-        ...(component === 'ai-agent-workbench' ? { maxDiffPixels: 16 } : {})
-      })
+      await expect(surface).toHaveScreenshot(`${component}-desktop-1440x900.png`, surfaceScreenshotOptions(component))
     }
   })
 
@@ -379,10 +384,7 @@ test.describe('QG4 accessibility and visual regression gates', () => {
     for (const component of components) {
       await gotoComponent(page, component)
       const surface = await getComponentSurface(page, component)
-      await expect(surface).toHaveScreenshot(`${component}-mobile-390x844.png`, {
-        animations: 'disabled',
-        ...(component === 'ai-agent-workbench' ? { maxDiffPixels: 16 } : {})
-      })
+      await expect(surface).toHaveScreenshot(`${component}-mobile-390x844.png`, surfaceScreenshotOptions(component))
     }
   })
 
