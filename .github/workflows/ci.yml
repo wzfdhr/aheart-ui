@@ -180,7 +180,7 @@ jobs:
           pnpm --dir packages/components pack --json --pack-destination "$pack_dir" > "$pack_dir/pack.json"
           pnpm --dir packages/dnd pack --json --pack-destination "$pack_dir" > "$pack_dir/dnd-pack.json"
           pnpm --dir packages/ai pack --json --pack-destination "$pack_dir" > "$pack_dir/ai-pack.json"
-          components_tarball="$pack_dir/aheart-ui-1.2.0.tgz"
+          components_tarball="$(node -p 'require(process.argv[1]).filename' "$pack_dir/pack.json")"
           dnd_tarball="$(node -p 'require(process.argv[1]).filename' "$pack_dir/dnd-pack.json")"
           ai_tarball="$(node -p 'require(process.argv[1]).filename' "$pack_dir/ai-pack.json")"
           node scripts/root-entry-consumer.mjs --tarball "$components_tarball" --out "$root_out"
@@ -194,19 +194,28 @@ jobs:
         run: pnpm check:m3-consumer
       - name: M3 packed consumer and Workbench pilot
         run: |
+          core_version=$(node -p 'require("./packages/components/package.json").version')
+          ai_version=$(node -p 'require("./packages/ai/package.json").version')
+          dnd_version=$(node -p 'require("./packages/dnd/package.json").version')
           node pilots/run-baselines.mjs --entry-mode subpath --only clean-consumer,ai-review-gate \
-            --core-tarball test-results/release-tarballs/aheart-ui-1.2.0.tgz \
-            --ai-tarball test-results/release-tarballs/aheart-ui-ai-1.1.0.tgz \
-            --dnd-tarball test-results/release-tarballs/aheart-ui-dnd-1.1.0.tgz \
+            --core-tarball "test-results/release-tarballs/aheart-ui-$core_version.tgz" \
+            --ai-tarball "test-results/release-tarballs/aheart-ui-ai-$ai_version.tgz" \
+            --dnd-tarball "test-results/release-tarballs/aheart-ui-dnd-$dnd_version.tgz" \
             --out test-results/m3-pilots
+          node pilots/run-baselines.mjs --entry-mode legacy --only ai-review-gate \
+            --core-tarball "test-results/release-tarballs/aheart-ui-$core_version.tgz" \
+            --ai-tarball "test-results/release-tarballs/aheart-ui-ai-$ai_version.tgz" \
+            --dnd-tarball "test-results/release-tarballs/aheart-ui-dnd-$dnd_version.tgz" \
+            --out test-results/m3-legacy-pilot
       - name: M1 public entries, CSS and module graph
         run: pnpm check:m1-consumer
       - name: M1 split and compatibility pilot paths
         run: |
           mkdir -p test-results/m1-pilots
-          node pilots/run-baselines.mjs --core-tarball test-results/release-tarballs/aheart-ui-1.2.0.tgz --entry-mode subpath --out test-results/m1-pilots/chromium
-          node pilots/run-baselines.mjs --core-tarball test-results/release-tarballs/aheart-ui-1.2.0.tgz --entry-mode subpath --only clean-consumer --browser firefox --out test-results/m1-pilots/firefox
-          node pilots/run-baselines.mjs --core-tarball test-results/release-tarballs/aheart-ui-1.2.0.tgz --entry-mode subpath --only clean-consumer --browser webkit --out test-results/m1-pilots/webkit
+          core_version=$(node -p 'require("./packages/components/package.json").version')
+          node pilots/run-baselines.mjs --core-tarball "test-results/release-tarballs/aheart-ui-$core_version.tgz" --entry-mode subpath --only clean-consumer,muxu-todo --out test-results/m1-pilots/chromium
+          node pilots/run-baselines.mjs --core-tarball "test-results/release-tarballs/aheart-ui-$core_version.tgz" --entry-mode subpath --only clean-consumer --browser firefox --out test-results/m1-pilots/firefox
+          node pilots/run-baselines.mjs --core-tarball "test-results/release-tarballs/aheart-ui-$core_version.tgz" --entry-mode subpath --only clean-consumer --browser webkit --out test-results/m1-pilots/webkit
       - name: Upload Consumer Evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -220,6 +229,8 @@ jobs:
             test-results/m3-pilots/results.json
             test-results/m3-pilots/*/results.json
             test-results/m3-pilots/*/module-graph.json
+            test-results/m3-legacy-pilot/results.json
+            test-results/m3-legacy-pilot/*/results.json
             test-results/m1-pilots/
             test-results/d9-consumers/*-results.json
             test-results/d9-consumers/strict/results.json

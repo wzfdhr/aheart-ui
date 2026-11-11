@@ -2,6 +2,16 @@
 
 Aheart UI 的重要变更统一记录在本文件中。
 
+## [1.3.0-preview.1]（候选）
+
+配套预览版本为 `@aheart-ui/dnd@1.1.0-preview.1` 和 `@aheart-ui/ai@1.1.0-preview.1`。
+
+- 基础包提供 Button、Modal、Select 和 Combobox 子入口，以及主题、组件和全量 CSS 入口。
+- 新增 Combobox。Popover、Tooltip、Dropdown、Modal、Drawer、Select 和 Picker 系列复用浮层定位与交互逻辑。
+- AI 提供 Chat、Agent、Workbench 子入口和独立 CSS。DND 提供 Sortable、Draggable、DropZone 和 DragOverlay 子入口与样式。
+- `aheart-ui/resolver` 支持 Vite 自动导入已提供子入口的组件。迁移示例覆盖手动导入、Resolver 和旧入口回退。
+- 修复 Card 在 `skipLibCheck: false` 下的公开类型错误和默认按钮悬停文字对比度。根插件与旧全量 CSS 路径继续支持 v1 消费端。
+
 ## [1.1.0] - 2026-09-29
 
 ### 新增与改进

@@ -1,11 +1,11 @@
 # 1.2 按需候选
 
-本页描述 **尚未发布到 npm 的 1.2 候选**。当前公开版本的安装方式继续见[安装](./installation)。候选由本地 tarball 安装，不能假定 registry 已存在 `aheart-ui@1.2.0`。
+本页描述 **`aheart-ui@1.3.0-preview.1` 预览候选**，示例以本地 tarball 安装。当前稳定版的安装方式见[安装](./installation)。
 
 ## 推荐：组件子入口与显式样式
 
 ```sh
-npm install ./aheart-ui-1.2.0.tgz vue@3.5.44
+npm install ./aheart-ui-1.3.0-preview.1.tgz vue@3.5.44
 ```
 
 应用入口引入一次主题，并仅引入使用到的组件样式：

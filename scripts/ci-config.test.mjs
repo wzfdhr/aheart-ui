@@ -145,7 +145,8 @@ test('splits CI into observable unit, typecheck, build, docs, consumer and brows
   assert.match(workflowSource, /--components-tarball/)
   assert.match(workflowSource, /--dnd-tarball/)
   assert.match(workflowSource, /--ai-tarball/)
-  assert.match(workflowSource, /aheart-ui-1\.2\.0\.tgz/)
+  assert.match(workflowSource, /components_tarball="\$\(node -p 'require\(process\.argv\[1\]\)\.filename' "\$pack_dir\/pack\.json"\)"/)
+  assert.match(workflowSource, /--core-tarball "test-results\/release-tarballs\/aheart-ui-\$core_version\.tgz"/)
   assert.doesNotMatch(workflowSource, /  verify:\n/)
 })
 

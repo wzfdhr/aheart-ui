@@ -58,10 +58,10 @@ importers:
   packages/ai:
     dependencies:
       '@aheart-ui/dnd':
-        specifier: workspace:^1.1.0
+        specifier: workspace:1.1.0-preview.1
         version: link:../dnd
       aheart-ui:
-        specifier: workspace:^1.1.0
+        specifier: 'workspace:^1.1.0 || 1.3.0-preview.1'
         version: link:../components
     devDependencies:
       '@vitejs/plugin-vue':

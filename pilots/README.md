@@ -67,13 +67,28 @@ node pilots/check-rollback.mjs --project .pilot-runs/aheart-m0-pilots-XXXXXX/mux
 
 磁盘位置：默认将独立安装副本和证据存入 worktree 下的 `.pilot-runs/`（Git 忽略），跟随仓库所在磁盘，不再使用系统 `/tmp`。可用 `--work-dir <目录>` 指定其他盘上的安装副本目录。
 
-## M1 1.2 候选
+## 本地按需与兼容试点
 
-`--entry-mode subpath` 只改写隔离副本中的 clean-consumer 导入及 CSS，原业务流程保持一致；AI 工作台和 Todo 保留旧入口验证兼容。`--browser chromium|firefox|webkit` 控制真实浏览器，手机视口在 Chromium/WebKit 开启触屏移动上下文。默认仍为 legacy + chromium，便于复测公开 1.1.0 历史基线。
+`--entry-mode subpath` 在隔离副本中切换 clean-consumer 的导入及 CSS。Todo 继续验证旧入口。AI 工作台需同时安装与核心包匹配的 AI 和 DND，使用 `--entry-mode legacy` 验证旧入口。`--browser chromium|firefox|webkit` 控制真实浏览器，手机视口在 Chromium/WebKit 开启触屏移动上下文。默认仍为 legacy + chromium，便于复测公开 1.1.0 历史基线。
 
 ```sh
-node pilots/run-baselines.mjs --core-tarball test-results/release-tarballs/aheart-ui-1.2.0.tgz --entry-mode subpath --out .pilot-runs/m1-chromium
-node pilots/run-baselines.mjs --core-tarball test-results/release-tarballs/aheart-ui-1.2.0.tgz --entry-mode subpath --only clean-consumer --browser webkit --out .pilot-runs/m1-webkit
+node pilots/run-baselines.mjs --core-tarball test-results/release-tarballs/aheart-ui-1.3.0-preview.1.tgz --entry-mode subpath --only clean-consumer,muxu-todo --out .pilot-runs/m1-chromium
+node pilots/run-baselines.mjs --core-tarball test-results/release-tarballs/aheart-ui-1.3.0-preview.1.tgz --entry-mode subpath --only clean-consumer --browser webkit --out .pilot-runs/m1-webkit
 ```
 
 产物含消费后的源码、锁文件、包来源、模块图、SSR 与交互/axe 结果。不以自动化运行代替阶段负责人验收。
+
+## 公开 Preview 试点
+
+从发布记录取得三个确切版本，并将它们分别设为下方的 `AHEART_PREVIEW_CORE`、`AHEART_PREVIEW_AI` 和 `AHEART_PREVIEW_DND`。该命令用于版本已在 npm 可读取之后的试点。Runner 用公开 registry 重新生成锁文件，校验版本、registry URL 和完整性字段，并在结果中记录实际安装的包。
+
+```sh
+node pilots/run-baselines.mjs \
+  --core-version "$AHEART_PREVIEW_CORE" \
+  --ai-version "$AHEART_PREVIEW_AI" \
+  --dnd-version "$AHEART_PREVIEW_DND" \
+  --entry-mode subpath --only clean-consumer,ai-review-gate \
+  --out .pilot-runs/registry-preview
+```
+
+三个版本都应使用发布记录中的完整版本号。`preview` 和 `latest` 标签会随发布推进。用本地 tarball 演练时，使用 `--core-tarball`、`--ai-tarball` 和 `--dnd-tarball`。同一轮使用一种包来源。

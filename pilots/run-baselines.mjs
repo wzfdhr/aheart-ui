@@ -17,16 +17,38 @@ assert.ok(['chromium', 'firefox', 'webkit'].includes(browserEngine), '--browser 
 const strictTypesPolicy = arg('--strict-types') || 'pass'
 assert.ok(['pass', 'known-card-error'].includes(strictTypesPolicy), '--strict-types must be pass or known-card-error')
 const candidatePackages = new Map()
-for (const [option, name] of [['--core-tarball', 'aheart-ui'], ['--ai-tarball', '@aheart-ui/ai'], ['--dnd-tarball', '@aheart-ui/dnd']]) {
-  const filename = arg(option)
-  if (!filename) continue
-  const packagePath = await realpath(filename)
-  const manifest = JSON.parse((await run('tar', ['-xOf', packagePath, 'package/package.json'])).stdout)
-  assert.equal(manifest.name, name, `${option} must contain ${name}`)
-  candidatePackages.set(name, { path: packagePath, version: manifest.version, sha256: createHash('sha256').update(await readFile(packagePath)).digest('hex') })
+const registryVersions = new Map()
+for (const [short, name] of [['core', 'aheart-ui'], ['ai', '@aheart-ui/ai'], ['dnd', '@aheart-ui/dnd']]) {
+  const tarballOption = `--${short}-tarball`
+  if (process.argv.includes(tarballOption)) {
+    const filename = arg(tarballOption)
+    assert.ok(filename && !filename.startsWith('--'), `${tarballOption} requires a path`)
+    const packagePath = await realpath(filename)
+    const manifest = JSON.parse((await run('tar', ['-xOf', packagePath, 'package/package.json'])).stdout)
+    assert.equal(manifest.name, name, `${tarballOption} must contain ${name}`)
+    candidatePackages.set(name, { path: packagePath, version: manifest.version, sha256: createHash('sha256').update(await readFile(packagePath)).digest('hex') })
+  }
+  const versionOption = `--${short}-version`
+  if (process.argv.includes(versionOption)) {
+    const version = arg(versionOption)
+    assert.match(version ?? '', /^\d+\.\d+\.\d+(?:-[\da-zA-Z-]+(?:\.[\da-zA-Z-]+)*)?$/, `${versionOption} requires an exact npm version`)
+    registryVersions.set(name, version)
+  }
 }
+assert.ok(!candidatePackages.size || !registryVersions.size, 'Choose tarballs or exact registry versions for this run')
 const candidate = candidatePackages.get('aheart-ui')
-const splitWorkbench = entryMode === 'subpath' && candidatePackages.has('@aheart-ui/ai') && candidatePackages.has('@aheart-ui/dnd')
+const selectedPackages = new Map([
+  ...[...candidatePackages].map(([name, { path: tarballPath, version }]) => [name, { specifier: `file:${tarballPath}`, version }]),
+  ...[...registryVersions].map(([name, version]) => [name, { specifier: version, version }])
+])
+const splitWorkbench = entryMode === 'subpath' && selectedPackages.has('@aheart-ui/ai') && selectedPackages.has('@aheart-ui/dnd')
+const available = ['clean-consumer', 'ai-review-gate', 'muxu-todo']
+const names = arg('--only') ? arg('--only').split(',') : available
+assert.ok(names.length > 0 && names.every(name => available.includes(name)), 'Unknown pilot')
+if (entryMode === 'subpath' && registryVersions.size) {
+  assert.ok(registryVersions.has('aheart-ui'), 'Registry subpath trials require --core-version')
+  if (names.includes('ai-review-gate')) assert.ok(splitWorkbench, 'Registry Workbench subpath trials require --ai-version and --dnd-version')
+}
 const runRoot = path.resolve(arg('--work-dir') || path.join(root, '.pilot-runs'))
 await mkdir(runRoot, { recursive: true })
 const out = path.resolve(arg('--out') || path.join(runRoot, `aheart-pilot-evidence-${Date.now()}`))
@@ -36,12 +58,10 @@ const tooling = createRequire(path.join(root, 'pilots/tooling/package.json'))
 const browserTypes = tooling('@playwright/test')
 const { expect } = browserTypes
 const { default: AxeBuilder } = tooling('@axe-core/playwright')
-const available = ['clean-consumer', 'ai-review-gate', 'muxu-todo']
-const names = arg('--only') ? arg('--only').split(',') : available
-assert.ok(names.length > 0 && names.every(name => available.includes(name)), 'Unknown pilot')
 const summary = { status: 'failed', generatedAt: new Date().toISOString(), sourceSha: (await run('git', ['rev-parse', 'HEAD'], { cwd: root })).stdout.trim(), node: process.version, workspace, evidence: out, origin: 'Newly created validation applications; not pre-existing business adoption', pilots: [], userAcceptance: 'not-run', electron: 'not-run (desktop browser baseline only)' }
 summary.packageSource = candidate ? { kind: 'local-core-tarball', ...candidate } : { kind: 'public-registry' }
 if (candidatePackages.size > 1 || (candidatePackages.size && !candidate)) summary.candidatePackages = Object.fromEntries(candidatePackages)
+if (registryVersions.size) summary.registryVersions = Object.fromEntries(registryVersions)
 summary.strictTypesPolicy = strictTypesPolicy
 summary.entryMode = entryMode
 summary.browserEngine = browserEngine
@@ -103,27 +123,36 @@ try {
         for (const file of ['app.js', 'main.js', 'types.ts']) await cp(path.join(project, file), path.join(directory, 'consumed-source', file))
       }
       const manifest = JSON.parse(await readFile(path.join(project, 'package.json'), 'utf8'))
-      const overrides = [...candidatePackages].filter(([pkg]) => Object.hasOwn(manifest.dependencies, pkg))
+      const overrides = [...selectedPackages].filter(([pkg]) => Object.hasOwn(manifest.dependencies, pkg))
       if (overrides.length > 0) {
         const dependencies = { ...manifest.dependencies }
-        for (const [pkg, tarball] of overrides) {
-          manifest.dependencies[pkg] = tarball.version
-          dependencies[pkg] = `file:${tarball.path}`
+        for (const [pkg, { version, specifier }] of overrides) {
+          manifest.dependencies[pkg] = version
+          dependencies[pkg] = specifier
         }
         await writeFile(path.join(project, 'package.json'), JSON.stringify({ ...manifest, dependencies }, null, 2) + '\n')
-        await capture(record, 'candidate-lock', 'npm', ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org/'], project, directory)
+        await capture(record, registryVersions.size ? 'registry-lock' : 'candidate-lock', 'npm', ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org/'], project, directory)
       }
       await capture(record, 'install', 'npm', ['ci', '--include=dev', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org/'], project, directory)
+      const lock = await readFile(path.join(project, 'package-lock.json'))
+      const lockedPackages = JSON.parse(lock).packages
       for (const [pkg, expected] of Object.entries(manifest.dependencies)) {
         const installed = path.join(project, 'node_modules', pkg)
         assert.equal((await lstat(installed)).isSymbolicLink(), false)
         assert.equal(await realpath(installed), installed)
-        const actual = JSON.parse(await readFile(path.join(installed, 'package.json'), 'utf8')).version
+        const { name: installedName, version: actual } = JSON.parse(await readFile(path.join(installed, 'package.json'), 'utf8'))
+        assert.equal(installedName, pkg)
         assert.equal(actual, expected)
         record.packages[pkg] = { version: actual, symlink: false }
         if (candidatePackages.has(pkg)) record.packages[pkg].tarball = candidatePackages.get(pkg)
+        if (registryVersions.has(pkg)) {
+          const { resolved, integrity, version } = lockedPackages[`node_modules/${pkg}`]
+          assert.equal(version, expected, `${pkg} lockfile version`)
+          assert.equal(new URL(resolved).origin, 'https://registry.npmjs.org', `${pkg} lockfile source`)
+          assert.match(integrity, /^sha512-/, `${pkg} lockfile integrity`)
+          record.packages[pkg].registry = { resolved, integrity }
+        }
       }
-      const lock = await readFile(path.join(project, 'package-lock.json'))
       record.lockSha256 = createHash('sha256').update(lock).digest('hex')
       await writeFile(path.join(directory, 'package-lock.json'), lock)
       await capture(record, 'typecheck', 'npm', ['run', 'typecheck'], project, directory)

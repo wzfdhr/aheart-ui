@@ -10,7 +10,7 @@ pnpm release:pack --pack-destination test-results/release-tarballs
 将 tarball 放到独立 Vue 应用目录中安装，再选择下文的导入路径。
 
 ```sh
-npm install ./aheart-ui-1.2.0.tgz ./aheart-ui-ai-1.1.0.tgz ./aheart-ui-dnd-1.1.0.tgz vue@3.5.44
+npm install ./aheart-ui-1.3.0-preview.1.tgz ./aheart-ui-ai-1.1.0-preview.1.tgz ./aheart-ui-dnd-1.1.0-preview.1.tgz vue@3.5.44
 ```
 
 ## AI
